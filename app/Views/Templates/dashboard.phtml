@@ -107,16 +107,70 @@
                                     <span class="badge <?= $statusClass ?>"><?= $this->escape($project['statut']) ?></span>
                                 </div>
                             </div>
-                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
-                               class="btn btn-primary">
-                                <?= $lang['view_details'] ?>
-                            </a>
+                            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                <?php if (!empty($project['responsable_id']) && (int)$project['responsable_id'] === (int)$_SESSION['user_id']): ?>
+                                    <a href="<?= BASE_URL ?>index.php?controller=Project&action=edit&id=<?= $project['id_project'] ?>" class="btn btn-secondary">
+                                        <?= $lang['edit'] ?>
+                                    </a>
+                                <?php endif; ?>
+                                <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
+                                   class="btn btn-primary">
+                                    <?= $lang['view_details'] ?>
+                                </a>
+                            </div>
                         </div>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
                     <p style="color: var(--text-light); text-align: center; padding: 2rem;">
                         Aucun projet trouvé
+                    </p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Reservations -->
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                    <?= $lang['my_reservations'] ?>
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                        <?= !empty($reservations) ? count($reservations) : 0 ?>
+                    </span>
+                </h2>
+
+                <?php if (!empty($reservations)): ?>
+                    <div style="display: grid; gap: 1rem;">
+                        <?php foreach ($reservations as $res): ?>
+                            <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                                <div>
+                                    <h4 style="color: var(--primary-color); margin-bottom: 0.3rem;">
+                                        <?= $this->escape($res['equip_nom']) ?>
+                                    </h4>
+                                    <p style="color: var(--text-light); margin: 0;">
+                                        <?= date('d/m/Y H:i', strtotime($res['date_debut'])) ?> → <?= date('d/m/Y H:i', strtotime($res['date_fin'])) ?>
+                                    </p>
+                                    <?php if (!empty($res['motif'])): ?>
+                                        <p style="margin: 0.5rem 0 0;">
+                                            <strong>Motif:</strong> <?= $this->escape($res['motif']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <?php
+                                    $badge = 'badge-primary';
+                                    if ($res['statut_reservation'] === 'en cours') {
+                                        $badge = 'badge-warning';
+                                    } elseif ($res['statut_reservation'] === 'passée') {
+                                        $badge = 'badge-success';
+                                    }
+                                    ?>
+                                    <span class="badge <?= $badge ?>"><?= $this->escape($res['statut_reservation']) ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p style="color: var(--text-light); text-align: center; padding: 2rem;">
+                        Aucune réservation trouvée
                     </p>
                 <?php endif; ?>
             </div>

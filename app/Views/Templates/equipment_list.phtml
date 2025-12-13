@@ -1,13 +1,151 @@
 <!-- Equipment List -->
 <section class="equipment-section">
     <h1 class="section-title"><?= $lang['equipment_title'] ?></h1>
-    
-    <div style="background: var(--bg-light); padding: 3rem; border-radius: 8px; text-align: center;">
-        <p style="font-size: 1.2rem; color: var(--text-light); margin-bottom: 1rem;">
-            Cette section sera bientôt disponible avec la liste des équipements et ressources du laboratoire.
-        </p>
-        <p style="color: var(--text-color);">
-            Salles, serveurs, PC, robots, imprimantes et autres équipements disponibles.
-        </p>
+
+    <?php if (!empty($success)): ?>
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            <?= $this->escape($success) ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($error)): ?>
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            <?= $this->escape($error) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="filter-bar">
+        <form method="GET" action="<?= BASE_URL ?>index.php" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <input type="hidden" name="controller" value="Equipment">
+            <input type="hidden" name="action" value="index">
+
+            <div>
+                <label for="equip-q"><?= $lang['search'] ?>:</label>
+                <input id="equip-q" name="q" class="form-control" style="width: 240px; display: inline-block;" type="text" value="<?= $this->escape($filters['q'] ?? '') ?>" placeholder="Nom, référence...">
+            </div>
+
+            <div>
+                <label for="equip-category"><?= $lang['equip_category'] ?>:</label>
+                <select id="equip-category" name="category" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="all"><?= $lang['all'] ?></option>
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= $this->escape($cat) ?>" <?= (($filters['category'] ?? 'all') == $cat) ? 'selected' : '' ?>>
+                                <?= $this->escape($cat) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+
+            <div>
+                <label for="equip-status"><?= $lang['equip_status'] ?>:</label>
+                <select id="equip-status" name="status" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="all"><?= $lang['all'] ?></option>
+                    <option value="libre" <?= (($filters['status'] ?? 'all') === 'libre') ? 'selected' : '' ?>><?= $lang['status_free'] ?></option>
+                    <option value="réservé" <?= (($filters['status'] ?? 'all') === 'réservé') ? 'selected' : '' ?>><?= $lang['status_reserved'] ?></option>
+                    <option value="maintenance" <?= (($filters['status'] ?? 'all') === 'maintenance') ? 'selected' : '' ?>><?= $lang['status_maintenance'] ?></option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary"><?= $lang['filter'] ?></button>
+            </div>
+        </form>
+    </div>
+
+    <?php if (!empty($stats)): ?>
+        <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Statistiques d'utilisation</h2>
+            <div style="display: grid; gap: 0.75rem;">
+                <?php foreach ($stats as $s): ?>
+                    <div style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
+                        <div>
+                            <strong><?= $this->escape($s['nom']) ?></strong>
+                            <small style="color: var(--text-light);">(<?= $this->escape($s['categorie']) ?>)</small>
+                        </div>
+                        <div style="color: var(--text-light);">
+                            <?= (int)$s['nb_reservations'] ?> réservation(s)
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div class="card-grid">
+        <?php if (!empty($equipment)): ?>
+            <?php foreach ($equipment as $equip): ?>
+                <div class="card">
+                    <?php if (!empty($equip['image_url'])): ?>
+                        <img src="<?= BASE_URL . $this->escape($equip['image_url']) ?>" alt="<?= $this->escape($equip['nom']) ?>" onerror="this.src='<?= BASE_URL ?>assets/img/project-placeholder.jpg'">
+                    <?php else: ?>
+                        <img src="<?= BASE_URL ?>assets/img/project-placeholder.jpg" alt="<?= $this->escape($equip['nom']) ?>">
+                    <?php endif; ?>
+
+                    <div class="card-body">
+                        <h3 class="card-title"><?= $this->escape($equip['nom']) ?></h3>
+
+                        <div class="card-meta">
+                            <span><strong><?= $lang['equip_category'] ?>:</strong> <?= $this->escape($equip['categorie']) ?></span>
+                            <?php if (!empty($equip['reference'])): ?>
+                                <span><strong>Réf:</strong> <?= $this->escape($equip['reference']) ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-2">
+                            <?php
+                            $etat = $equip['etat_actuel'] ?? $equip['etat'] ?? 'libre';
+                            $badge = 'badge-success';
+                            $label = $lang['status_free'];
+                            if ($etat === 'réservé') {
+                                $badge = 'badge-warning';
+                                $label = $lang['status_reserved'];
+                            } elseif ($etat === 'maintenance') {
+                                $badge = 'badge-primary';
+                                $label = $lang['status_maintenance'];
+                            }
+                            ?>
+                            <span class="badge <?= $badge ?>"><?= $this->escape($label) ?></span>
+                        </div>
+
+                        <?php if (!empty($equip['description'])): ?>
+                            <p class="card-text"><?= $this->escape(substr($equip['description'], 0, 140)) ?>...</p>
+                        <?php endif; ?>
+
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <div style="margin-top: 1rem;">
+                                <h4 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 0.5rem;">
+                                    <?= $lang['equip_reserve'] ?>
+                                </h4>
+                                <form method="POST" action="<?= BASE_URL ?>index.php?controller=Equipment&action=reserve" style="display: grid; gap: 0.5rem;">
+                                    <input type="hidden" name="equip_id" value="<?= (int)$equip['id_equip'] ?>">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        <div>
+                                            <label style="display:block; font-size:0.9rem; color: var(--text-light);">Début</label>
+                                            <input required type="datetime-local" name="date_debut" class="form-control">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-size:0.9rem; color: var(--text-light);">Fin</label>
+                                            <input required type="datetime-local" name="date_fin" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:0.9rem; color: var(--text-light);">Motif (optionnel)</label>
+                                        <input type="text" name="motif" class="form-control" placeholder="Ex: Expérience, TP, test...">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;">Réserver</button>
+                                </form>
+                            </div>
+                        <?php else: ?>
+                            <a href="<?= BASE_URL ?>index.php?controller=Auth&action=login" class="btn btn-primary">
+                                Se connecter pour réserver
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-results">Aucun équipement trouvé</div>
+        <?php endif; ?>
     </div>
 </section>

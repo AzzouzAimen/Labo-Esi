@@ -47,41 +47,48 @@ $(document).ready(function () {
   // ====================================
   // Project AJAX Filtering
   // ====================================
-  $("#filter-domain, #filter-status").on("change", function () {
-    const domain = $("#filter-domain").val();
-    const status = $("#filter-status").val();
+  $("#filter-domain, #filter-status, #filter-supervisor").on(
+    "change",
+    function () {
+      const domain = $("#filter-domain").val();
+      const status = $("#filter-status").val();
+      const supervisor = $("#filter-supervisor").length
+        ? $("#filter-supervisor").val()
+        : "all";
 
-    // Show loading state
-    $("#projects-grid").html('<div class="loading">Chargement...</div>');
+      // Show loading state
+      $("#projects-grid").html('<div class="loading">Chargement...</div>');
 
-    // AJAX request to filter projects
-    $.ajax({
-      url: BASE_URL + "index.php",
-      method: "GET",
-      data: {
-        controller: "Project",
-        action: "filter",
-        domain: domain,
-        status: status,
-      },
-      dataType: "json",
-      success: function (response) {
-        if (response.success && response.data.length > 0) {
-          renderProjects(response.data);
-        } else {
+      // AJAX request to filter projects
+      $.ajax({
+        url: BASE_URL + "index.php",
+        method: "GET",
+        data: {
+          controller: "Project",
+          action: "filter",
+          domain: domain,
+          status: status,
+          supervisor: supervisor,
+        },
+        dataType: "json",
+        success: function (response) {
+          if (response.success && response.data.length > 0) {
+            renderProjects(response.data);
+          } else {
+            $("#projects-grid").html(
+              '<div class="no-results">Aucun projet trouvé</div>'
+            );
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error("AJAX Error:", error);
           $("#projects-grid").html(
-            '<div class="no-results">Aucun projet trouvé</div>'
+            '<div class="no-results">Erreur lors du chargement des projets</div>'
           );
-        }
-      },
-      error: function (xhr, status, error) {
-        console.error("AJAX Error:", error);
-        $("#projects-grid").html(
-          '<div class="no-results">Erreur lors du chargement des projets</div>'
-        );
-      },
-    });
-  });
+        },
+      });
+    }
+  );
 
   // Render projects from JSON data
   function renderProjects(projects) {
@@ -99,6 +106,25 @@ $(document).ready(function () {
         ? project.image_url
         : BASE_URL + "assets/img/project-placeholder.jpg";
 
+      const funding = project.type_financement
+        ? escapeHtml(project.type_financement)
+        : "N/A";
+
+      const membersCount =
+        project.membres_count !== undefined && project.membres_count !== null
+          ? parseInt(project.membres_count, 10)
+          : null;
+
+      const membersLabel =
+        membersCount !== null && !Number.isNaN(membersCount)
+          ? membersCount + " membre" + (membersCount > 1 ? "s" : "")
+          : "N/A";
+
+      const managerName =
+        project.responsable_prenom && project.responsable_nom
+          ? project.responsable_prenom + " " + project.responsable_nom
+          : project.responsable_nom || "N/A";
+
       html += `
                 <div class="card">
                     <img src="${imageUrl}" alt="${escapeHtml(
@@ -111,7 +137,11 @@ $(document).ready(function () {
                               project.domaine
                             )}</span>
                             <span><strong>Responsable:</strong> ${escapeHtml(
-                              project.responsable_nom || "N/A"
+                              managerName
+                            )}</span>
+                            <span><strong>Financement:</strong> ${funding}</span>
+                            <span><strong>Membres:</strong> ${escapeHtml(
+                              membersLabel
                             )}</span>
                         </div>
                         <div class="mb-2">
@@ -135,7 +165,8 @@ $(document).ready(function () {
 
   // Helper: Escape HTML to prevent XSS
   function escapeHtml(text) {
-    if (!text) return "";
+    if (text === null || text === undefined) return "";
+    text = String(text);
     const map = {
       "&": "&amp;",
       "<": "&lt;",
@@ -184,4 +215,380 @@ $(document).ready(function () {
   $(".mobile-menu-toggle").on("click", function () {
     $(".nav-menu").toggleClass("active");
   });
+
+  // ====================================
+  // Homepage Upcoming Events Pagination
+  // ====================================
+  function updateEventsPagerState(page, totalPages) {
+    if (!$("#events-prev").length || !$("#events-next").length) return;
+    $("#events-page-label").text(page);
+    $("#events-total-label").text(totalPages);
+    $("#events-prev").prop("disabled", page <= 1);
+    $("#events-next").prop("disabled", page >= totalPages);
+  }
+
+  function renderUpcomingEvents(events) {
+    let html = "";
+
+    events.forEach(function (event) {
+      const imageUrl = event.image_url
+        ? BASE_URL + escapeHtml(event.image_url)
+        : BASE_URL + "assets/img/event-placeholder.jpg";
+
+      const when = event.date_event
+        ? new Date(String(event.date_event).replace(" ", "T"))
+        : null;
+      const dateLabel = when
+        ? String(when.getDate()).padStart(2, "0") +
+          "/" +
+          String(when.getMonth() + 1).padStart(2, "0") +
+          "/" +
+          when.getFullYear() +
+          " " +
+          String(when.getHours()).padStart(2, "0") +
+          ":" +
+          String(when.getMinutes()).padStart(2, "0")
+        : "";
+
+      html += `
+        <div class="card">
+          <img src="${imageUrl}" alt="${escapeHtml(
+        event.titre
+      )}" onerror="this.src='${BASE_URL}assets/img/event-placeholder.jpg'">
+          <div class="card-body">
+            <h3 class="card-title">${escapeHtml(event.titre)}</h3>
+            <div class="card-meta">
+              <span><strong>Date:</strong> ${escapeHtml(dateLabel)}</span>
+              ${
+                event.lieu
+                  ? `<span><strong>Lieu:</strong> ${escapeHtml(
+                      event.lieu
+                    )}</span>`
+                  : ""
+              }
+            </div>
+            <div class="mb-2">
+              <span class="badge badge-primary">${escapeHtml(event.type)}</span>
+            </div>
+            <p class="card-text">${escapeHtml(
+              truncate(event.description, 120)
+            )}...</p>
+            <a href="${BASE_URL}index.php?controller=Event&action=view&id=${
+        event.id_event
+      }" class="btn btn-primary">Lire la suite</a>
+          </div>
+        </div>
+      `;
+    });
+
+    $("#upcoming-events-grid").html(html);
+  }
+
+  function loadUpcomingEventsPage(targetPage) {
+    const grid = $("#upcoming-events-grid");
+    if (!grid.length) return;
+
+    const perPage = parseInt(grid.data("per-page"), 10) || 3;
+    $("#upcoming-events-grid").html('<div class="loading">Chargement...</div>');
+
+    $.ajax({
+      url: BASE_URL + "index.php",
+      method: "GET",
+      data: {
+        controller: "Home",
+        action: "upcomingEvents",
+        page: targetPage,
+        perPage: perPage,
+      },
+      dataType: "json",
+      success: function (response) {
+        if (!response || !response.success) {
+          $("#upcoming-events-grid").html(
+            '<div class="no-results">Erreur lors du chargement des événements</div>'
+          );
+          return;
+        }
+
+        const events = response.data || [];
+        const pagination = response.pagination || {};
+        const page = pagination.page || targetPage;
+        const totalPages = pagination.totalPages || 1;
+
+        grid.data("page", page);
+        grid.data("total-pages", totalPages);
+
+        if (events.length > 0) {
+          renderUpcomingEvents(events);
+        } else {
+          $("#upcoming-events-grid").html(
+            '<div class="no-results">Aucun événement trouvé</div>'
+          );
+        }
+
+        updateEventsPagerState(page, totalPages);
+      },
+      error: function () {
+        $("#upcoming-events-grid").html(
+          '<div class="no-results">Erreur lors du chargement des événements</div>'
+        );
+      },
+    });
+  }
+
+  if ($("#upcoming-events-grid").length) {
+    const initialPage =
+      parseInt($("#upcoming-events-grid").data("page"), 10) || 1;
+    const initialTotalPages =
+      parseInt($("#upcoming-events-grid").data("total-pages"), 10) || 1;
+    updateEventsPagerState(initialPage, initialTotalPages);
+
+    $("#events-prev").on("click", function () {
+      const current =
+        parseInt($("#upcoming-events-grid").data("page"), 10) || 1;
+      loadUpcomingEventsPage(Math.max(1, current - 1));
+    });
+
+    $("#events-next").on("click", function () {
+      const current =
+        parseInt($("#upcoming-events-grid").data("page"), 10) || 1;
+      const total =
+        parseInt($("#upcoming-events-grid").data("total-pages"), 10) || 1;
+      loadUpcomingEventsPage(Math.min(total, current + 1));
+    });
+  }
+
+  // ====================================
+  // Teams Filters (client-side)
+  // ====================================
+  function applyTeamFilters() {
+    const teamId = $("#team-filter-team").val() || "all";
+    const grade = $("#team-filter-grade").val() || "all";
+    const sort = $("#team-sort").val() || "name";
+
+    $(".team-section").each(function () {
+      const section = $(this);
+      const sectionTeamId = String(section.data("team-id") || "");
+
+      // Team visibility
+      if (teamId !== "all" && sectionTeamId !== teamId) {
+        section.hide();
+        return;
+      }
+      section.show();
+
+      // Member filtering
+      const members = section.find(".member-card");
+      members.each(function () {
+        const card = $(this);
+        const memberGrade = String(card.data("grade") || "");
+
+        const gradeOk = grade === "all" ? true : memberGrade === grade;
+        card.toggle(gradeOk);
+      });
+
+      // Sorting (visible members only)
+      const container = section.find(".team-members");
+      const visibleCards = container.find(".member-card:visible").get();
+      visibleCards.sort(function (a, b) {
+        const an = String($(a).data("name") || "").toLowerCase();
+        const bn = String($(b).data("name") || "").toLowerCase();
+        if (sort === "name") return an.localeCompare(bn);
+
+        const ag = String($(a).data("grade") || "").toLowerCase();
+        const bg = String($(b).data("grade") || "").toLowerCase();
+        return ag.localeCompare(bg) || an.localeCompare(bn);
+      });
+      container.append(visibleCards);
+    });
+  }
+
+  if ($("#team-filter-team").length) {
+    $("#team-filter-team, #team-filter-grade, #team-sort").on(
+      "change",
+      applyTeamFilters
+    );
+    applyTeamFilters();
+  }
+
+  // ====================================
+  // Publications AJAX Filtering + Pagination
+  // ====================================
+  function updatePubPagerState(page, totalPages) {
+    if (!$("#pub-prev").length || !$("#pub-next").length) return;
+    $("#pub-page-label").text(page);
+    $("#pub-total-label").text(totalPages);
+    $("#pub-prev").prop("disabled", page <= 1);
+    $("#pub-next").prop("disabled", page >= totalPages);
+  }
+
+  function renderPublications(pubs) {
+    let html = "";
+
+    pubs.forEach(function (pub) {
+      const dateLabel = pub.date_publication
+        ? new Date(pub.date_publication).toLocaleDateString("fr-FR")
+        : "N/A";
+
+      html += `
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">${escapeHtml(pub.titre)}</h3>
+            <div class="card-meta">
+              <span><strong>Date:</strong> ${escapeHtml(dateLabel)}</span>
+              <span><strong>Type:</strong> ${escapeHtml(pub.type)}</span>
+              ${
+                pub.domaine
+                  ? `<span><strong>Domaine:</strong> ${escapeHtml(
+                      pub.domaine
+                    )}</span>`
+                  : ""
+              }
+            </div>
+            ${
+              pub.auteurs
+                ? `<p class="card-text"><strong>Auteurs:</strong> ${escapeHtml(
+                    pub.auteurs
+                  )}</p>`
+                : ""
+            }
+            ${
+              pub.doi
+                ? `<p class="card-text"><strong>DOI:</strong> ${escapeHtml(
+                    pub.doi
+                  )}</p>`
+                : ""
+            }
+            ${
+              pub.resume
+                ? `<p class="card-text"><strong>Résumé:</strong> ${escapeHtml(
+                    truncate(pub.resume, 220)
+                  )}...</p>`
+                : ""
+            }
+            ${
+              pub.lien_pdf
+                ? `<a href="${escapeHtml(
+                    pub.lien_pdf
+                  )}" target="_blank" class="btn btn-primary">Télécharger PDF</a>`
+                : ""
+            }
+          </div>
+        </div>
+      `;
+    });
+
+    $("#publications-grid").html(html);
+  }
+
+  function collectPubFilters() {
+    const grid = $("#publications-grid");
+    const team = grid.data("team");
+    return {
+      q: $("#pub-search").val() || "",
+      year: $("#pub-filter-year").val() || "all",
+      author: $("#pub-filter-author").val() || "all",
+      type: $("#pub-filter-type").val() || "all",
+      domain: $("#pub-filter-domain").val() || "all",
+      sort: $("#pub-sort").val() || "date_desc",
+      team: team || "all",
+    };
+  }
+
+  function loadPublicationsPage(targetPage) {
+    const grid = $("#publications-grid");
+    if (!grid.length) return;
+
+    const perPage = parseInt(grid.data("per-page"), 10) || 6;
+    const filters = collectPubFilters();
+
+    grid.html('<div class="loading">Chargement...</div>');
+
+    $.ajax({
+      url: BASE_URL + "index.php",
+      method: "GET",
+      data: {
+        controller: "Publication",
+        action: "filter",
+        page: targetPage,
+        perPage: perPage,
+        q: filters.q,
+        year: filters.year,
+        author: filters.author,
+        type: filters.type,
+        domain: filters.domain,
+        sort: filters.sort,
+        team: filters.team,
+      },
+      dataType: "json",
+      success: function (response) {
+        if (!response || !response.success) {
+          grid.html(
+            '<div class="no-results">Erreur lors du chargement des publications</div>'
+          );
+          return;
+        }
+
+        const pubs = response.data || [];
+        const pagination = response.pagination || {};
+        const page = pagination.page || targetPage;
+        const totalPages = pagination.totalPages || 1;
+
+        grid.data("page", page);
+        grid.data("total-pages", totalPages);
+
+        if (pubs.length > 0) {
+          renderPublications(pubs);
+        } else {
+          grid.html('<div class="no-results">Aucune publication trouvée</div>');
+        }
+
+        updatePubPagerState(page, totalPages);
+      },
+      error: function () {
+        grid.html(
+          '<div class="no-results">Erreur lors du chargement des publications</div>'
+        );
+      },
+    });
+  }
+
+  function debounce(fn, wait) {
+    let t = null;
+    return function () {
+      const args = arguments;
+      clearTimeout(t);
+      t = setTimeout(function () {
+        fn.apply(null, args);
+      }, wait);
+    };
+  }
+
+  if ($("#publications-grid").length) {
+    const initialPage = parseInt($("#publications-grid").data("page"), 10) || 1;
+    const initialTotalPages =
+      parseInt($("#publications-grid").data("total-pages"), 10) || 1;
+    updatePubPagerState(initialPage, initialTotalPages);
+
+    const reload = function () {
+      loadPublicationsPage(1);
+    };
+
+    $(
+      "#pub-filter-year, #pub-filter-author, #pub-filter-type, #pub-filter-domain, #pub-sort"
+    ).on("change", reload);
+
+    $("#pub-search").on("input", debounce(reload, 300));
+
+    $("#pub-prev").on("click", function () {
+      const current = parseInt($("#publications-grid").data("page"), 10) || 1;
+      loadPublicationsPage(Math.max(1, current - 1));
+    });
+
+    $("#pub-next").on("click", function () {
+      const current = parseInt($("#publications-grid").data("page"), 10) || 1;
+      const total =
+        parseInt($("#publications-grid").data("total-pages"), 10) || 1;
+      loadPublicationsPage(Math.min(total, current + 1));
+    });
+  }
 });

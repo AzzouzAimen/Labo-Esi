@@ -43,6 +43,12 @@
             Nous collaborons avec des partenaires académiques et industriels pour produire des recherches 
             de qualité et former la prochaine génération de chercheurs et d'ingénieurs.
         </p>
+
+        <div style="margin-top: 1.5rem;">
+            <a href="<?= BASE_URL ?>index.php?controller=Team&action=orgChart" class="btn btn-secondary">
+                Voir l'organigramme
+            </a>
+        </div>
     </div>
 </section>
 
@@ -50,7 +56,10 @@
 <?php if (!empty($upcomingEvents)): ?>
 <section class="upcoming-events mt-4">
     <h2 class="section-title"><?= $lang['upcoming_events'] ?></h2>
-    <div class="card-grid">
+    <div class="card-grid" id="upcoming-events-grid"
+         data-page="<?= (int)($eventsPage ?? 1) ?>"
+         data-total-pages="<?= (int)($eventsTotalPages ?? 1) ?>"
+         data-per-page="<?= (int)($eventsPerPage ?? 3) ?>">
         <?php foreach ($upcomingEvents as $event): ?>
         <div class="card">
             <?php if ($event['image_url']): ?>
@@ -89,6 +98,16 @@
         </div>
         <?php endforeach; ?>
     </div>
+
+    <?php if (!empty($eventsTotalPages) && (int)$eventsTotalPages > 1): ?>
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" id="events-prev">Précédent</button>
+        <div style="align-self: center; color: var(--text-light);">
+            Page <span id="events-page-label"><?= (int)($eventsPage ?? 1) ?></span> / <span id="events-total-label"><?= (int)($eventsTotalPages ?? 1) ?></span>
+        </div>
+        <button type="button" class="btn btn-secondary" id="events-next">Suivant</button>
+    </div>
+    <?php endif; ?>
 </section>
 <?php endif; ?>
 

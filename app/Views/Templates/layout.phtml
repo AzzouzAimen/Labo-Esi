@@ -24,9 +24,9 @@
                 </div>
                 <div class="header-right">
                     <div class="social-links">
-                        <a href="#" title="Facebook"><i class="icon-facebook"></i></a>
-                        <a href="#" title="Twitter"><i class="icon-twitter"></i></a>
-                        <a href="#" title="LinkedIn"><i class="icon-linkedin"></i></a>
+                        <a href="#" title="Facebook">FB</a>
+                        <a href="#" title="Twitter">X</a>
+                        <a href="#" title="LinkedIn">In</a>
                     </div>
                     <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - École Supérieure d'Informatique</a>
                 </div>
@@ -42,6 +42,7 @@
                 <li><a href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Publication&action=index"><?= $lang['nav_publications'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Equipment&action=index"><?= $lang['nav_equipment'] ?></a></li>
+                <li><a href="<?= BASE_URL ?>index.php?controller=Offer&action=index"><?= $lang['nav_offers'] ?? 'Offres' ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=index"><?= $lang['nav_teams'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>

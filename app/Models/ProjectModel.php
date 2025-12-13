@@ -19,9 +19,20 @@ class ProjectModel {
             SELECT 
                 p.id_project, p.titre, p.description, p.domaine, p.statut, 
                 p.type_financement, p.date_debut, p.image_url,
-                u.nom as responsable_nom, u.prenom as responsable_prenom
+                u.nom as responsable_nom, u.prenom as responsable_prenom,
+                COALESCE(pm_stats.membres_count, 0) as membres_count,
+                pm_stats.membres_noms as membres_noms
             FROM projects p
             LEFT JOIN users u ON p.responsable_id = u.id_user
+            LEFT JOIN (
+                SELECT 
+                    pm.id_project,
+                    COUNT(pm.id_user) as membres_count,
+                    GROUP_CONCAT(CONCAT(u2.prenom, ' ', u2.nom) SEPARATOR ', ') as membres_noms
+                FROM project_members pm
+                JOIN users u2 ON pm.id_user = u2.id_user
+                GROUP BY pm.id_project
+            ) pm_stats ON pm_stats.id_project = p.id_project
             ORDER BY p.date_debut DESC
         ");
         return $stmt->fetchAll();
@@ -33,14 +44,25 @@ class ProjectModel {
      * @param string|null $status
      * @return array
      */
-    public function filterProjects($domain = null, $status = null) {
+    public function filterProjects($domain = null, $status = null, $supervisorId = null) {
         $sql = "
             SELECT 
                 p.id_project, p.titre, p.description, p.domaine, p.statut, 
                 p.type_financement, p.date_debut, p.image_url,
-                u.nom as responsable_nom, u.prenom as responsable_prenom
+                u.nom as responsable_nom, u.prenom as responsable_prenom,
+                COALESCE(pm_stats.membres_count, 0) as membres_count,
+                pm_stats.membres_noms as membres_noms
             FROM projects p
             LEFT JOIN users u ON p.responsable_id = u.id_user
+            LEFT JOIN (
+                SELECT 
+                    pm.id_project,
+                    COUNT(pm.id_user) as membres_count,
+                    GROUP_CONCAT(CONCAT(u2.prenom, ' ', u2.nom) SEPARATOR ', ') as membres_noms
+                FROM project_members pm
+                JOIN users u2 ON pm.id_user = u2.id_user
+                GROUP BY pm.id_project
+            ) pm_stats ON pm_stats.id_project = p.id_project
             WHERE 1=1
         ";
         
@@ -55,12 +77,67 @@ class ProjectModel {
             $sql .= " AND p.statut = :status";
             $params[':status'] = $status;
         }
+
+        if ($supervisorId && $supervisorId !== 'all') {
+            $sql .= " AND p.responsable_id = :supervisor";
+            $params[':supervisor'] = (int)$supervisorId;
+        }
         
         $sql .= " ORDER BY p.date_debut DESC";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Get supervisors (responsables) that are linked to at least one project
+     * @return array
+     */
+    public function getSupervisors() {
+        $stmt = $this->db->query("
+            SELECT DISTINCT u.id_user, u.prenom, u.nom
+            FROM projects p
+            JOIN users u ON p.responsable_id = u.id_user
+            ORDER BY u.nom, u.prenom
+        ");
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Update project (used by manager from dashboard)
+     * @param int $projectId
+     * @param int $managerId
+     * @param array $data
+     * @return bool
+     */
+    public function updateProjectByManager($projectId, $managerId, $data) {
+        $allowed = [
+            'titre',
+            'description',
+            'domaine',
+            'statut',
+            'type_financement',
+            'image_url'
+        ];
+
+        $fields = [];
+        $params = [':id' => (int)$projectId, ':manager' => (int)$managerId];
+
+        foreach ($allowed as $key) {
+            if (array_key_exists($key, $data)) {
+                $fields[] = "$key = :$key";
+                $params[":" . $key] = $data[$key];
+            }
+        }
+
+        if (empty($fields)) {
+            return false;
+        }
+
+        $sql = "UPDATE projects SET " . implode(', ', $fields) . " WHERE id_project = :id AND responsable_id = :manager";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     /**

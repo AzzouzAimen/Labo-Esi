@@ -18,12 +18,14 @@ class ProjectController extends Controller {
         $projects = $projectModel->getAllProjects();
         $domains = $projectModel->getDomains();
         $statuses = $projectModel->getStatuses();
+        $supervisors = $projectModel->getSupervisors();
         
         // Prepare data
         $data = [
             'projects' => $projects,
             'domains' => $domains,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'supervisors' => $supervisors
         ];
         
         // Load Project View
@@ -41,15 +43,95 @@ class ProjectController extends Controller {
         // Get filter parameters
         $domain = $_GET['domain'] ?? null;
         $status = $_GET['status'] ?? null;
+        $supervisor = $_GET['supervisor'] ?? null;
         
         // Filter projects
-        $projects = $projectModel->filterProjects($domain, $status);
+        $projects = $projectModel->filterProjects($domain, $status, $supervisor);
         
         // Return JSON response
         $this->json([
             'success' => true,
             'data' => $projects
         ]);
+    }
+
+    /**
+     * Project edit page (only for project manager)
+     */
+    public function edit() {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('Auth', 'login');
+            return;
+        }
+
+        $lang = $this->loadLang('fr');
+        $projectId = $_GET['id'] ?? null;
+
+        if (!$projectId) {
+            $this->redirect('Dashboard', 'index');
+            return;
+        }
+
+        $projectModel = $this->model('ProjectModel');
+        $project = $projectModel->getProjectById((int)$projectId);
+
+        if (!$project || (int)$project['responsable_id'] !== (int)$_SESSION['user_id']) {
+            $this->redirect('Dashboard', 'index');
+            return;
+        }
+
+        $data = [
+            'project' => $project,
+            'domains' => $projectModel->getDomains(),
+            'statuses' => $projectModel->getStatuses(),
+            'success' => null,
+            'error' => null
+        ];
+
+        $this->view('ProjectEdit', $data, $lang);
+    }
+
+    /**
+     * Project update (POST) - only for project manager
+     */
+    public function update() {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('Auth', 'login');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('Dashboard', 'index');
+            return;
+        }
+
+        $projectId = $_POST['id_project'] ?? null;
+        if (!$projectId) {
+            $this->redirect('Dashboard', 'index');
+            return;
+        }
+
+        $projectModel = $this->model('ProjectModel');
+
+        $updateData = [
+            'titre' => $_POST['titre'] ?? '',
+            'description' => $_POST['description'] ?? '',
+            'domaine' => $_POST['domaine'] ?? '',
+            'statut' => $_POST['statut'] ?? '',
+            'type_financement' => $_POST['type_financement'] ?? '',
+            'image_url' => $_POST['image_url'] ?? ''
+        ];
+
+        $ok = $projectModel->updateProjectByManager((int)$projectId, (int)$_SESSION['user_id'], $updateData);
+
+        $redirectParams = ['id' => (int)$projectId];
+        if ($ok) {
+            $redirectParams['success'] = 1;
+        } else {
+            $redirectParams['error'] = 1;
+        }
+
+        $this->redirect('Project', 'edit', $redirectParams);
     }
 
     /**

@@ -10,9 +10,59 @@
     </div>
     
     <?php if (!empty($teams)): ?>
+
+        <?php
+        // Build grade list for filters
+        $grades = [];
+        foreach ($teams as $t) {
+            if (!empty($t['chef_grade'])) {
+                $grades[$t['chef_grade']] = true;
+            }
+            if (!empty($t['members'])) {
+                foreach ($t['members'] as $m) {
+                    if (!empty($m['grade'])) {
+                        $grades[$m['grade']] = true;
+                    }
+                }
+            }
+        }
+        $grades = array_keys($grades);
+        sort($grades);
+        ?>
+
+        <div class="filter-bar" style="margin-bottom: 2rem;">
+            <div>
+                <label for="team-filter-team">Équipe:</label>
+                <select id="team-filter-team" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="all"><?= $lang['all'] ?></option>
+                    <?php foreach ($teams as $t): ?>
+                        <option value="<?= (int)$t['id_team'] ?>"><?= $this->escape($t['nom']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div>
+                <label for="team-filter-grade">Grade:</label>
+                <select id="team-filter-grade" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="all"><?= $lang['all'] ?></option>
+                    <?php foreach ($grades as $g): ?>
+                        <option value="<?= $this->escape($g) ?>"><?= $this->escape($g) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div>
+                <label for="team-sort">Tri:</label>
+                <select id="team-sort" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="name">Nom</option>
+                    <option value="grade">Grade</option>
+                </select>
+            </div>
+        </div>
+
         <div class="team-container">
             <?php foreach ($teams as $team): ?>
-            <div class="team-section">
+            <div class="team-section" data-team-id="<?= (int)$team['id_team'] ?>">
                 <!-- Team Header -->
                 <div class="team-header">
                     <h2><?= $this->escape($team['nom']) ?></h2>
@@ -21,6 +71,12 @@
                         <?= $this->escape($team['description']) ?>
                     </p>
                     <?php endif; ?>
+
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index&team_id=<?= (int)$team['id_team'] ?>" class="btn btn-secondary">
+                            Voir les publications de l’équipe
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Team Leader -->
@@ -72,7 +128,9 @@
                     </h3>
                     <div class="team-members">
                         <?php foreach ($team['members'] as $member): ?>
-                        <div class="member-card">
+                        <div class="member-card"
+                             data-grade="<?= $this->escape($member['grade']) ?>"
+                             data-name="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>">
                             <?php if ($member['photo']): ?>
                             <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
                                  alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"

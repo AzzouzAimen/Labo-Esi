@@ -1,13 +1,128 @@
 <!-- Publications List -->
 <section class="publications-section">
     <h1 class="section-title"><?= $lang['publications_title'] ?></h1>
-    
-    <div style="background: var(--bg-light); padding: 3rem; border-radius: 8px; text-align: center;">
-        <p style="font-size: 1.2rem; color: var(--text-light); margin-bottom: 1rem;">
-            Cette section sera bientôt disponible avec la liste complète des publications du laboratoire.
-        </p>
-        <p style="color: var(--text-color);">
-            Articles, thèses, rapports, posters et communications scientifiques.
-        </p>
+
+    <div class="filter-bar">
+        <div>
+            <label for="pub-search"><?= $lang['search'] ?>:</label>
+            <input id="pub-search" class="form-control" style="width: 260px; display: inline-block;" type="text" value="<?= $this->escape($filters['q'] ?? '') ?>" placeholder="Titre, résumé, DOI...">
+        </div>
+
+        <div>
+            <label for="pub-filter-year">Année:</label>
+            <select id="pub-filter-year" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($years)): ?>
+                    <?php foreach ($years as $y): ?>
+                        <option value="<?= (int)$y ?>" <?= (($filters['year'] ?? 'all') == $y) ? 'selected' : '' ?>><?= (int)$y ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="pub-filter-author">Auteur:</label>
+            <select id="pub-filter-author" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($authors)): ?>
+                    <?php foreach ($authors as $a): ?>
+                        <option value="<?= (int)$a['id_user'] ?>" <?= (($filters['author'] ?? 'all') == $a['id_user']) ? 'selected' : '' ?>>
+                            <?= $this->escape($a['prenom'] . ' ' . $a['nom']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="pub-filter-type"><?= $lang['pub_type'] ?>:</label>
+            <select id="pub-filter-type" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($types)): ?>
+                    <?php foreach ($types as $t): ?>
+                        <option value="<?= $this->escape($t) ?>" <?= (($filters['type'] ?? 'all') == $t) ? 'selected' : '' ?>>
+                            <?= $this->escape($t) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="pub-filter-domain"><?= $lang['project_domain'] ?>:</label>
+            <select id="pub-filter-domain" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($domains)): ?>
+                    <?php foreach ($domains as $d): ?>
+                        <option value="<?= $this->escape($d) ?>" <?= (($filters['domain'] ?? 'all') == $d) ? 'selected' : '' ?>>
+                            <?= $this->escape($d) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="pub-sort">Tri:</label>
+            <select id="pub-sort" class="form-control" style="width: auto; display: inline-block;">
+                <option value="date_desc" <?= (($sort ?? 'date_desc') === 'date_desc') ? 'selected' : '' ?>>Date (récent → ancien)</option>
+                <option value="date_asc" <?= (($sort ?? 'date_desc') === 'date_asc') ? 'selected' : '' ?>>Date (ancien → récent)</option>
+                <option value="title_asc" <?= (($sort ?? 'date_desc') === 'title_asc') ? 'selected' : '' ?>>Titre (A → Z)</option>
+                <option value="title_desc" <?= (($sort ?? 'date_desc') === 'title_desc') ? 'selected' : '' ?>>Titre (Z → A)</option>
+            </select>
+        </div>
     </div>
+
+    <div id="publications-grid" class="card-grid"
+         data-page="<?= (int)($page ?? 1) ?>"
+         data-total-pages="<?= (int)($totalPages ?? 1) ?>"
+         data-per-page="<?= (int)($perPage ?? 6) ?>"
+         data-team="<?= $this->escape($filters['team'] ?? 'all') ?>">
+        <?php if (!empty($publications)): ?>
+            <?php foreach ($publications as $pub): ?>
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title"><?= $this->escape($pub['titre']) ?></h3>
+                        <div class="card-meta">
+                            <span><strong><?= $lang['pub_date'] ?>:</strong> <?= $pub['date_publication'] ? date('d/m/Y', strtotime($pub['date_publication'])) : 'N/A' ?></span>
+                            <span><strong><?= $lang['pub_type'] ?>:</strong> <?= $this->escape($pub['type']) ?></span>
+                            <?php if (!empty($pub['domaine'])): ?>
+                                <span><strong><?= $lang['project_domain'] ?>:</strong> <?= $this->escape($pub['domaine']) ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($pub['auteurs'])): ?>
+                            <p class="card-text"><strong><?= $lang['pub_authors'] ?>:</strong> <?= $this->escape($pub['auteurs']) ?></p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($pub['doi'])): ?>
+                            <p class="card-text"><strong>DOI:</strong> <?= $this->escape($pub['doi']) ?></p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($pub['resume'])): ?>
+                            <p class="card-text"><strong><?= $lang['pub_abstract'] ?>:</strong> <?= $this->escape(substr($pub['resume'], 0, 220)) ?>...</p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($pub['lien_pdf'])): ?>
+                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" target="_blank" class="btn btn-primary">
+                                <?= $lang['pub_download'] ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-results">Aucune publication trouvée</div>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($totalPages) && (int)$totalPages > 1): ?>
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" id="pub-prev">Précédent</button>
+            <div style="align-self: center; color: var(--text-light);">
+                Page <span id="pub-page-label"><?= (int)($page ?? 1) ?></span> / <span id="pub-total-label"><?= (int)($totalPages ?? 1) ?></span>
+            </div>
+            <button type="button" class="btn btn-secondary" id="pub-next">Suivant</button>
+        </div>
+    <?php endif; ?>
 </section>

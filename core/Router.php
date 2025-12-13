@@ -66,7 +66,8 @@ class Router {
         }
 
         // Call the action with parameters
-        call_user_func_array([$controller, $this->action], $this->params);
+        // Convert associative array to indexed array for PHP 8+ compatibility
+        call_user_func_array([$controller, $this->action], array_values($this->params));
     }
 
     /**

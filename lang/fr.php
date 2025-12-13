@@ -27,6 +27,7 @@ return [
     'nav_projects' => 'Projets',
     'nav_publications' => 'Publications',
     'nav_equipment' => 'Équipements',
+    'nav_offers' => 'Offres',
     'nav_members' => 'Membres',
     'nav_teams' => 'Équipes',
     'nav_contact' => 'Contact',
@@ -128,6 +129,9 @@ return [
     'my_publications' => 'Mes Publications',
     'my_reservations' => 'Mes Réservations',
     'update_profile' => 'Mettre à jour le profil',
+
+    // Offers
+    'offers_title' => 'Offres et opportunités',
 
     // Footer
     'footer_contact' => 'Contact',

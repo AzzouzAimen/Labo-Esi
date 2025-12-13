@@ -20,17 +20,20 @@ class DashboardController extends Controller {
         // Load models
         $teamModel = $this->model('TeamModel');
         $userModel = $this->model('UserModel');
+        $equipmentModel = $this->model('EquipmentModel');
         
         // Get user data
         $user = $userModel->getUserById($_SESSION['user_id']);
         $projects = $teamModel->getUserProjects($_SESSION['user_id']);
         $publications = $teamModel->getUserPublications($_SESSION['user_id']);
+        $reservations = $equipmentModel->getUserReservations($_SESSION['user_id']);
         
         // Prepare data
         $data = [
             'user' => $user,
             'projects' => $projects,
-            'publications' => $publications
+            'publications' => $publications,
+            'reservations' => $reservations
         ];
         
         // Load Dashboard View

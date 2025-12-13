@@ -77,10 +77,10 @@ class TeamModel {
             SELECT 
                 u.id_user, u.nom, u.prenom, u.photo, u.grade, 
                 u.poste, u.domaine_recherche, u.email, u.role
-            FROM users
-            WHERE role IN ('admin', 'enseignant-chercheur', 'doctorant', 'etudiant')
+            FROM users u
+            WHERE u.role IN ('admin', 'enseignant-chercheur', 'doctorant', 'etudiant')
             ORDER BY 
-                CASE role
+                CASE u.role
                     WHEN 'admin' THEN 1
                     WHEN 'enseignant-chercheur' THEN 2
                     WHEN 'doctorant' THEN 3
@@ -116,7 +116,8 @@ class TeamModel {
     public function getUserProjects($userId) {
         $stmt = $this->db->prepare("
             SELECT DISTINCT
-                p.id_project, p.titre, p.domaine, p.statut, p.image_url, p.date_debut
+                p.id_project, p.titre, p.domaine, p.statut, p.image_url, p.date_debut,
+                p.responsable_id
             FROM projects p
             LEFT JOIN project_members pm ON p.id_project = pm.id_project
             WHERE p.responsable_id = :user_id1 

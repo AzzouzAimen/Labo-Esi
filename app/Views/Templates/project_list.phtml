@@ -36,6 +36,20 @@
                 <?php endif; ?>
             </select>
         </div>
+
+        <div>
+            <label for="filter-supervisor">Filtrer par responsable:</label>
+            <select id="filter-supervisor" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($supervisors)): ?>
+                    <?php foreach ($supervisors as $sup): ?>
+                        <option value="<?= (int)$sup['id_user'] ?>">
+                            <?= $this->escape($sup['prenom'] . ' ' . $sup['nom']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
     </div>
     
     <!-- Projects Grid -->
@@ -66,6 +80,14 @@
                                 <?= $this->escape($project['responsable_prenom'] . ' ' . $project['responsable_nom']) ?>
                             </span>
                             <?php endif; ?>
+                            <span>
+                                <strong><?= $lang['project_funding'] ?>:</strong>
+                                <?= $project['type_financement'] ? $this->escape($project['type_financement']) : 'N/A' ?>
+                            </span>
+                            <span>
+                                <strong><?= $lang['project_members'] ?>:</strong>
+                                <?= isset($project['membres_count']) ? (int)$project['membres_count'] : 0 ?>
+                            </span>
                         </div>
                         
                         <div class="mb-2">

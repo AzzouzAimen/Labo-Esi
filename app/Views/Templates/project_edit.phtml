@@ -1,0 +1,74 @@
+<!-- Project Edit Template -->
+<section class="project-edit-section">
+    <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="<?= BASE_URL ?>index.php?controller=Dashboard&action=index" class="btn btn-secondary">◀ <?= $lang['back'] ?></a>
+        <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= (int)$project['id_project'] ?>" class="btn btn-primary"><?= $lang['view_details'] ?></a>
+    </div>
+
+    <h1 class="section-title">Modifier le projet</h1>
+
+    <?php if (!empty($_GET['success'])): ?>
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            Modifications enregistrées.
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($_GET['error'])): ?>
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            Erreur lors de l'enregistrement.
+        </div>
+    <?php endif; ?>
+
+    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+        <form method="POST" action="<?= BASE_URL ?>index.php?controller=Project&action=update" style="display: grid; gap: 1rem;">
+            <input type="hidden" name="id_project" value="<?= (int)$project['id_project'] ?>">
+
+            <div>
+                <label for="titre"><strong>Titre</strong></label>
+                <input id="titre" name="titre" class="form-control" required value="<?= $this->escape($project['titre']) ?>">
+            </div>
+
+            <div>
+                <label for="description"><strong>Description</strong></label>
+                <textarea id="description" name="description" class="form-control" rows="6"><?= $this->escape($project['description'] ?? '') ?></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label for="domaine"><strong><?= $lang['project_domain'] ?></strong></label>
+                    <select id="domaine" name="domaine" class="form-control" required>
+                        <?php foreach (($domains ?? []) as $d): ?>
+                            <option value="<?= $this->escape($d) ?>" <?= ($project['domaine'] == $d) ? 'selected' : '' ?>>
+                                <?= $this->escape($d) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label for="statut"><strong><?= $lang['project_status'] ?></strong></label>
+                    <select id="statut" name="statut" class="form-control" required>
+                        <?php foreach (($statuses ?? []) as $s): ?>
+                            <option value="<?= $this->escape($s) ?>" <?= ($project['statut'] == $s) ? 'selected' : '' ?>>
+                                <?= $this->escape($s) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="type_financement"><strong><?= $lang['project_funding'] ?></strong></label>
+                <input id="type_financement" name="type_financement" class="form-control" value="<?= $this->escape($project['type_financement'] ?? '') ?>" placeholder="Ex: Interne, Externe, ANR...">
+            </div>
+
+            <div>
+                <label for="image_url"><strong>Image URL</strong></label>
+                <input id="image_url" name="image_url" class="form-control" value="<?= $this->escape($project['image_url'] ?? '') ?>" placeholder="uploads/projects/... ou URL">
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary"><?= $lang['save'] ?></button>
+                <a href="<?= BASE_URL ?>index.php?controller=Dashboard&action=index" class="btn btn-secondary"><?= $lang['cancel'] ?></a>
+            </div>
+        </form>
+    </div>
+</section>
