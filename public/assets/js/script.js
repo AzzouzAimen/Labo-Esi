@@ -56,7 +56,7 @@ $(document).ready(function () {
 
     // AJAX request to filter projects
     $.ajax({
-      url: "index.php",
+      url: BASE_URL + "index.php",
       method: "GET",
       data: {
         controller: "Project",
@@ -97,13 +97,13 @@ $(document).ready(function () {
 
       const imageUrl = project.image_url
         ? project.image_url
-        : "assets/img/project-placeholder.jpg";
+        : BASE_URL + "assets/img/project-placeholder.jpg";
 
       html += `
                 <div class="card">
                     <img src="${imageUrl}" alt="${escapeHtml(
         project.titre
-      )}" onerror="this.src='assets/img/project-placeholder.jpg'">
+      )}" onerror="this.src='${BASE_URL}assets/img/project-placeholder.jpg'">
                     <div class="card-body">
                         <h3 class="card-title">${escapeHtml(project.titre)}</h3>
                         <div class="card-meta">
@@ -122,9 +122,9 @@ $(document).ready(function () {
                         <p class="card-text">${escapeHtml(
                           truncate(project.description, 100)
                         )}</p>
-                        <a href="index.php?controller=Project&action=detail&id=${
-                          project.id_project
-                        }" class="btn btn-primary">Voir les détails</a>
+                        <a href="${BASE_URL}index.php?controller=Project&action=detail&id=${
+        project.id_project
+      }" class="btn btn-primary">Voir les détails</a>
                     </div>
                 </div>
             `;

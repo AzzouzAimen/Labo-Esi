@@ -211,13 +211,13 @@ INSERT IGNORE INTO settings (setting_key, setting_value) VALUES
 -- ============================================================
 
 -- 1. Users (Required: admin/admin and user/user + additional members)
+-- NOTE: Passwords are now hashed using password_hash() with PASSWORD_DEFAULT (bcrypt)
 INSERT INTO users (username, password, nom, prenom, email, grade, role) VALUES 
-('admin', 'admin', 'Directeur', 'Laboratoire', 'admin@labo-tdw.dz', 'Professeur', 'admin'),
-('user', 'user', 'Chercheur', 'Membre', 'user@labo-tdw.dz', 'Maître de Conférences', 'enseignant-chercheur'),
-('prof_a', '1234', 'Benali', 'Mohamed', 'm.benali@esi.dz', 'Professeur', 'enseignant-chercheur'),
-('phd_b', '1234', 'Amrani', 'Sarah', 's.amrani@esi.dz', 'Doctorante', 'doctorant'),
-('stud_c', '1234', 'Kader', 'Yacine', 'y.kader@esi.dz', 'Etudiant', 'etudiant');
-
+('admin', '$2y$10$52TrqoWvR5UqRu8/bTWBwut3GMOlhUsdS5ivfFxlsEKhyuXvUTT0K', 'Directeur', 'Laboratoire', 'admin@labo-tdw.dz', 'Professeur', 'admin'),
+('user', '$2y$10$mAxfZ2rTovYkdsxySzdY1uvvKT9UQyQXn8ZGlL12Om6ZIbO4TlEcy', 'Chercheur', 'Membre', 'user@labo-tdw.dz', 'Maître de Conférences', 'enseignant-chercheur'),
+('prof_a', '$2y$10$jA84KEsPtkbbqKQYF76FzuU0YslwNrgUlk5mIxevm.hjSZm0Km0I6', 'Benali', 'Mohamed', 'm.benali@esi.dz', 'Professeur', 'enseignant-chercheur'),
+('phd_b', '$2y$10$jA84KEsPtkbbqKQYF76FzuU0YslwNrgUlk5mIxevm.hjSZm0Km0I6', 'Amrani', 'Sarah', 's.amrani@esi.dz', 'Doctorante', 'doctorant'),
+('stud_c', '$2y$10$jA84KEsPtkbbqKQYF76FzuU0YslwNrgUlk5mIxevm.hjSZm0Km0I6', 'Kader', 'Yacine', 'y.kader@esi.dz', 'Etudiant', 'etudiant');
 -- 2. Teams
 INSERT INTO teams (nom, description, chef_id) VALUES 
 ('Equipe IA', 'Intelligence Artificielle et Data Mining', 3), -- ID 3 is Prof Benali

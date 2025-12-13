@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['site_name'] ?? 'Laboratoire TDW-2CSSIL' ?></title>
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Global BASE_URL for JavaScript AJAX calls
+        const BASE_URL = "<?= BASE_URL ?>";
+    </script>
+    <script src="<?= BASE_URL ?>assets/js/jquery-3.6.0.js"></script>
 </head>
 <body>
     <!-- Header -->

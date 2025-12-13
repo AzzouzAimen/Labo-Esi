@@ -39,10 +39,8 @@ class UserModel {
             return false;
         }
         
-        // Check if password matches
-        // Note: In the seed data, passwords are stored in plain text
-        // In production, use password_hash() and password_verify()
-        if ($password === $user['password']) {
+        // Verify password using secure password hashing
+        if (password_verify($password, $user['password'])) {
             // Remove password from returned data
             unset($user['password']);
             return $user;
@@ -111,14 +109,16 @@ class UserModel {
      * @return bool
      */
     public function changePassword($userId, $newPassword) {
-        // In production, hash the password with password_hash()
+        // Hash the password securely before storing
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        
         $stmt = $this->db->prepare("
             UPDATE users 
             SET password = :password 
             WHERE id_user = :id
         ");
         return $stmt->execute([
-            ':password' => $newPassword,
+            ':password' => $hashedPassword,
             ':id' => $userId
         ]);
     }

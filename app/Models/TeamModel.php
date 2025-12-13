@@ -116,14 +116,14 @@ class TeamModel {
     public function getUserProjects($userId) {
         $stmt = $this->db->prepare("
             SELECT DISTINCT
-                p.id_project, p.titre, p.domaine, p.statut, p.image_url
+                p.id_project, p.titre, p.domaine, p.statut, p.image_url, p.date_debut
             FROM projects p
             LEFT JOIN project_members pm ON p.id_project = pm.id_project
-            WHERE p.responsable_id = :user_id 
-            OR pm.id_user = :user_id
+            WHERE p.responsable_id = :user_id1 
+            OR pm.id_user = :user_id2
             ORDER BY p.date_debut DESC
         ");
-        $stmt->execute([':user_id' => $userId]);
+        $stmt->execute([':user_id1' => $userId, ':user_id2' => $userId]);
         return $stmt->fetchAll();
     }
 
