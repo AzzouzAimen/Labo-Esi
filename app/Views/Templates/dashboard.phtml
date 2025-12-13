@@ -1,0 +1,163 @@
+<!-- Dashboard Template -->
+
+<section class="dashboard-section">
+    <h1 class="section-title">
+        <?= $lang['welcome'] ?>, <?= $this->escape($_SESSION['prenom'] . ' ' . $_SESSION['nom']) ?>
+    </h1>
+    
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
+        <!-- Sidebar -->
+        <div>
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; text-align: center; position: sticky; top: 20px;">
+                <?php if ($user['photo']): ?>
+                <img src="<?= BASE_URL . $this->escape($user['photo']) ?>" 
+                     alt="<?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>"
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
+                     onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                <?php else: ?>
+                <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
+                    <?= strtoupper(substr($user['prenom'], 0, 1) . substr($user['nom'], 0, 1)) ?>
+                </div>
+                <?php endif; ?>
+                
+                <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                    <?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>
+                </h3>
+                
+                <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                    <?= $this->escape($user['grade']) ?>
+                </p>
+                
+                <a href="<?= BASE_URL ?>index.php?controller=Dashboard&action=profile" 
+                   class="btn btn-primary" 
+                   style="width: 100%; margin-bottom: 0.5rem;">
+                    <?= $lang['update_profile'] ?>
+                </a>
+                
+                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=logout" 
+                   class="btn btn-secondary" 
+                   style="width: 100%;">
+                    <?= $lang['logout'] ?>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div>
+            <!-- User Info -->
+            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <?= $lang['my_profile'] ?>
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--text-light);">Email:</strong><br>
+                        <?= $this->escape($user['email']) ?>
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-light);"><?= $lang['member_grade'] ?>:</strong><br>
+                        <?= $this->escape($user['grade']) ?>
+                    </div>
+                    <?php if ($user['poste']): ?>
+                    <div>
+                        <strong style="color: var(--text-light);"><?= $lang['member_post'] ?>:</strong><br>
+                        <?= $this->escape($user['poste']) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($user['domaine_recherche']): ?>
+                    <div>
+                        <strong style="color: var(--text-light);"><?= $lang['member_research'] ?>:</strong><br>
+                        <?= $this->escape($user['domaine_recherche']) ?>
+                    </div>
+                    <?php endif; ?>
+                    <div>
+                        <strong style="color: var(--text-light);">Rôle:</strong><br>
+                        <?= $this->escape($user['role']) ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Projects -->
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                    <?= $lang['my_projects'] ?> 
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                        <?= count($projects) ?>
+                    </span>
+                </h2>
+                
+                <?php if (!empty($projects)): ?>
+                    <div style="display: grid; gap: 1rem;">
+                        <?php foreach ($projects as $project): ?>
+                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                                    <?= $this->escape($project['titre']) ?>
+                                </h4>
+                                <div>
+                                    <span class="badge badge-primary"><?= $this->escape($project['domaine']) ?></span>
+                                    <?php
+                                    $statusClass = 'badge-primary';
+                                    if ($project['statut'] === 'terminé') {
+                                        $statusClass = 'badge-success';
+                                    } elseif ($project['statut'] === 'soumis') {
+                                        $statusClass = 'badge-warning';
+                                    }
+                                    ?>
+                                    <span class="badge <?= $statusClass ?>"><?= $this->escape($project['statut']) ?></span>
+                                </div>
+                            </div>
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
+                               class="btn btn-primary">
+                                <?= $lang['view_details'] ?>
+                            </a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p style="color: var(--text-light); text-align: center; padding: 2rem;">
+                        Aucun projet trouvé
+                    </p>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Publications -->
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                    <?= $lang['my_publications'] ?>
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                        <?= count($publications) ?>
+                    </span>
+                </h2>
+                
+                <?php if (!empty($publications)): ?>
+                    <div style="display: grid; gap: 1rem;">
+                        <?php foreach ($publications as $pub): ?>
+                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                                <?= $this->escape($pub['titre']) ?>
+                            </h4>
+                            <p style="color: var(--text-light); font-size: 0.9rem;">
+                                <span class="badge badge-primary"><?= $this->escape($pub['type']) ?></span>
+                                <?= date('Y', strtotime($pub['date_publication'])) ?>
+                            </p>
+                            <?php if ($pub['lien_pdf']): ?>
+                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" 
+                               target="_blank" 
+                               class="btn btn-primary" 
+                               style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">
+                                <?= $lang['pub_download'] ?>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p style="color: var(--text-light); text-align: center; padding: 2rem;">
+                        Aucune publication trouvée
+                    </p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>

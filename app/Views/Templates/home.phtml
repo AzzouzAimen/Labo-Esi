@@ -1,0 +1,122 @@
+<!-- Homepage Template -->
+
+<!-- Slideshow Section -->
+<?php if (!empty($recentNews)): ?>
+<section class="slideshow-container">
+    <?php foreach ($recentNews as $index => $news): ?>
+    <div class="slide <?= $index === 0 ? 'active' : '' ?>">
+        <?php if ($news['image_url']): ?>
+            <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
+                 alt="<?= $this->escape($news['titre']) ?>"
+                 onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
+        <?php else: ?>
+            <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
+        <?php endif; ?>
+        
+        <div class="slide-content">
+            <h2><?= $this->escape($news['titre']) ?></h2>
+            <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
+            <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
+               class="btn btn-primary"><?= $lang['view_details'] ?></a>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    
+    <div class="slide-controls">
+        <button class="slide-prev">◀ <?= $lang['back'] ?></button>
+        <button class="slide-next"><?= $lang['view_details'] ?> ▶</button>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Lab Overview Section -->
+<section class="lab-overview mt-4">
+    <h2 class="section-title"><?= $lang['lab_overview'] ?></h2>
+    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+        <p style="line-height: 1.8; font-size: 1.1rem;">
+            Le <strong>Laboratoire TDW-2CSSIL</strong> est un centre de recherche dédié à l'innovation 
+            technologique et à la recherche scientifique dans les domaines de l'informatique. 
+            Notre équipe multidisciplinaire travaille sur des projets de pointe en Intelligence Artificielle, 
+            Cybersécurité, Cloud Computing, et Systèmes Embarqués.
+        </p>
+        <p style="line-height: 1.8; font-size: 1.1rem; margin-top: 1rem;">
+            Nous collaborons avec des partenaires académiques et industriels pour produire des recherches 
+            de qualité et former la prochaine génération de chercheurs et d'ingénieurs.
+        </p>
+    </div>
+</section>
+
+<!-- Upcoming Events Section -->
+<?php if (!empty($upcomingEvents)): ?>
+<section class="upcoming-events mt-4">
+    <h2 class="section-title"><?= $lang['upcoming_events'] ?></h2>
+    <div class="card-grid">
+        <?php foreach ($upcomingEvents as $event): ?>
+        <div class="card">
+            <?php if ($event['image_url']): ?>
+                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" 
+                     alt="<?= $this->escape($event['titre']) ?>"
+                     onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
+            <?php else: ?>
+                <img src="<?= BASE_URL ?>assets/img/event-placeholder.jpg" alt="<?= $this->escape($event['titre']) ?>">
+            <?php endif; ?>
+            
+            <div class="card-body">
+                <h3 class="card-title"><?= $this->escape($event['titre']) ?></h3>
+                
+                <div class="card-meta">
+                    <span><strong><?= $lang['event_date'] ?>:</strong> 
+                        <?= date('d/m/Y H:i', strtotime($event['date_event'])) ?>
+                    </span>
+                    <?php if ($event['lieu']): ?>
+                    <span><strong><?= $lang['event_location'] ?>:</strong> 
+                        <?= $this->escape($event['lieu']) ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="mb-2">
+                    <span class="badge badge-primary"><?= $this->escape($event['type']) ?></span>
+                </div>
+                
+                <p class="card-text">
+                    <?= $this->escape(substr($event['description'], 0, 120)) ?>...
+                </p>
+                
+                <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $event['id_event'] ?>" 
+                   class="btn btn-primary"><?= $lang['read_more'] ?></a>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Partners Section -->
+<section class="partners-section mt-4 mb-4">
+    <h2 class="section-title"><?= $lang['our_partners'] ?></h2>
+    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; text-align: center;">
+        <p style="color: var(--text-light); margin-bottom: 2rem;">
+            Nous travaillons en étroite collaboration avec des partenaires académiques et industriels de renom.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; align-items: center;">
+            <div style="text-align: center;">
+                <strong>Sonatrach</strong><br>
+                <small style="color: var(--text-light);">Entreprise</small>
+            </div>
+            <div style="text-align: center;">
+                <strong>USTHB</strong><br>
+                <small style="color: var(--text-light);">Université</small>
+            </div>
+            <div style="text-align: center;">
+                <strong>CERIST</strong><br>
+                <small style="color: var(--text-light);">Organisme</small>
+            </div>
+        </div>
+        <div style="margin-top: 2rem;">
+            <a href="<?= BASE_URL ?>index.php?controller=Partner&action=index" class="btn btn-secondary">
+                Voir tous les partenaires
+            </a>
+        </div>
+    </div>
+</section>

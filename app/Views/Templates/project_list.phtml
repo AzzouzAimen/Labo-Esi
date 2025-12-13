@@ -1,0 +1,104 @@
+<!-- Project Catalog Template -->
+
+<section class="projects-section">
+    <h1 class="section-title"><?= $lang['projects_title'] ?></h1>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div>
+            <label for="filter-domain"><?= $lang['filter_by_domain'] ?>:</label>
+            <select id="filter-domain" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($domains)): ?>
+                    <?php foreach ($domains as $domain): ?>
+                        <option value="<?= $this->escape($domain) ?>">
+                            <?= $this->escape($domain) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+        
+        <div>
+            <label for="filter-status"><?= $lang['filter_by_status'] ?>:</label>
+            <select id="filter-status" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($statuses)): ?>
+                    <?php foreach ($statuses as $status): ?>
+                        <option value="<?= $this->escape($status) ?>">
+                            <?php
+                            // Translate status
+                            $statusKey = 'status_' . str_replace(' ', '_', $status);
+                            echo $lang[$statusKey] ?? $this->escape($status);
+                            ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Projects Grid -->
+    <div class="card-grid" id="projects-grid">
+        <?php if (!empty($projects)): ?>
+            <?php foreach ($projects as $project): ?>
+                <div class="card">
+                    <?php if ($project['image_url']): ?>
+                        <img src="<?= BASE_URL . $this->escape($project['image_url']) ?>" 
+                             alt="<?= $this->escape($project['titre']) ?>"
+                             onerror="this.src='<?= BASE_URL ?>assets/img/project-placeholder.jpg'">
+                    <?php else: ?>
+                        <img src="<?= BASE_URL ?>assets/img/project-placeholder.jpg" 
+                             alt="<?= $this->escape($project['titre']) ?>">
+                    <?php endif; ?>
+                    
+                    <div class="card-body">
+                        <h3 class="card-title"><?= $this->escape($project['titre']) ?></h3>
+                        
+                        <div class="card-meta">
+                            <span>
+                                <strong><?= $lang['project_domain'] ?>:</strong> 
+                                <?= $this->escape($project['domaine']) ?>
+                            </span>
+                            <?php if ($project['responsable_nom']): ?>
+                            <span>
+                                <strong><?= $lang['project_manager'] ?>:</strong> 
+                                <?= $this->escape($project['responsable_prenom'] . ' ' . $project['responsable_nom']) ?>
+                            </span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <?php
+                            $statusClass = 'badge-primary';
+                            if ($project['statut'] === 'terminé') {
+                                $statusClass = 'badge-success';
+                            } elseif ($project['statut'] === 'soumis') {
+                                $statusClass = 'badge-warning';
+                            }
+                            ?>
+                            <span class="badge <?= $statusClass ?>">
+                                <?= $this->escape($project['statut']) ?>
+                            </span>
+                        </div>
+                        
+                        <?php if ($project['description']): ?>
+                        <p class="card-text">
+                            <?= $this->escape(substr($project['description'], 0, 120)) ?>...
+                        </p>
+                        <?php endif; ?>
+                        
+                        <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
+                           class="btn btn-primary">
+                            <?= $lang['view_details'] ?>
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-results">
+                <?= $lang['no_projects'] ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</section>

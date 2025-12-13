@@ -1,0 +1,138 @@
+<!-- Member Profile Template -->
+
+<section class="member-profile">
+    <div style="margin-bottom: 2rem;">
+        <a href="<?= BASE_URL ?>index.php?controller=Team&action=index" class="btn btn-secondary">
+            ◀ <?= $lang['back'] ?>
+        </a>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
+        <!-- Profile Sidebar -->
+        <div>
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; text-align: center; position: sticky; top: 20px;">
+                <?php if ($user['photo']): ?>
+                <img src="<?= BASE_URL . $this->escape($user['photo']) ?>" 
+                     alt="<?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>"
+                     style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
+                     onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                <?php else: ?>
+                <div style="width: 200px; height: 200px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
+                    <?= strtoupper(substr($user['prenom'], 0, 1) . substr($user['nom'], 0, 1)) ?>
+                </div>
+                <?php endif; ?>
+                
+                <h2 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                    <?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>
+                </h2>
+                
+                <p style="color: var(--text-light); font-size: 1.1rem; margin-bottom: 1rem;">
+                    <?= $this->escape($user['grade']) ?>
+                </p>
+                
+                <?php if ($user['poste']): ?>
+                <p style="color: var(--text-light); margin-bottom: 1rem;">
+                    <strong><?= $lang['member_post'] ?>:</strong><br>
+                    <?= $this->escape($user['poste']) ?>
+                </p>
+                <?php endif; ?>
+                
+                <?php if ($user['domaine_recherche']): ?>
+                <p style="color: var(--text-light); margin-bottom: 1rem;">
+                    <strong><?= $lang['member_research'] ?>:</strong><br>
+                    <?= $this->escape($user['domaine_recherche']) ?>
+                </p>
+                <?php endif; ?>
+                
+                <?php if ($user['email']): ?>
+                <a href="mailto:<?= $this->escape($user['email']) ?>" class="btn btn-primary" style="width: 100%;">
+                    Contact
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div>
+            <!-- Projects Section -->
+            <?php if (!empty($projects)): ?>
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                    <?= $lang['my_projects'] ?>
+                </h2>
+                <div style="display: grid; gap: 1.5rem;">
+                    <?php foreach ($projects as $project): ?>
+                    <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; gap: 1rem; align-items: start;">
+                        <?php if ($project['image_url']): ?>
+                        <img src="<?= BASE_URL . $this->escape($project['image_url']) ?>" 
+                             alt="<?= $this->escape($project['titre']) ?>"
+                             style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;"
+                             onerror="this.style.display='none'">
+                        <?php endif; ?>
+                        <div style="flex: 1;">
+                            <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                                <?= $this->escape($project['titre']) ?>
+                            </h3>
+                            <div style="margin-bottom: 0.5rem;">
+                                <span class="badge badge-primary"><?= $this->escape($project['domaine']) ?></span>
+                                <?php
+                                $statusClass = 'badge-primary';
+                                if ($project['statut'] === 'terminé') {
+                                    $statusClass = 'badge-success';
+                                } elseif ($project['statut'] === 'soumis') {
+                                    $statusClass = 'badge-warning';
+                                }
+                                ?>
+                                <span class="badge <?= $statusClass ?>"><?= $this->escape($project['statut']) ?></span>
+                            </div>
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
+                               class="btn btn-primary" 
+                               style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">
+                                <?= $lang['view_details'] ?>
+                            </a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Publications Section -->
+            <?php if (!empty($publications)): ?>
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                    <?= $lang['my_publications'] ?>
+                </h2>
+                <div style="display: grid; gap: 1.5rem;">
+                    <?php foreach ($publications as $pub): ?>
+                    <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                            <?= $this->escape($pub['titre']) ?>
+                        </h3>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                            <span class="badge badge-primary"><?= $this->escape($pub['type']) ?></span>
+                            <?= date('Y', strtotime($pub['date_publication'])) ?>
+                        </p>
+                        <?php if ($pub['lien_pdf']): ?>
+                        <a href="<?= $this->escape($pub['lien_pdf']) ?>" 
+                           target="_blank" 
+                           class="btn btn-primary" 
+                           style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">
+                            <?= $lang['pub_download'] ?>
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Empty State -->
+            <?php if (empty($projects) && empty($publications)): ?>
+            <div class="no-results">
+                Aucune activité disponible pour ce membre.
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
