@@ -75,17 +75,24 @@ class TeamModel {
     }
 
     /**
-     * Get all laboratory members (for organizational chart)
+     * Get all laboratory members (for organizational chart and directory)
      * @return array
      */
     public function getAllMembers() {
         $stmt = $this->db->query("
             SELECT 
                 u.id_user, u.nom, u.prenom, u.photo, u.grade, 
-                u.poste, u.domaine_recherche, u.email, u.role
+                u.poste, u.domaine_recherche, u.email, u.role,
+                u.team_id as id_team, u.role_dans_equipe,
+                t.nom as team_nom,
+                CASE WHEN t.chef_id = u.id_user THEN 1 ELSE 0 END as is_team_leader
             FROM users u
+            LEFT JOIN teams t ON u.team_id = t.id_team
             WHERE u.role IN ('admin', 'enseignant-chercheur', 'doctorant', 'etudiant')
             ORDER BY 
+                CASE WHEN u.team_id IS NULL THEN 1 ELSE 0 END,
+                t.nom,
+                CASE WHEN t.chef_id = u.id_user THEN 0 ELSE 1 END,
                 CASE u.role
                     WHEN 'admin' THEN 1
                     WHEN 'enseignant-chercheur' THEN 2

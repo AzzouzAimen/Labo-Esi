@@ -1987,3 +1987,222 @@ select.form-control {
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ============================================
+   Members Directory Page Styles
+   ============================================ */
+.members-directory-section {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.members-directory-section .section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: left;
+  color: var(--text-color);
+}
+
+/* Filter Bar */
+.members-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid var(--border-color);
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.filter-group .form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.filter-group .form-control:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Results Info */
+.results-info {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+#results-count {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Table Container */
+.members-table-container {
+  overflow-x: auto;
+  background: white;
+  border: 1px solid var(--border-color);
+}
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.members-table thead {
+  background-color: var(--bg-light);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.members-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  position: relative;
+  border-right: 1px solid var(--border-color);
+}
+
+.members-table th:last-child {
+  border-right: none;
+}
+
+.members-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.members-table th.sortable:hover {
+  background-color: #e9ecef;
+}
+
+.sort-arrow {
+  margin-left: 0.5rem;
+  color: var(--text-light);
+}
+
+.sort-arrow::after {
+  content: "⇅";
+}
+
+th.sort-asc .sort-arrow::after {
+  content: "↑";
+  color: var(--primary-color);
+}
+
+th.sort-desc .sort-arrow::after {
+  content: "↓";
+  color: var(--primary-color);
+}
+
+.members-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.members-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.members-table tbody tr:hover {
+  background-color: #e9ecef !important;
+}
+
+.members-table tbody tr:hover td {
+  background-color: #e9ecef !important;
+}
+
+.members-table td {
+  padding: 1rem;
+  color: var(--text-color);
+  border-right: 1px solid var(--border-color);
+  background-color: inherit;
+}
+
+.members-table td:last-child {
+  border-right: none;
+}
+
+.members-table td.team-cell {
+  font-weight: 500;
+  color: var(--primary-color);
+  background-color: var(--bg-light);
+  vertical-align: top;
+}
+
+.members-table td:nth-child(2) {
+  font-weight: normal;
+}
+
+.members-table td:nth-child(3) {
+  color: var(--text-light);
+  font-weight: normal;
+}
+
+.team-leader-badge {
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.members-directory-section .no-results {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-light);
+  font-style: italic;
+  background: white;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .members-filter-bar {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .members-table {
+    font-size: 0.875rem;
+  }
+
+  .members-table th,
+  .members-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .members-directory-section .section-title {
+    font-size: 1.5rem;
+  }
+}
