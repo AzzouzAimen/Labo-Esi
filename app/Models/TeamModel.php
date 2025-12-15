@@ -151,4 +151,20 @@ class TeamModel {
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Get the Laboratory Director
+     * Find the user with the specific post "Directeur du Laboratoire"
+     * @return array|false
+     */
+    public function getDirector() {
+        $stmt = $this->db->prepare("
+            SELECT id_user, nom, prenom, grade, photo, poste, email
+            FROM users 
+            WHERE poste = 'Directeur du Laboratoire' 
+            LIMIT 1
+        ");
+        $stmt->execute();
+        return $stmt->fetch();
+    }
 }

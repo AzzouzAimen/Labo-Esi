@@ -17,16 +17,16 @@ class TeamController extends Controller {
         // Get all teams with their members
         $teams = $teamModel->getAllTeams();
         
-        // For each team, get its members
+        // Get all teams with their members and collect leaders
         $teamsWithMembers = [];
+        $teamLeaders = [];
+        
         foreach ($teams as $team) {
+            // Get members
             $team['members'] = $teamModel->getTeamMembers($team['id_team']);
             $teamsWithMembers[] = $team;
-        }
-        
-        // Get team leaders for organigramme
-        $teamLeaders = [];
-        foreach ($teams as $team) {
+            
+            // Collect leader info for organigramme
             if ($team['chef_id']) {
                 $teamLeaders[] = [
                     'id' => $team['chef_id'],
@@ -39,10 +39,14 @@ class TeamController extends Controller {
             }
         }
         
+        // Get Director Data
+        $director = $teamModel->getDirector();
+        
         // Prepare data
         $data = [
             'teams' => $teamsWithMembers,
-            'teamLeaders' => $teamLeaders
+            'teamLeaders' => $teamLeaders,
+            'director' => $director
         ];
         
         // Load Presentation View

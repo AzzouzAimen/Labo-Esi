@@ -34,78 +34,78 @@
 
 <!-- Scientific Updates Section -->
 <section class="scientific-updates mt-4">
-    <h2 class="section-title">Actualités Scientifiques</h2>
+    <h2 class="section-title"><?= $lang['section_scientific_news'] ?></h2>
     <div class="updates-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
         
         <!-- Recent Projects -->
         <div class="update-column">
             <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                Nouveaux Projets
+                <?= $lang['recent_projects'] ?>
             </h3>
             <?php if (!empty($recentProjects)): ?>
-                <ul style="list-style: none; padding: 0;">
+                <div class="updates-cards">
                     <?php foreach ($recentProjects as $project): ?>
-                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">
-                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=view&id=<?= $project['id_project'] ?>" style="color: var(--text-color); text-decoration: none;">
+                    <div class="update-card">
+                        <h4 class="update-card-title">
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=view&id=<?= $project['id_project'] ?>">
                                 <?= $this->escape($project['titre']) ?>
                             </a>
                         </h4>
-                        <span class="badge badge-secondary" style="font-size: 0.8rem;"><?= $this->escape($project['domaine']) ?></span>
-                    </li>
+                        <span class="badge badge-secondary"><?= $this->escape($project['domaine']) ?></span>
+                    </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php else: ?>
-                <p>Aucun projet récent.</p>
+                <p><?= $lang['no_recent_projects'] ?></p>
             <?php endif; ?>
-            <a href="<?= BASE_URL ?>index.php?controller=Project&action=index" class="btn btn-sm btn-outline-primary">Voir tous les projets</a>
+            <a href="<?= BASE_URL ?>index.php?controller=Project&action=index" class="btn btn-sm btn-outline-primary"><?= $lang['view_all_projects'] ?></a>
         </div>
 
         <!-- Recent Publications -->
         <div class="update-column">
             <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                Publications Récentes
+                <?= $lang['recent_publications'] ?>
             </h3>
             <?php if (!empty($recentPublications)): ?>
-                <ul style="list-style: none; padding: 0;">
+                <div class="updates-cards">
                     <?php foreach ($recentPublications as $pub): ?>
-                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-                        <p style="margin-bottom: 0.3rem; font-weight: 500;">
+                    <div class="update-card">
+                        <p class="update-card-title">
                             <?= $this->escape($pub['titre']) ?>
                         </p>
-                        <small style="color: var(--text-light);">Année: <?= $this->escape($pub['annee']) ?></small>
-                    </li>
+                        <small class="update-card-meta"><?= $lang['year_label'] ?>: <?= $this->escape($pub['annee']) ?></small>
+                    </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php else: ?>
-                <p>Aucune publication récente.</p>
+                <p><?= $lang['no_recent_publications'] ?></p>
             <?php endif; ?>
-            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index" class="btn btn-sm btn-outline-primary">Voir toutes les publications</a>
+            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index" class="btn btn-sm btn-outline-primary"><?= $lang['view_all_publications'] ?></a>
         </div>
 
         <!-- Collaborations -->
         <div class="update-column">
             <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                Collaborations
+                <?= $lang['collaborations'] ?>
             </h3>
             <?php if (!empty($recentPartners)): ?>
-                <ul style="list-style: none; padding: 0;">
+                <div class="updates-cards">
                     <?php foreach ($recentPartners as $partner): ?>
-                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
+                    <div class="update-card collaboration-card">
                         <?php if ($partner['logo_url']): ?>
-                            <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" alt="<?= $this->escape($partner['nom']) ?>" style="width: 40px; height: 40px; object-fit: contain;">
+                            <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" alt="<?= $this->escape($partner['nom']) ?>" class="collab-logo">
                         <?php endif; ?>
-                        <div>
-                            <h4 style="font-size: 1rem; margin: 0;"><?= $this->escape($partner['nom']) ?></h4>
-                            <small style="color: var(--text-light);"><?= $this->escape($partner['type']) ?></small>
+                        <div class="collab-info">
+                            <h4 class="update-card-title"><?= $this->escape($partner['nom']) ?></h4>
+                            <small class="update-card-meta"><?= $this->escape($partner['type']) ?></small>
                         </div>
-                    </li>
+                    </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php else: ?>
-                <p>Aucune nouvelle collaboration.</p>
+                <p><?= $lang['no_new_collaborations'] ?></p>
             <?php endif; ?>
-            <a href="#partners-section" class="btn btn-sm btn-outline-primary scroll-to-section">Voir les partenaires</a>
+            <a href="#partners-section" class="btn btn-sm btn-outline-primary scroll-to-section"><?= $lang['view_partners'] ?></a>
         </div>
     </div>
 </section>
@@ -115,26 +115,24 @@
     <h2 class="section-title"><?= $lang['lab_overview'] ?></h2>
     <div style="background: var(--bg-light); padding: 2rem;">
         <p style="line-height: 1.8; font-size: 1.1rem;">
-            Le <strong>LCSI</strong> est un centre de recherche dédié à l'innovation 
-            technologique et à la recherche scientifique dans les domaines de :
+            <?= $lang['lab_description_intro'] ?>
         </p>
         <ul style="line-height: 1.8; font-size: 1.05rem; margin: 1.5rem 0; padding-left: 2rem;">
-            <li>Conception de structures de données adaptées pour les environnements distribués et mobiles</li>
-            <li>Architectures avancées des SGBD de la nouvelle génération</li>
-            <li>Processus intelligents, Intelligence Artificielle, Robotique & Perception</li>
-            <li>Milieux poreux et composites, Traitement d'images, Machine learning, Data analysis, Processus aléatoires, Théorie des nombres</li>
+            <li><?= $lang['lab_description_list_1'] ?></li>
+            <li><?= $lang['lab_description_list_2'] ?></li>
+            <li><?= $lang['lab_description_list_3'] ?></li>
+            <li><?= $lang['lab_description_list_4'] ?></li>
         </ul>
         <p style="line-height: 1.8; font-size: 1.1rem;">
-            Notre équipe multidisciplinaire travaille sur des projets de pointe dans ces domaines en constante évolution.
+            <?= $lang['lab_description_outro_1'] ?>
         </p>
         <p style="line-height: 1.8; font-size: 1.1rem; margin-top: 1rem;">
-            Nous collaborons avec des partenaires académiques et industriels pour produire des recherches 
-            de qualité et former la prochaine génération de chercheurs et d'ingénieurs.
+            <?= $lang['lab_description_outro_2'] ?>
         </p>
 
         <div style="margin-top: 1.5rem;">
             <a href="<?= BASE_URL ?>index.php?controller=Team&action=presentation#organigramme-section" class="btn btn-secondary">
-                Voir l'organigramme
+                <?= $lang['view_organigram'] ?>
             </a>
         </div>
     </div>
@@ -190,11 +188,11 @@
 
     <?php if (!empty($eventsTotalPages) && (int)$eventsTotalPages > 1): ?>
     <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-        <button type="button" class="btn btn-secondary" id="events-prev">Précédent</button>
+        <button type="button" class="btn btn-secondary" id="events-prev"><?= $lang['previous'] ?></button>
         <div style="align-self: center; color: var(--text-light);">
-            Page <span id="events-page-label"><?= (int)($eventsPage ?? 1) ?></span> / <span id="events-total-label"><?= (int)($eventsTotalPages ?? 1) ?></span>
+            <?= $lang['page'] ?> <span id="events-page-label"><?= (int)($eventsPage ?? 1) ?></span> / <span id="events-total-label"><?= (int)($eventsTotalPages ?? 1) ?></span>
         </div>
-        <button type="button" class="btn btn-secondary" id="events-next">Suivant</button>
+        <button type="button" class="btn btn-secondary" id="events-next"><?= $lang['next'] ?></button>
     </div>
     <?php endif; ?>
 </section>
@@ -205,7 +203,7 @@
     <h2 class="section-title"><?= $lang['our_partners'] ?></h2>
     <div style="background: var(--bg-light); padding: 2rem;">
         <p style="color: var(--text-light); margin-bottom: 2rem; text-align: center;">
-            Nous travaillons en étroite collaboration avec des partenaires académiques et industriels de renom.
+            <?= $lang['partners_intro'] ?>
         </p>
         
         <?php if (!empty($allPartners)): ?>
@@ -240,7 +238,7 @@
             </div>
         <?php else: ?>
             <div style="text-align: center; padding: 2rem;">
-                <p style="color: var(--text-light);">Aucun partenaire disponible pour le moment.</p>
+                <p style="color: var(--text-light);"><?= $lang['no_partners_available'] ?></p>
             </div>
         <?php endif; ?>
     </div>

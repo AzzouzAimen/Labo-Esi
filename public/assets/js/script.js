@@ -5,6 +5,29 @@
 
 $(document).ready(function () {
   // ====================================
+  // Password Toggle Functionality
+  // ====================================
+  $("#togglePassword").on("click", function () {
+    const passwordField = $("#password");
+    const btn = $(this);
+    const img = btn.find("img.eye-icon");
+    const showSrc = btn.data("show");
+    const hideSrc = btn.data("hide");
+
+    if (passwordField.attr("type") === "password") {
+      passwordField.attr("type", "text");
+      img.attr("src", hideSrc);
+      btn.attr("aria-label", "Hide password");
+      img.attr("alt", "Hide password");
+    } else {
+      passwordField.attr("type", "password");
+      img.attr("src", showSrc);
+      btn.attr("aria-label", "Show password");
+      img.attr("alt", "Show password");
+    }
+  });
+
+  // ====================================
   // Slideshow functionality
   // ====================================
   let currentSlide = 0;
@@ -57,7 +80,9 @@ $(document).ready(function () {
         : "all";
 
       // Show loading state
-      $("#projects-grid").html('<div class="loading">Chargement...</div>');
+      $("#projects-grid").html(
+        '<div class="loading">' + LANG.loading + "</div>"
+      );
 
       // AJAX request to filter projects
       $.ajax({
@@ -76,14 +101,14 @@ $(document).ready(function () {
             renderProjects(response.data);
           } else {
             $("#projects-grid").html(
-              '<div class="no-results">Aucun projet trouvé</div>'
+              '<div class="no-results">' + LANG.no_projects_found + "</div>"
             );
           }
         },
         error: function (xhr, status, error) {
           console.error("AJAX Error:", error);
           $("#projects-grid").html(
-            '<div class="no-results">Erreur lors du chargement des projets</div>'
+            '<div class="no-results">' + LANG.error_loading_projects + "</div>"
           );
         },
       });
@@ -117,7 +142,9 @@ $(document).ready(function () {
 
       const membersLabel =
         membersCount !== null && !Number.isNaN(membersCount)
-          ? membersCount + " membre" + (membersCount > 1 ? "s" : "")
+          ? membersCount +
+            " " +
+            (membersCount > 1 ? LANG.member_plural : LANG.member_singular)
           : "N/A";
 
       const managerName =
@@ -133,16 +160,18 @@ $(document).ready(function () {
                     <div class="card-body">
                         <h3 class="card-title">${escapeHtml(project.titre)}</h3>
                         <div class="card-meta">
-                            <span><strong>Domaine:</strong> ${escapeHtml(
-                              project.domaine
-                            )}</span>
-                            <span><strong>Responsable:</strong> ${escapeHtml(
-                              managerName
-                            )}</span>
-                            <span><strong>Financement:</strong> ${funding}</span>
-                            <span><strong>Membres:</strong> ${escapeHtml(
-                              membersLabel
-                            )}</span>
+                            <span><strong>${
+                              LANG.project_domain
+                            }:</strong> ${escapeHtml(project.domaine)}</span>
+                            <span><strong>${
+                              LANG.project_manager
+                            }:</strong> ${escapeHtml(managerName)}</span>
+                            <span><strong>${
+                              LANG.project_funding
+                            }:</strong> ${funding}</span>
+                            <span><strong>${
+                              LANG.project_members
+                            }:</strong> ${escapeHtml(membersLabel)}</span>
                         </div>
                         <div class="mb-2">
                             <span class="badge ${statusClass}">${escapeHtml(
@@ -154,7 +183,7 @@ $(document).ready(function () {
                         )}</p>
                         <a href="${BASE_URL}index.php?controller=Project&action=detail&id=${
         project.id_project
-      }" class="btn btn-primary">Voir les détails</a>
+      }" class="btn btn-primary">${LANG.view_details}</a>
                     </div>
                 </div>
             `;
@@ -205,7 +234,7 @@ $(document).ready(function () {
 
     if (!isValid) {
       e.preventDefault();
-      alert("Veuillez remplir tous les champs obligatoires");
+      alert(LANG.fill_required_fields);
     }
   });
 
@@ -217,14 +246,35 @@ $(document).ready(function () {
   });
 
   // ====================================
-  // Homepage Upcoming Events Pagination
+  // Generic Pagination State Management
   // ====================================
+  function updatePagerState(
+    prevBtnId,
+    nextBtnId,
+    pageLabelId,
+    totalLabelId,
+    page,
+    totalPages
+  ) {
+    const prevBtn = $(prevBtnId);
+    const nextBtn = $(nextBtnId);
+    if (!prevBtn.length || !nextBtn.length) return;
+
+    $(pageLabelId).text(page);
+    $(totalLabelId).text(totalPages);
+    prevBtn.prop("disabled", page <= 1);
+    nextBtn.prop("disabled", page >= totalPages);
+  }
+
   function updateEventsPagerState(page, totalPages) {
-    if (!$("#events-prev").length || !$("#events-next").length) return;
-    $("#events-page-label").text(page);
-    $("#events-total-label").text(totalPages);
-    $("#events-prev").prop("disabled", page <= 1);
-    $("#events-next").prop("disabled", page >= totalPages);
+    updatePagerState(
+      "#events-prev",
+      "#events-next",
+      "#events-page-label",
+      "#events-total-label",
+      page,
+      totalPages
+    );
   }
 
   function renderUpcomingEvents(events) {
@@ -258,12 +308,14 @@ $(document).ready(function () {
           <div class="card-body">
             <h3 class="card-title">${escapeHtml(event.titre)}</h3>
             <div class="card-meta">
-              <span><strong>Date:</strong> ${escapeHtml(dateLabel)}</span>
+              <span><strong>${LANG.event_date}:</strong> ${escapeHtml(
+        dateLabel
+      )}</span>
               ${
                 event.lieu
-                  ? `<span><strong>Lieu:</strong> ${escapeHtml(
-                      event.lieu
-                    )}</span>`
+                  ? `<span><strong>${
+                      LANG.event_location
+                    }:</strong> ${escapeHtml(event.lieu)}</span>`
                   : ""
               }
             </div>
@@ -275,7 +327,7 @@ $(document).ready(function () {
             )}...</p>
             <a href="${BASE_URL}index.php?controller=Event&action=view&id=${
         event.id_event
-      }" class="btn btn-primary">Lire la suite</a>
+      }" class="btn btn-primary">${LANG.read_more}</a>
           </div>
         </div>
       `;
@@ -437,11 +489,14 @@ $(document).ready(function () {
   // Publications AJAX Filtering + Pagination
   // ====================================
   function updatePubPagerState(page, totalPages) {
-    if (!$("#pub-prev").length || !$("#pub-next").length) return;
-    $("#pub-page-label").text(page);
-    $("#pub-total-label").text(totalPages);
-    $("#pub-prev").prop("disabled", page <= 1);
-    $("#pub-next").prop("disabled", page >= totalPages);
+    updatePagerState(
+      "#pub-prev",
+      "#pub-next",
+      "#pub-page-label",
+      "#pub-total-label",
+      page,
+      totalPages
+    );
   }
 
   function renderPublications(pubs) {
@@ -450,62 +505,75 @@ $(document).ready(function () {
     pubs.forEach(function (pub) {
       const dateLabel = pub.date_publication
         ? new Date(pub.date_publication).toLocaleDateString("fr-FR")
-        : "N/A";
+        : '<span class="empty-field">N/A</span>';
+
+      const authorsLabel = pub.auteurs
+        ? escapeHtml(pub.auteurs)
+        : '<span class="empty-field">Aucun auteur listé</span>';
+
+      const resumeLabel = pub.resume
+        ? escapeHtml(truncate(pub.resume, 250)) + "..."
+        : '<span class="empty-field">Aucun résumé disponible.</span>';
+
+      const doiLabel = pub.doi
+        ? escapeHtml(pub.doi)
+        : '<span class="empty-field">Non disponible</span>';
+
+      // Download Button Logic
+      let downloadBtn = "";
+      if (pub.lien_pdf) {
+        downloadBtn = `<a href="${escapeHtml(
+          pub.lien_pdf
+        )}" target="_blank" class="btn-download">${LANG.pub_download}</a>`;
+      } else {
+        downloadBtn = `<span class="btn-download disabled">${LANG.pub_download} (Indisponible)</span>`;
+      }
+
+      // Domain Label - always show
+      const domainLabel = pub.domaine
+        ? escapeHtml(pub.domaine)
+        : '<span class="empty-field">' +
+          (LANG.not_specified || "Non spécifié") +
+          "</span>";
 
       html += `
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title">${escapeHtml(pub.titre)}</h3>
-            <div class="card-meta">
-              <span><strong>Date:</strong> ${escapeHtml(dateLabel)}</span>
-              <span><strong>Type:</strong> ${escapeHtml(pub.type)}</span>
-              ${
-                pub.domaine
-                  ? `<span><strong>Domaine:</strong> ${escapeHtml(
-                      pub.domaine
-                    )}</span>`
-                  : ""
-              }
-            </div>
-            ${
-              pub.auteurs
-                ? `<p class="card-text"><strong>Auteurs:</strong> ${escapeHtml(
-                    pub.auteurs
-                  )}</p>`
-                : ""
-            }
-            ${
-              pub.doi
-                ? `<p class="card-text"><strong>DOI:</strong> ${escapeHtml(
-                    pub.doi
-                  )}</p>`
-                : ""
-            }
-            ${
-              pub.resume
-                ? `<p class="card-text"><strong>Résumé:</strong> ${escapeHtml(
-                    truncate(pub.resume, 220)
-                  )}...</p>`
-                : ""
-            }
-            ${
-              pub.lien_pdf
-                ? `<a href="${escapeHtml(
-                    pub.lien_pdf
-                  )}" target="_blank" class="btn btn-primary">Télécharger PDF</a>`
-                : ""
-            }
+        <div class="document-item">
+          <div class="doc-header">
+            <h3 class="doc-title">${escapeHtml(pub.titre)}</h3>
+            <span class="doc-type-badge">${escapeHtml(pub.type)}</span>
+          </div>
+
+          <div class="doc-meta-row">
+            <span><strong>${LANG.pub_date}:</strong> ${dateLabel}</span>
+            <span><strong>${LANG.project_domain}:</strong> ${domainLabel}</span>
+          </div>
+
+          <div class="doc-authors">
+            <strong>${LANG.pub_authors}:</strong> ${authorsLabel}
+          </div>
+
+          <div class="doc-abstract">
+            <strong>${LANG.pub_abstract}:</strong><br>
+            ${resumeLabel}
+          </div>
+
+          <div class="doc-footer">
+            <span class="doc-doi">DOI: ${doiLabel}</span>
+            ${downloadBtn}
           </div>
         </div>
       `;
     });
 
-    $("#publications-grid").html(html);
+    // Note: Use the ID 'publications-list' instead of 'publications-grid'
+    $("#publications-list").html(html);
   }
 
   function collectPubFilters() {
-    const grid = $("#publications-grid");
+    const grid = $("#publications-list");
     const team = grid.data("team");
+    const projectFromData = grid.data("project");
+    const projectFromFilter = $("#pub-filter-project").val();
     return {
       q: $("#pub-search").val() || "",
       year: $("#pub-filter-year").val() || "all",
@@ -514,21 +582,82 @@ $(document).ready(function () {
       domain: $("#pub-filter-domain").val() || "all",
       sort: $("#pub-sort").val() || "date_desc",
       team: team || "all",
+      project: projectFromFilter || projectFromData || "all",
     };
   }
 
+  /**
+   * Generic function to load paginated data via AJAX
+   */
+  function loadPaginatedData(options) {
+    const {
+      url,
+      data,
+      container,
+      renderCallback,
+      pagerCallback,
+      errorMessage,
+      emptyMessage,
+    } = options;
+
+    container.html('<div class="loading">' + LANG.loading + "</div>");
+
+    $.ajax({
+      url: url,
+      method: "GET",
+      data: data,
+      dataType: "json",
+      success: function (response) {
+        if (!response || !response.success) {
+          container.html(
+            '<div class="no-results">' +
+              (errorMessage || LANG.error_loading_projects) +
+              "</div>"
+          );
+          return;
+        }
+
+        const items = response.data || [];
+        const pagination = response.pagination || {};
+        const page = pagination.page || data.page;
+        const totalPages = pagination.totalPages || 1;
+
+        container.data("page", page);
+        container.data("total-pages", totalPages);
+
+        if (items.length > 0) {
+          renderCallback(items);
+        } else {
+          container.html(
+            '<div class="no-results">' +
+              (emptyMessage || LANG.no_projects_found) +
+              "</div>"
+          );
+        }
+
+        if (pagerCallback) {
+          pagerCallback(page, totalPages);
+        }
+      },
+      error: function () {
+        container.html(
+          '<div class="no-results">' +
+            (errorMessage || LANG.error_loading_projects) +
+            "</div>"
+        );
+      },
+    });
+  }
+
   function loadPublicationsPage(targetPage) {
-    const grid = $("#publications-grid");
+    const grid = $("#publications-list");
     if (!grid.length) return;
 
     const perPage = parseInt(grid.data("per-page"), 10) || 6;
     const filters = collectPubFilters();
 
-    grid.html('<div class="loading">Chargement...</div>');
-
-    $.ajax({
+    loadPaginatedData({
       url: BASE_URL + "index.php",
-      method: "GET",
       data: {
         controller: "Publication",
         action: "filter",
@@ -541,37 +670,13 @@ $(document).ready(function () {
         domain: filters.domain,
         sort: filters.sort,
         team: filters.team,
+        project: filters.project,
       },
-      dataType: "json",
-      success: function (response) {
-        if (!response || !response.success) {
-          grid.html(
-            '<div class="no-results">Erreur lors du chargement des publications</div>'
-          );
-          return;
-        }
-
-        const pubs = response.data || [];
-        const pagination = response.pagination || {};
-        const page = pagination.page || targetPage;
-        const totalPages = pagination.totalPages || 1;
-
-        grid.data("page", page);
-        grid.data("total-pages", totalPages);
-
-        if (pubs.length > 0) {
-          renderPublications(pubs);
-        } else {
-          grid.html('<div class="no-results">Aucune publication trouvée</div>');
-        }
-
-        updatePubPagerState(page, totalPages);
-      },
-      error: function () {
-        grid.html(
-          '<div class="no-results">Erreur lors du chargement des publications</div>'
-        );
-      },
+      container: grid,
+      renderCallback: renderPublications,
+      pagerCallback: updatePubPagerState,
+      errorMessage: LANG.error_loading_publications,
+      emptyMessage: LANG.no_publications_found,
     });
   }
 
@@ -586,10 +691,10 @@ $(document).ready(function () {
     };
   }
 
-  if ($("#publications-grid").length) {
-    const initialPage = parseInt($("#publications-grid").data("page"), 10) || 1;
+  if ($("#publications-list").length) {
+    const initialPage = parseInt($("#publications-list").data("page"), 10) || 1;
     const initialTotalPages =
-      parseInt($("#publications-grid").data("total-pages"), 10) || 1;
+      parseInt($("#publications-list").data("total-pages"), 10) || 1;
     updatePubPagerState(initialPage, initialTotalPages);
 
     const reload = function () {
@@ -597,20 +702,20 @@ $(document).ready(function () {
     };
 
     $(
-      "#pub-filter-year, #pub-filter-author, #pub-filter-type, #pub-filter-domain, #pub-sort"
+      "#pub-filter-year, #pub-filter-author, #pub-filter-type, #pub-filter-domain, #pub-filter-project, #pub-sort"
     ).on("change", reload);
 
     $("#pub-search").on("input", debounce(reload, 300));
 
     $("#pub-prev").on("click", function () {
-      const current = parseInt($("#publications-grid").data("page"), 10) || 1;
+      const current = parseInt($("#publications-list").data("page"), 10) || 1;
       loadPublicationsPage(Math.max(1, current - 1));
     });
 
     $("#pub-next").on("click", function () {
-      const current = parseInt($("#publications-grid").data("page"), 10) || 1;
+      const current = parseInt($("#publications-list").data("page"), 10) || 1;
       const total =
-        parseInt($("#publications-grid").data("total-pages"), 10) || 1;
+        parseInt($("#publications-list").data("total-pages"), 10) || 1;
       loadPublicationsPage(Math.min(total, current + 1));
     });
   }
@@ -627,11 +732,11 @@ $(document).ready(function () {
 
       if (wrapper.hasClass("collapsed")) {
         wrapper.removeClass("collapsed").addClass("expanded");
-        text.text("Voir moins de détails");
+        text.text(LANG.view_less_details);
         btn.addClass("expanded");
       } else {
         wrapper.removeClass("expanded").addClass("collapsed");
-        text.text("Voir plus de détails");
+        text.text(LANG.view_more_details);
         btn.removeClass("expanded");
       }
     });

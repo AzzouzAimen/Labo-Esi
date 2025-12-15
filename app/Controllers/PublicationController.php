@@ -21,6 +21,7 @@ class PublicationController extends Controller {
             'domain' => $_GET['domain'] ?? 'all',
             'author' => $_GET['author'] ?? 'all',
             'team' => $teamId ? (int)$teamId : ($_GET['team'] ?? 'all'),
+            'project' => $_GET['project'] ?? 'all',
             'q' => trim($_GET['q'] ?? '')
         ];
 
@@ -39,6 +40,7 @@ class PublicationController extends Controller {
             'types' => $pubModel->getTypes(),
             'domains' => $pubModel->getDomains(),
             'authors' => $pubModel->getAuthors(),
+            'projects' => $pubModel->getProjects(),
             'filters' => $filters,
             'sort' => $sort,
             'page' => max(1, $page),
@@ -62,6 +64,7 @@ class PublicationController extends Controller {
             'domain' => $_GET['domain'] ?? 'all',
             'author' => $_GET['author'] ?? 'all',
             'team' => $_GET['team'] ?? 'all',
+            'project' => $_GET['project'] ?? 'all',
             'q' => trim($_GET['q'] ?? '')
         ];
 

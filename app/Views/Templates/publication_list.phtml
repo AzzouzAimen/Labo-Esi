@@ -63,6 +63,20 @@
         </div>
 
         <div>
+            <label for="pub-filter-project">Projet:</label>
+            <select id="pub-filter-project" class="form-control" style="width: auto; display: inline-block;">
+                <option value="all"><?= $lang['all'] ?></option>
+                <?php if (!empty($projects)): ?>
+                    <?php foreach ($projects as $proj): ?>
+                        <option value="<?= (int)$proj['id_project'] ?>" <?= (($filters['project'] ?? 'all') == $proj['id_project']) ? 'selected' : '' ?>>
+                            <?= $this->escape($proj['titre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div>
             <label for="pub-sort">Tri:</label>
             <select id="pub-sort" class="form-control" style="width: auto; display: inline-block;">
                 <option value="date_desc" <?= (($sort ?? 'date_desc') === 'date_desc') ? 'selected' : '' ?>>Date (récent → ancien)</option>
@@ -73,40 +87,55 @@
         </div>
     </div>
 
-    <div id="publications-grid" class="card-grid"
+    <div id="publications-list" class="document-list"
          data-page="<?= (int)($page ?? 1) ?>"
          data-total-pages="<?= (int)($totalPages ?? 1) ?>"
          data-per-page="<?= (int)($perPage ?? 6) ?>"
-         data-team="<?= $this->escape($filters['team'] ?? 'all') ?>">
+         data-team="<?= $this->escape($filters['team'] ?? 'all') ?>"
+         data-project="<?= $this->escape($filters['project'] ?? 'all') ?>">
+
         <?php if (!empty($publications)): ?>
             <?php foreach ($publications as $pub): ?>
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title"><?= $this->escape($pub['titre']) ?></h3>
-                        <div class="card-meta">
-                            <span><strong><?= $lang['pub_date'] ?>:</strong> <?= $pub['date_publication'] ? date('d/m/Y', strtotime($pub['date_publication'])) : 'N/A' ?></span>
-                            <span><strong><?= $lang['pub_type'] ?>:</strong> <?= $this->escape($pub['type']) ?></span>
-                            <?php if (!empty($pub['domaine'])): ?>
-                                <span><strong><?= $lang['project_domain'] ?>:</strong> <?= $this->escape($pub['domaine']) ?></span>
-                            <?php endif; ?>
-                        </div>
+                <div class="document-item">
+                    <div class="doc-header">
+                        <h3 class="doc-title"><?= $this->escape($pub['titre']) ?></h3>
+                        <span class="doc-type-badge"><?= $this->escape($pub['type']) ?></span>
+                    </div>
 
-                        <?php if (!empty($pub['auteurs'])): ?>
-                            <p class="card-text"><strong><?= $lang['pub_authors'] ?>:</strong> <?= $this->escape($pub['auteurs']) ?></p>
-                        <?php endif; ?>
+                    <div class="doc-meta-row">
+                        <span>
+                            <strong><?= $lang['pub_date'] ?>:</strong> 
+                            <?= $pub['date_publication'] ? date('d/m/Y', strtotime($pub['date_publication'])) : '<span class="empty-field">N/A</span>' ?>
+                        </span>
+                        <span>
+                            <strong><?= $lang['project_domain'] ?>:</strong> 
+                            <?= !empty($pub['domaine']) ? $this->escape($pub['domaine']) : '<span class="empty-field">' . $lang['not_specified'] . '</span>' ?>
+                        </span>
+                    </div>
 
-                        <?php if (!empty($pub['doi'])): ?>
-                            <p class="card-text"><strong>DOI:</strong> <?= $this->escape($pub['doi']) ?></p>
-                        <?php endif; ?>
+                    <div class="doc-authors">
+                        <strong><?= $lang['pub_authors'] ?>:</strong> 
+                        <?= !empty($pub['auteurs']) ? $this->escape($pub['auteurs']) : '<span class="empty-field">Aucun auteur listé</span>' ?>
+                    </div>
 
-                        <?php if (!empty($pub['resume'])): ?>
-                            <p class="card-text"><strong><?= $lang['pub_abstract'] ?>:</strong> <?= $this->escape(substr($pub['resume'], 0, 220)) ?>...</p>
-                        <?php endif; ?>
+                    <div class="doc-abstract">
+                        <strong><?= $lang['pub_abstract'] ?>:</strong><br>
+                        <?= !empty($pub['resume']) ? $this->escape(substr($pub['resume'], 0, 250)) . '...' : '<span class="empty-field">Aucun résumé disponible.</span>' ?>
+                    </div>
 
+                    <div class="doc-footer">
+                        <span class="doc-doi">
+                            DOI: <?= !empty($pub['doi']) ? $this->escape($pub['doi']) : '<span class="empty-field">Non disponible</span>' ?>
+                        </span>
+                        
                         <?php if (!empty($pub['lien_pdf'])): ?>
-                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" target="_blank" class="btn btn-primary">
+                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" target="_blank" class="btn-download">
                                 <?= $lang['pub_download'] ?>
                             </a>
+                        <?php else: ?>
+                            <span class="btn-download disabled">
+                                <?= $lang['pub_download'] ?> (Indisponible)
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>

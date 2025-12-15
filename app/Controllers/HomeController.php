@@ -7,6 +7,12 @@ class HomeController extends Controller {
 
     /**
      * Homepage - Display slideshow and recent news
+     * 
+     * Note: This controller loads multiple models (NewsModel, ProjectModel, 
+     * PublicationModel, PartnerModel). While this creates coupling and may be 
+     * considered a "God Controller", it is acceptable for a homepage/dashboard 
+     * that serves as an aggregation point. Future refactoring could move data 
+     * aggregation to a dedicated service layer if complexity grows.
      */
     public function index() {
         // Load language

@@ -8,6 +8,32 @@
     <script>
         // Global BASE_URL for JavaScript AJAX calls
         const BASE_URL = "<?= BASE_URL ?>";
+        // Global Translations for JavaScript
+        const LANG = {
+            loading: "<?= $lang['loading'] ?>",
+            no_projects_found: "<?= $lang['no_projects_found'] ?>",
+            error_loading_projects: "<?= $lang['error_loading_projects'] ?>",
+            member_singular: "<?= $lang['member_singular'] ?>",
+            member_plural: "<?= $lang['member_plural'] ?>",
+            project_domain: "<?= $lang['project_domain'] ?>",
+            project_manager: "<?= $lang['project_manager'] ?>",
+            project_funding: "<?= $lang['project_funding'] ?>",
+            project_members: "<?= $lang['project_members'] ?>",
+            view_details: "<?= $lang['view_details'] ?>",
+            fill_required_fields: "<?= $lang['fill_required_fields'] ?>",
+            event_date: "<?= $lang['event_date'] ?>",
+            event_location: "<?= $lang['event_location'] ?>",
+            read_more: "<?= $lang['read_more'] ?>",
+            pub_date: "<?= $lang['pub_date'] ?>",
+            pub_type: "<?= $lang['pub_type'] ?>",
+            pub_authors: "<?= $lang['pub_authors'] ?>",
+            pub_abstract: "<?= $lang['pub_abstract'] ?>",
+            pub_download: "<?= $lang['pub_download'] ?>",
+            error_loading_publications: "<?= $lang['error_loading_publications'] ?>",
+            no_publications_found: "<?= $lang['no_publications_found'] ?>",
+            view_less_details: "<?= $lang['view_less_details'] ?>",
+            view_more_details: "<?= $lang['view_more_details'] ?>"
+        };
     </script>
     <script src="<?= BASE_URL ?>assets/js/jquery-3.6.0.js"></script>
 </head>
@@ -41,6 +67,11 @@
                     </div>
                     <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - École Supérieure d'Informatique</a>
                 </div>
+                <button class="mobile-menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </header>

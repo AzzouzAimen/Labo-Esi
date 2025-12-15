@@ -81,6 +81,10 @@
                             </span>
                             <?php endif; ?>
                             <span>
+                                <strong><?= $lang['project_associated_members'] ?>:</strong> 
+                                <?= !empty($project['membres_noms']) ? $this->escape($project['membres_noms']) : $lang['none'] ?>
+                            </span>
+                            <span>
                                 <strong><?= $lang['project_funding'] ?>:</strong>
                                 <?= $project['type_financement'] ? $this->escape($project['type_financement']) : 'N/A' ?>
                             </span>
@@ -104,16 +108,18 @@
                             </span>
                         </div>
                         
-                        <?php if ($project['description']): ?>
-                        <p class="card-text">
-                            <?= $this->escape(substr($project['description'], 0, 120)) ?>...
-                        </p>
-                        <?php endif; ?>
                         
-                        <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
-                           class="btn btn-primary">
-                            <?= $lang['view_details'] ?>
-                        </a>
+                        
+                        <div style="margin-top: auto;">
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
+                               class="btn btn-primary" style="display: block; width: 100%; margin-bottom: 0.5rem;">
+                                <?= $lang['view_details'] ?>
+                            </a>
+                            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index&project=<?= $project['id_project'] ?>" 
+                               class="btn btn-outline-primary" style="display: block; width: 100%;">
+                                <?= $lang['view_publications'] ?>
+                            </a>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>

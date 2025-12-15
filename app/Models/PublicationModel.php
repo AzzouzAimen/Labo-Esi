@@ -66,6 +66,20 @@ class PublicationModel {
     }
 
     /**
+     * Get projects that have at least one publication
+     * @return array
+     */
+    public function getProjects() {
+        $stmt = $this->db->query("
+            SELECT DISTINCT pr.id_project, pr.titre
+            FROM publications p
+            JOIN projects pr ON p.project_id = pr.id_project
+            ORDER BY pr.titre
+        ");
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Search publications with filters
      * @param array $filters
      * @param int $page
@@ -131,6 +145,11 @@ class PublicationModel {
                 WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
+        }
+
+        if (!empty($filters['project']) && $filters['project'] !== 'all') {
+            $sql .= " AND p.project_id = :project";
+            $params[':project'] = (int)$filters['project'];
         }
 
         $sql .= " GROUP BY p.id_pub";
@@ -213,6 +232,11 @@ class PublicationModel {
                 WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
+        }
+
+        if (!empty($filters['project']) && $filters['project'] !== 'all') {
+            $sql .= " AND p.project_id = :project";
+            $params[':project'] = (int)$filters['project'];
         }
 
         $stmt = $this->db->prepare($sql);

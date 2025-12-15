@@ -36,10 +36,17 @@
                     <?php foreach ($members as $member): ?>
                     <div style="text-align: center; padding: 1rem; background: var(--bg-light);">
                         <?php if ($member['photo']): ?>
-                        <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
+                        <?php
+                            // Handle photo path - remove 'public/' prefix if it exists since BASE_URL already includes it
+                            $photoPath = $member['photo'];
+                            if (strpos($photoPath, 'public/') === 0) {
+                                $photoPath = substr($photoPath, 7); // Remove 'public/' prefix
+                            }
+                        ?>
+                        <img src="<?= BASE_URL . $this->escape($photoPath) ?>" 
                              alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"
-                             style="width: 80px; height: 80px; object-fit: cover; margin-bottom: 0.5rem;"
-                             onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 0.5rem auto;"
+                             onerror="this.src='<?= BASE_URL ?>assets/img/avatar-default.jpg'">
                         <?php else: ?>
                         <div style="width: 80px; height: 80px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-size: 2rem;">
                             <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>

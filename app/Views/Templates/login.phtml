@@ -26,12 +26,25 @@
                 
                 <div class="form-group">
                     <label for="password"><?= $lang['password'] ?> *</label>
-                    <input type="password" 
-                           id="password" 
-                           name="password" 
-                           class="form-control" 
-                           required
-                           placeholder="••••••••">
+                    <div class="password-input-wrapper">
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="form-control" 
+                               required
+                               placeholder="••••••••">
+                        <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password"
+                                data-show="<?= BASE_URL ?>assets/img/visibility.svg"
+                                data-hide="<?= BASE_URL ?>assets/img/visibility_off.svg">
+                            <img src="<?= BASE_URL ?>assets/img/visibility.svg" alt="Show password" class="eye-icon">
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="text-align: right; margin-bottom: 1.5rem;">
+                    <a href="#" class="forgot-password-link" style="color: var(--secondary-color); font-size: 0.9rem;">
+                        Mot de passe oublié ?
+                    </a>
                 </div>
                 
                 <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.9rem;">
@@ -39,15 +52,6 @@
                 </button>
             </form>
             
-            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
-                <p style="color: var(--text-light); margin-bottom: 0.5rem;">
-                    <strong>Comptes de test :</strong>
-                </p>
-                <p style="color: var(--text-light); font-size: 0.9rem;">
-                    Admin: <code>admin / admin</code><br>
-                    Utilisateur: <code>user / user</code>
-                </p>
-            </div>
         </div>
         
         <div style="text-align: center; margin-top: 2rem;">
