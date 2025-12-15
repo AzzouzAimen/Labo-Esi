@@ -1,0 +1,228 @@
+<!-- Members Directory Template -->
+
+<section class="members-directory-section">
+    <h1 class="section-title">Annuaire des Membres</h1>
+    
+    <p class="directory-intro">
+        Trouvez et contactez les membres du laboratoire. Utilisez les filtres ci-dessous pour affiner votre recherche.
+    </p>
+    
+    <!-- Search and Filter Bar -->
+    <div class="members-filter-bar">
+        <div class="filter-group">
+            <label for="member-search">🔍 Rechercher:</label>
+            <input type="text" 
+                   id="member-search" 
+                   class="form-control" 
+                   placeholder="Nom, prénom, email...">
+        </div>
+        
+        <div class="filter-group">
+            <label for="filter-team">Équipe:</label>
+            <select id="filter-team" class="form-control">
+                <option value="all">Toutes les équipes</option>
+                <?php if (!empty($teams)): ?>
+                    <?php foreach ($teams as $team): ?>
+                        <option value="<?= (int)$team['id_team'] ?>">
+                            <?= $this->escape($team['nom']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="filter-grade">Grade:</label>
+            <select id="filter-grade" class="form-control">
+                <option value="all">Tous les grades</option>
+                <?php if (!empty($grades)): ?>
+                    <?php foreach ($grades as $grade): ?>
+                        <option value="<?= $this->escape($grade) ?>">
+                            <?= $this->escape($grade) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="filter-role">Rôle:</label>
+            <select id="filter-role" class="form-control">
+                <option value="all">Tous les rôles</option>
+                <option value="admin">Administration</option>
+                <option value="enseignant-chercheur">Enseignant-Chercheur</option>
+                <option value="doctorant">Doctorant</option>
+                <option value="etudiant">Étudiant</option>
+            </select>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="button" id="reset-filters" class="btn btn-secondary">
+                Réinitialiser
+            </button>
+        </div>
+    </div>
+    
+    <!-- Results Count -->
+    <div class="results-info">
+        <span id="results-count"><?= count($members) ?></span> membre(s) trouvé(s)
+    </div>
+    
+    <!-- Members Grid -->
+    <?php if (!empty($members)): ?>
+        <div class="members-directory-grid" id="members-grid">
+            <?php foreach ($members as $member): ?>
+            <div class="member-directory-card" 
+                 data-name="<?= $this->escape(strtolower($member['prenom'] . ' ' . $member['nom'])) ?>"
+                 data-email="<?= $this->escape(strtolower($member['email'] ?? '')) ?>"
+                 data-team="<?= (int)($member['id_team'] ?? 0) ?>"
+                 data-grade="<?= $this->escape($member['grade']) ?>"
+                 data-role="<?= $this->escape($member['role']) ?>">
+                
+                <div class="member-card-photo">
+                    <?php if ($member['photo']): ?>
+                        <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
+                             alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"
+                             onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                    <?php else: ?>
+                        <div class="member-card-placeholder">
+                            <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="member-card-info">
+                    <h3 class="member-card-name">
+                        <?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>
+                    </h3>
+                    
+                    <div class="member-card-grade">
+                        <?= $this->escape($member['grade']) ?>
+                    </div>
+                    
+                    <?php if (!empty($member['team_nom'])): ?>
+                    <div class="member-card-team">
+                        <span class="badge badge-secondary">
+                            <?= $this->escape($member['team_nom']) ?>
+                        </span>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($member['role_dans_equipe']): ?>
+                    <div class="member-card-role">
+                        <?= $this->escape($member['role_dans_equipe']) ?>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="member-card-actions">
+                        <a href="<?= BASE_URL ?>index.php?controller=Team&action=profile&id=<?= $member['id_user'] ?>" 
+                           class="btn btn-sm btn-primary">
+                            Voir le profil
+                        </a>
+                        <?php if ($member['email']): ?>
+                        <a href="mailto:<?= $this->escape($member['email']) ?>" 
+                           class="btn btn-sm btn-secondary">
+                            ✉ Contact
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div id="no-results-message" class="no-results" style="display: none;">
+            Aucun membre ne correspond à vos critères de recherche.
+        </div>
+    <?php else: ?>
+        <div class="no-results">
+            Aucun membre n'est disponible pour le moment.
+        </div>
+    <?php endif; ?>
+</section>
+
+<script>
+// Members directory filtering and search
+(function() {
+    const searchInput = document.getElementById('member-search');
+    const filterTeam = document.getElementById('filter-team');
+    const filterGrade = document.getElementById('filter-grade');
+    const filterRole = document.getElementById('filter-role');
+    const resetBtn = document.getElementById('reset-filters');
+    const membersGrid = document.getElementById('members-grid');
+    const resultsCount = document.getElementById('results-count');
+    const noResultsMsg = document.getElementById('no-results-message');
+    
+    if (!membersGrid) return;
+    
+    const memberCards = Array.from(membersGrid.querySelectorAll('.member-directory-card'));
+    
+    function filterMembers() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const teamFilter = filterTeam ? filterTeam.value : 'all';
+        const gradeFilter = filterGrade ? filterGrade.value : 'all';
+        const roleFilter = filterRole ? filterRole.value : 'all';
+        
+        let visibleCount = 0;
+        
+        memberCards.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const email = card.getAttribute('data-email') || '';
+            const team = card.getAttribute('data-team') || '0';
+            const grade = card.getAttribute('data-grade') || '';
+            const role = card.getAttribute('data-role') || '';
+            
+            // Check search term
+            const matchesSearch = !searchTerm || 
+                                  name.includes(searchTerm) || 
+                                  email.includes(searchTerm);
+            
+            // Check team filter
+            const matchesTeam = teamFilter === 'all' || team === teamFilter;
+            
+            // Check grade filter
+            const matchesGrade = gradeFilter === 'all' || grade === gradeFilter;
+            
+            // Check role filter
+            const matchesRole = roleFilter === 'all' || role === roleFilter;
+            
+            // Show/hide card
+            if (matchesSearch && matchesTeam && matchesGrade && matchesRole) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update results count
+        if (resultsCount) {
+            resultsCount.textContent = visibleCount;
+        }
+        
+        // Show/hide no results message
+        if (noResultsMsg) {
+            noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        
+        if (membersGrid) {
+            membersGrid.style.display = visibleCount === 0 ? 'none' : 'grid';
+        }
+    }
+    
+    function resetFilters() {
+        if (searchInput) searchInput.value = '';
+        if (filterTeam) filterTeam.value = 'all';
+        if (filterGrade) filterGrade.value = 'all';
+        if (filterRole) filterRole.value = 'all';
+        filterMembers();
+    }
+    
+    // Event listeners
+    if (searchInput) searchInput.addEventListener('input', filterMembers);
+    if (filterTeam) filterTeam.addEventListener('change', filterMembers);
+    if (filterGrade) filterGrade.addEventListener('change', filterMembers);
+    if (filterRole) filterRole.addEventListener('change', filterMembers);
+    if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+})();
+</script>

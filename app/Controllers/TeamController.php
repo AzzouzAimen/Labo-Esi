@@ -6,9 +6,9 @@
 class TeamController extends Controller {
 
     /**
-     * Teams overview page
+     * Presentation page - Shows introduction, organigramme, and team structure
      */
-    public function index() {
+    public function presentation() {
         $lang = $this->loadLang('fr');
         
         // Load Team Model
@@ -24,13 +24,73 @@ class TeamController extends Controller {
             $teamsWithMembers[] = $team;
         }
         
+        // Get team leaders for organigramme
+        $teamLeaders = [];
+        foreach ($teams as $team) {
+            if ($team['chef_id']) {
+                $teamLeaders[] = [
+                    'id' => $team['chef_id'],
+                    'nom' => $team['chef_nom'],
+                    'prenom' => $team['chef_prenom'],
+                    'grade' => $team['chef_grade'],
+                    'photo' => $team['chef_photo'],
+                    'team_name' => $team['nom']
+                ];
+            }
+        }
+        
         // Prepare data
         $data = [
-            'teams' => $teamsWithMembers
+            'teams' => $teamsWithMembers,
+            'teamLeaders' => $teamLeaders
         ];
         
-        // Load Team View
+        // Load Presentation View
         $this->view('Team', $data, $lang);
+    }
+
+    /**
+     * Members directory page - Searchable/filterable member list
+     */
+    public function membres() {
+        $lang = $this->loadLang('fr');
+        
+        // Load Team Model
+        $teamModel = $this->model('TeamModel');
+        
+        // Get all members
+        $members = $teamModel->getAllMembers();
+        
+        // Get all teams for filter
+        $teams = $teamModel->getAllTeams();
+        
+        // Extract unique grades
+        $grades = [];
+        foreach ($members as $member) {
+            if (!empty($member['grade'])) {
+                $grades[$member['grade']] = true;
+            }
+        }
+        $grades = array_keys($grades);
+        sort($grades);
+        
+        // Prepare data
+        $data = [
+            'members' => $members,
+            'teams' => $teams,
+            'grades' => $grades
+        ];
+        
+        // Load Members Directory View
+        $this->view('MembersDirectory', $data, $lang);
+    }
+
+    /**
+     * Teams overview page (kept for backward compatibility)
+     */
+    public function index() {
+        // Redirect to presentation page
+        $this->redirect('Team', 'presentation');
     }
 
     /**

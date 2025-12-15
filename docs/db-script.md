@@ -28,17 +28,7 @@ CREATE TABLE IF NOT EXISTS teams (
     FOREIGN KEY (chef_id) REFERENCES users(id_user) ON DELETE SET NULL
 );
 
--- ============================================================
--- 3. Team Members (Association)
--- ============================================================
-CREATE TABLE IF NOT EXISTS team_members (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    team_id INT NOT NULL,
-    usr_id INT NOT NULL,
-    role_dans_equipe VARCHAR(100),
-    FOREIGN KEY (team_id) REFERENCES teams(id_team) ON DELETE CASCADE,
-    FOREIGN KEY (usr_id) REFERENCES users(id_user) ON DELETE CASCADE
-);
+
 
 -- ============================================================
 -- 4. Projects (Required for Catalogue)

@@ -23,6 +23,7 @@ class HomeController extends Controller {
         $recentProjects = $projectModel->getRecentProjects(2);
         $recentPublications = $publicationModel->getRecentPublications(3);
         $recentPartners = $partnerModel->getRecentPartners(2);
+        $allPartners = $partnerModel->getAllPartnersForDisplay(); // For logo grid
 
         $eventsPerPage = 3;
         $eventsPage = 1;
@@ -36,6 +37,7 @@ class HomeController extends Controller {
             'recentProjects' => $recentProjects ?: [],
             'recentPublications' => $recentPublications ?: [],
             'recentPartners' => $recentPartners ?: [],
+            'allPartners' => $allPartners ?: [],
             'upcomingEvents' => $upcomingEvents ?: [],
             'eventsPage' => $eventsPage,
             'eventsTotalPages' => $eventsTotalPages,

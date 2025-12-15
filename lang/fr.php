@@ -28,6 +28,7 @@ return [
     'nav_publications' => 'Publications',
     'nav_equipment' => 'Équipements',
     'nav_offers' => 'Offres',
+    'nav_presentation' => 'Présentation',
     'nav_members' => 'Membres',
     'nav_teams' => 'Équipes',
     'nav_contact' => 'Contact',

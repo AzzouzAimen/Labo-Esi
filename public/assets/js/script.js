@@ -591,4 +591,26 @@ $(document).ready(function () {
       loadPublicationsPage(Math.min(total, current + 1));
     });
   }
+
+  // ====================================
+  // Presentation Page - Collapsible Introduction Toggle
+  // ====================================
+  if ($("#toggleIntroBtn").length) {
+    $("#toggleIntroBtn").on("click", function (e) {
+      e.preventDefault();
+      const wrapper = $(".intro-content-wrapper");
+      const btn = $(this);
+      const text = btn.find(".toggle-text");
+
+      if (wrapper.hasClass("collapsed")) {
+        wrapper.removeClass("collapsed").addClass("expanded");
+        text.text("Voir moins de détails");
+        btn.addClass("expanded");
+      } else {
+        wrapper.removeClass("expanded").addClass("collapsed");
+        text.text("Voir plus de détails");
+        btn.removeClass("expanded");
+      }
+    });
+  }
 });

@@ -25,10 +25,19 @@
                     </a>
                 </div>
                 <div class="header-right">
-                    <div class="social-links">
-                        <a href="#" title="Facebook">FB</a>
-                        <a href="#" title="Twitter">X</a>
-                        <a href="#" title="LinkedIn">In</a>
+                    <div class="utility-links">
+                        <div class="social-links">
+                            <a href="#" title="Facebook">FB</a>
+                            <a href="#" title="Twitter">X</a>
+                            <a href="#" title="LinkedIn">In</a>
+                        </div>
+                        <div class="auth-links">
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=logout" class="btn-logout"><?= $lang['logout'] ?></a>
+                            <?php else: ?>
+                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=login" class="btn-login"><?= $lang['login'] ?></a>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - École Supérieure d'Informatique</a>
                 </div>
@@ -41,19 +50,17 @@
         <div class="container">
             <ul class="nav-menu">
                 <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=index"><?= $lang['nav_home'] ?></a></li>
+                <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=presentation"><?= $lang['nav_presentation'] ?? 'Présentation' ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Publication&action=index"><?= $lang['nav_publications'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Equipment&action=index"><?= $lang['nav_equipment'] ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Offer&action=index"><?= $lang['nav_offers'] ?? 'Offres' ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=index"><?= $lang['nav_teams'] ?></a></li>
+                <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=membres"><?= $lang['nav_members'] ?? 'Membres' ?></a></li>
                 <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="user-menu">
                         <a href="<?= BASE_URL ?>index.php?controller=Dashboard&action=index"><?= $lang['dashboard'] ?></a>
                     </li>
-                    <li><a href="<?= BASE_URL ?>index.php?controller=Auth&action=logout"><?= $lang['logout'] ?></a></li>
-                <?php else: ?>
-                    <li><a href="<?= BASE_URL ?>index.php?controller=Auth&action=login"><?= $lang['login'] ?></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -116,6 +123,6 @@
         </div>
     </footer>
 
-    <script src="<?= BASE_URL ?>assets/js/script.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/script.js?v=<?= time() ?>"></script>
 </body>
 </html>

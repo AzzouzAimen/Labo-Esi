@@ -1,19 +1,19 @@
 <?php
 /**
- * TeamView Class
- * Renders the team listing with organizational structure
+ * MembersDirectoryView Class
+ * Renders the members directory page with search and filters
  */
-class TeamView extends View {
+class MembersDirectoryView extends View {
 
     /**
-     * Render the teams page
+     * Render the members directory page
      */
     public function render() {
         // Start output buffering
         ob_start();
         
-        // Include the presentation template (new structure)
-        $this->template('presentation');
+        // Include the members directory template
+        $this->template('members_directory');
         
         // Get the buffered content
         $content = ob_get_clean();

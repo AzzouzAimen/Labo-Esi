@@ -31,4 +31,13 @@ class PartnerModel {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * Get all partners for display (logo grid)
+     * @return array
+     */
+    public function getAllPartnersForDisplay() {
+        $stmt = $this->db->query("SELECT * FROM partners ORDER BY type ASC, nom ASC");
+        return $stmt->fetchAll();
+    }
 }

@@ -1,0 +1,261 @@
+<!-- Presentation Page Template -->
+
+<section class="presentation-section">
+    <h1 class="section-title">Présentation du Laboratoire</h1>
+    
+    <!-- Part A: Introduction & Research Themes -->
+    <div class="lab-introduction" id="labIntroSection">
+        <div class="intro-content-wrapper collapsed">
+        <div class="intro-content">
+            <h2>Laboratoire de Communication dans les Systèmes Informatiques (LCSI)</h2>
+            <p class="lead-text">
+                Le <strong>LCSI</strong> est un centre de recherche dédié à l'innovation technologique 
+                et à la recherche scientifique dans les domaines de la communication et des systèmes informatiques.
+            </p>
+            
+            <div class="lab-details">
+                <h3>À Propos du Laboratoire</h3>
+                <p>
+                    Fondé en 2005 et agréé par le Ministère de l'Enseignement Supérieur et de la Recherche Scientifique, 
+                    le LCSI est un laboratoire de recherche multidisciplinaire rattaché à l'École nationale Supérieure d'Informatique (ESI). 
+                    Notre équipe regroupe plus de 45 chercheurs permanents et doctorants travaillant sur des problématiques 
+                    de pointe en systèmes distribués, intelligence artificielle et architectures de données.
+                </p>
+            </div>
+            
+            <h3>Thèmes de Recherche</h3>
+            <div class="research-themes">
+                <div class="theme-item">
+                    <h4>Distribution Dynamique de Données (D3)</h4>s
+                    <p>Conception de structures de données adaptées pour les environnements distribués et mobiles</p>
+                </div>
+                <div class="theme-item">
+                    <h4>Architectures des SGBD</h4>
+                    <p>Architectures avancées des SGBD de la nouvelle génération</p>
+                </div>
+                <div class="theme-item">
+                    <h4>Intelligence Artificielle & Robotique</h4>
+                    <p>Processus intelligents, Intelligence Artificielle, Robotique & Perception</p>
+                </div>
+                <div class="theme-item">
+                    <h4>Mathématiques Appliquées</h4>
+                    <p>Milieux poreux et composites, Traitement d'images, Machine learning, Data analysis, Processus aléatoires, Théorie des nombres</p>
+                </div>
+            </div>
+            
+            <div class="lab-details">
+                <h3>Mission et Vision</h3>
+                <p>
+                    Notre mission est de contribuer à l'avancement des connaissances dans le domaine des systèmes informatiques 
+                    et de la communication à travers des recherches fondamentales et appliquées. Nous visons à former la prochaine 
+                    génération de chercheurs et à établir des partenariats stratégiques avec l'industrie et les institutions 
+                    académiques nationales et internationales.
+                </p>
+                
+                <h3>Infrastructures et Moyens</h3>
+                <div class="facilities-grid">
+                    <div class="facility-item">
+                        <strong>Laboratoires Équipés</strong>
+                        <p>3 salles de recherche dédiées avec équipements de pointe</p>
+                    </div>
+                    <div class="facility-item">
+                        <strong>Cluster de Calcul</strong>
+                        <p>Infrastructure de calcul haute performance pour simulations</p>
+                    </div>
+                    <div class="facility-item">
+                        <strong>Bibliothèque Numérique</strong>
+                        <p>Accès à plus de 15 bases de données scientifiques internationales</p>
+                    </div>
+                    <div class="facility-item">
+                        <strong>Espace Collaboratif</strong>
+                        <p>Salles de réunion et espaces de co-working pour doctorants</p>
+                    </div>
+                </div>
+                
+                <h3>Réalisations et Reconnaissance</h3>
+                <ul class="achievements-list">
+                    <li>Plus de 250 publications dans des revues et conférences internationales de rang A</li>
+                    <li>15 projets de recherche nationaux et internationaux actifs</li>
+                    <li>60+ doctorants formés depuis la création du laboratoire</li>
+                    <li>Partenariats avec des institutions de recherche en France, Canada et Allemagne</li>
+                    <li>Organisation de 8 événements scientifiques internationaux</li>
+                </ul>
+            </div>
+        </div>
+        </div>
+        <div class="intro-toggle-wrapper">
+            <button id="toggleIntroBtn" class="btn-toggle-intro">
+                <span class="toggle-text">Voir plus de détails</span>
+                <span class="toggle-icon">▼</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Part B: Organigramme (Hierarchy View) -->
+    <div class="organigramme-section mt-4">
+        <h2 class="section-title">Organigramme du Laboratoire</h2>
+        
+        <div class="org-chart">
+            <!-- Director Node -->
+            <div class="org-director">
+                <div class="org-card director-card">
+                    <div class="org-badge">Directeur du Laboratoire</div>
+                    <h3>Pr. D.E. ZEGOUR</h3>
+                    <p>Professeur</p>
+                </div>
+            </div>
+            
+            <!-- Team Leaders Row -->
+            <?php if (!empty($teams)): ?>
+            <div class="org-leaders">
+                <div class="org-connector-trunk"></div>
+                <div class="org-connector-split"></div>
+                <div class="leaders-row">
+                    <?php foreach ($teams as $team): ?>
+                    <div class="org-team-column">
+                        <div class="org-connector-to-leader"></div>
+                        <!-- Team Leader Card -->
+                        <div class="org-card leader-card">
+                            <div class="org-badge">Chef d'Équipe</div>
+                            <h4><?= $this->escape($team['chef_prenom'] . ' ' . $team['chef_nom']) ?></h4>
+                            <p class="leader-grade"><?= $this->escape($team['chef_grade']) ?></p>
+                            <p class="leader-team"><?= $this->escape($team['nom']) ?></p>
+                        </div>
+                        
+                        <!-- Team Members under this leader -->
+                        <?php if (!empty($team['members'])): ?>
+                        <div class="org-members-tree">
+                            <div class="org-trunk"></div>
+                            <div class="org-members-list">
+                                <?php foreach ($team['members'] as $member): ?>
+                                <div class="org-member-row">
+                                    <div class="org-branch"></div>
+                                    <div class="org-card member-card-org">
+                                        <h5><?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?></h5>
+                                        <p class="member-grade-org"><?= $this->escape($member['grade']) ?></p>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <!-- Part C: Detailed Teams List (Split-Row Layout) -->
+    <div class="teams-detailed-section mt-4">
+        <h2 class="section-title">Nos Équipes de Recherche</h2>
+        
+        <?php if (!empty($teams)): ?>
+            <?php foreach ($teams as $team): ?>
+            <div class="team-split-row">
+                <!-- Left Column: Team Identity -->
+                <div class="team-info-column">
+                    <h3 class="team-name"><?= $this->escape($team['nom']) ?></h3>
+                    <?php if (!empty($team['acronyme'])): ?>
+                    <div class="team-acronym"><?= $this->escape($team['acronyme']) ?></div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($team['description'])): ?>
+                    <div class="team-description">
+                        <h4>Description</h4>
+                        <p><?= nl2br($this->escape($team['description'])) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="team-actions">
+                        <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index&team_id=<?= (int)$team['id_team'] ?>" 
+                           class="btn btn-secondary">
+                            Voir les publications de l'équipe
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Members Grid -->
+                <div class="team-members-column">
+                    <?php if ($team['chef_id'] || !empty($team['members'])): ?>
+                        <div class="members-grid">
+                            <!-- Team Leader Card (First) -->
+                            <?php if ($team['chef_id']): ?>
+                            <div class="member-card leader-member-card">
+                                <div class="leader-badge">Chef d'équipe</div>
+                                <?php if ($team['chef_photo']): ?>
+                                    <img src="<?= BASE_URL . $this->escape($team['chef_photo']) ?>" 
+                                         alt="<?= $this->escape($team['chef_prenom'] . ' ' . $team['chef_nom']) ?>"
+                                         class="member-photo"
+                                         onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                                <?php else: ?>
+                                    <div class="member-placeholder">
+                                        <?= strtoupper(substr($team['chef_prenom'], 0, 1) . substr($team['chef_nom'], 0, 1)) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <div class="member-name">
+                                    <?= $this->escape($team['chef_prenom'] . ' ' . $team['chef_nom']) ?>
+                                </div>
+                                <div class="member-grade">
+                                    <?= $this->escape($team['chef_grade']) ?>
+                                </div>
+                                <div class="member-actions">
+                                    <a href="<?= BASE_URL ?>index.php?controller=Team&action=profile&id=<?= $team['chef_id'] ?>" 
+                                       class="btn btn-sm btn-primary">
+                                        Voir Bio
+                                    </a>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Regular Members -->
+                            <?php if (!empty($team['members'])): ?>
+                                <?php foreach ($team['members'] as $member): ?>
+                                <div class="member-card">
+                                    <?php if ($member['photo']): ?>
+                                        <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
+                                             alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"
+                                             class="member-photo"
+                                             onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                                    <?php else: ?>
+                                        <div class="member-placeholder">
+                                            <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="member-name">
+                                        <?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>
+                                    </div>
+                                    <div class="member-grade">
+                                        <?= $this->escape($member['grade']) ?>
+                                    </div>
+                                    <?php if ($member['role_dans_equipe']): ?>
+                                    <div class="member-role">
+                                        <span class="badge badge-primary">
+                                            <?= $this->escape($member['role_dans_equipe']) ?>
+                                        </span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <div class="member-actions">
+                                        <a href="<?= BASE_URL ?>index.php?controller=Team&action=profile&id=<?= $member['id_user'] ?>" 
+                                           class="btn btn-sm btn-primary">
+                                            Voir Bio
+                                        </a>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="no-members">Aucun membre dans cette équipe pour le moment.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-results">
+                <?= $lang['no_teams'] ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
