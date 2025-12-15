@@ -12,11 +12,17 @@ class HomeController extends Controller {
         // Load language
         $lang = $this->loadLang('fr');
         
-        // Load News Model
+        // Load Models
         $newsModel = $this->model('NewsModel');
+        $projectModel = $this->model('ProjectModel');
+        $publicationModel = $this->model('PublicationModel');
+        $partnerModel = $this->model('PartnerModel');
         
         // Get data for homepage
         $recentNews = $newsModel->getRecentNews(5); // For slideshow
+        $recentProjects = $projectModel->getRecentProjects(2);
+        $recentPublications = $publicationModel->getRecentPublications(3);
+        $recentPartners = $partnerModel->getRecentPartners(2);
 
         $eventsPerPage = 3;
         $eventsPage = 1;
@@ -27,6 +33,9 @@ class HomeController extends Controller {
         // Prepare data (ensure arrays even if empty)
         $data = [
             'recentNews' => $recentNews ?: [],
+            'recentProjects' => $recentProjects ?: [],
+            'recentPublications' => $recentPublications ?: [],
+            'recentPartners' => $recentPartners ?: [],
             'upcomingEvents' => $upcomingEvents ?: [],
             'eventsPage' => $eventsPage,
             'eventsTotalPages' => $eventsTotalPages,

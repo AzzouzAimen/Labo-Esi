@@ -2,42 +2,130 @@
 
 <!-- Slideshow Section -->
 <?php if (!empty($recentNews)): ?>
-<section class="slideshow-container">
-    <?php foreach ($recentNews as $index => $news): ?>
-    <div class="slide <?= $index === 0 ? 'active' : '' ?>">
-        <?php if ($news['image_url']): ?>
-            <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
-                 alt="<?= $this->escape($news['titre']) ?>"
-                 onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
-        <?php else: ?>
-            <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
-        <?php endif; ?>
-        
-        <div class="slide-content">
-            <h2><?= $this->escape($news['titre']) ?></h2>
-            <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
-            <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
-               class="btn btn-primary"><?= $lang['view_details'] ?></a>
-        </div>
-    </div>
-    <?php endforeach; ?>
-    
-    <div class="slide-controls">
-        <button class="slide-prev">◀ <?= $lang['back'] ?></button>
-        <button class="slide-next"><?= $lang['view_details'] ?> ▶</button>
+<section class="diapo-div">
+    <div class="diapo">
+        <?php foreach ($recentNews as $index => $news): ?>
+            <?php if ($index > 0): ?>
+            <div class="separator"></div>
+            <?php endif; ?>
+            
+            <div class="slide-item">
+                <?php if ($news['image_url']): ?>
+                    <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
+                         alt="<?= $this->escape($news['titre']) ?>"
+                         onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
+                <?php else: ?>
+                    <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
+                <?php endif; ?>
+                
+                <div class="slide-overlay">
+                    <div class="slide-content">
+                        <h2><?= $this->escape($news['titre']) ?></h2>
+                        <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
+                        <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
+                           class="btn btn-primary"><?= $lang['view_details'] ?></a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 <?php endif; ?>
 
+<!-- Scientific Updates Section -->
+<section class="scientific-updates mt-4">
+    <h2 class="section-title">Actualités Scientifiques</h2>
+    <div class="updates-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        
+        <!-- Recent Projects -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Nouveaux Projets
+            </h3>
+            <?php if (!empty($recentProjects)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentProjects as $project): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=view&id=<?= $project['id_project'] ?>" style="color: var(--text-color); text-decoration: none;">
+                                <?= $this->escape($project['titre']) ?>
+                            </a>
+                        </h4>
+                        <span class="badge badge-secondary" style="font-size: 0.8rem;"><?= $this->escape($project['domaine']) ?></span>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucun projet récent.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Project&action=index" class="btn btn-sm btn-outline-primary">Voir tous les projets</a>
+        </div>
+
+        <!-- Recent Publications -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Publications Récentes
+            </h3>
+            <?php if (!empty($recentPublications)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentPublications as $pub): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                        <p style="margin-bottom: 0.3rem; font-weight: 500;">
+                            <?= $this->escape($pub['titre']) ?>
+                        </p>
+                        <small style="color: var(--text-light);">Année: <?= $this->escape($pub['annee']) ?></small>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucune publication récente.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index" class="btn btn-sm btn-outline-primary">Voir toutes les publications</a>
+        </div>
+
+        <!-- Collaborations -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Collaborations
+            </h3>
+            <?php if (!empty($recentPartners)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentPartners as $partner): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
+                        <?php if ($partner['logo_url']): ?>
+                            <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" alt="<?= $this->escape($partner['nom']) ?>" style="width: 40px; height: 40px; object-fit: contain;">
+                        <?php endif; ?>
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;"><?= $this->escape($partner['nom']) ?></h4>
+                            <small style="color: var(--text-light);"><?= $this->escape($partner['type']) ?></small>
+                        </div>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucune nouvelle collaboration.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Partner&action=index" class="btn btn-sm btn-outline-primary">Voir les partenaires</a>
+        </div>
+    </div>
+</section>
+
 <!-- Lab Overview Section -->
 <section class="lab-overview mt-4">
     <h2 class="section-title"><?= $lang['lab_overview'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+    <div style="background: var(--bg-light); padding: 2rem;">
         <p style="line-height: 1.8; font-size: 1.1rem;">
-            Le <strong>Laboratoire TDW-2CSSIL</strong> est un centre de recherche dédié à l'innovation 
-            technologique et à la recherche scientifique dans les domaines de l'informatique. 
-            Notre équipe multidisciplinaire travaille sur des projets de pointe en Intelligence Artificielle, 
-            Cybersécurité, Cloud Computing, et Systèmes Embarqués.
+            Le <strong>LCSI</strong> est un centre de recherche dédié à l'innovation 
+            technologique et à la recherche scientifique dans les domaines de :
+        </p>
+        <ul style="line-height: 1.8; font-size: 1.05rem; margin: 1.5rem 0; padding-left: 2rem;">
+            <li>Conception de structures de données adaptées pour les environnements distribués et mobiles</li>
+            <li>Architectures avancées des SGBD de la nouvelle génération</li>
+            <li>Processus intelligents, Intelligence Artificielle, Robotique & Perception</li>
+            <li>Milieux poreux et composites, Traitement d'images, Machine learning, Data analysis, Processus aléatoires, Théorie des nombres</li>
+        </ul>
+        <p style="line-height: 1.8; font-size: 1.1rem;">
+            Notre équipe multidisciplinaire travaille sur des projets de pointe dans ces domaines en constante évolution.
         </p>
         <p style="line-height: 1.8; font-size: 1.1rem; margin-top: 1rem;">
             Nous collaborons avec des partenaires académiques et industriels pour produire des recherches 
@@ -114,7 +202,7 @@
 <!-- Partners Section -->
 <section class="partners-section mt-4 mb-4">
     <h2 class="section-title"><?= $lang['our_partners'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; text-align: center;">
+    <div style="background: var(--bg-light); padding: 2rem; text-align: center;">
         <p style="color: var(--text-light); margin-bottom: 2rem;">
             Nous travaillons en étroite collaboration avec des partenaires académiques et industriels de renom.
         </p>

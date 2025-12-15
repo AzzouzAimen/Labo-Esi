@@ -3,12 +3,12 @@
     <h1 class="section-title"><?= $lang['equipment_title'] ?></h1>
 
     <?php if (!empty($success)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($success) ?>
         </div>
     <?php endif; ?>
     <?php if (!empty($error)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($error) ?>
         </div>
     <?php endif; ?>
@@ -54,11 +54,11 @@
     </div>
 
     <?php if (!empty($stats)): ?>
-        <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; margin: 1.5rem 0;">
             <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Statistiques d'utilisation</h2>
             <div style="display: grid; gap: 0.75rem;">
                 <?php foreach ($stats as $s): ?>
-                    <div style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem; background: var(--bg-light);">
                         <div>
                             <strong><?= $this->escape($s['nom']) ?></strong>
                             <small style="color: var(--text-light);">(<?= $this->escape($s['categorie']) ?>)</small>

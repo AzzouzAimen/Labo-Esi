@@ -8,14 +8,14 @@
     <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
         <!-- Sidebar -->
         <div>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; text-align: center; position: sticky; top: 20px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; text-align: center; position: sticky; top: 20px;">
                 <?php if ($user['photo']): ?>
                 <img src="<?= BASE_URL . $this->escape($user['photo']) ?>" 
                      alt="<?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>"
-                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
+                     style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
                      onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                 <?php else: ?>
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
+                <div style="width: 150px; height: 150px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
                     <?= strtoupper(substr($user['prenom'], 0, 1) . substr($user['nom'], 0, 1)) ?>
                 </div>
                 <?php endif; ?>
@@ -45,7 +45,7 @@
         <!-- Main Content -->
         <div>
             <!-- User Info -->
-            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: var(--bg-light); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $lang['my_profile'] ?>
                 </h2>
@@ -78,10 +78,10 @@
             </div>
             
             <!-- Projects -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_projects'] ?> 
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= count($projects) ?>
                     </span>
                 </h2>
@@ -89,7 +89,7 @@
                 <?php if (!empty($projects)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($projects as $project): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="padding: 1.5rem; background: var(--bg-light); display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                                     <?= $this->escape($project['titre']) ?>
@@ -129,10 +129,10 @@
             </div>
 
             <!-- Reservations -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_reservations'] ?>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= !empty($reservations) ? count($reservations) : 0 ?>
                     </span>
                 </h2>
@@ -140,7 +140,7 @@
                 <?php if (!empty($reservations)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($reservations as $res): ?>
-                            <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                            <div style="padding: 1.5rem; background: var(--bg-light); display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
                                 <div>
                                     <h4 style="color: var(--primary-color); margin-bottom: 0.3rem;">
                                         <?= $this->escape($res['equip_nom']) ?>
@@ -176,10 +176,10 @@
             </div>
             
             <!-- Publications -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_publications'] ?>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= count($publications) ?>
                     </span>
                 </h2>
@@ -187,7 +187,7 @@
                 <?php if (!empty($publications)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($publications as $pub): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px;">
+                        <div style="padding: 1.5rem; background: var(--bg-light);">
                             <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                                 <?= $this->escape($pub['titre']) ?>
                             </h4>

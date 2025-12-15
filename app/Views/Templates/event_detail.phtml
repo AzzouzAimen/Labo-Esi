@@ -9,10 +9,10 @@
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem;">
         <div>
             <?php if (!empty($event['image_url'])): ?>
-                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" alt="<?= $this->escape($event['titre']) ?>" style="width: 100%; border-radius: 8px; margin-bottom: 1.5rem;" onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
+                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" alt="<?= $this->escape($event['titre']) ?>" style="width: 100%; margin-bottom: 1.5rem;" onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
             <?php endif; ?>
 
-            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+            <div style="background: var(--bg-light); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Description</h2>
                 <p style="line-height: 1.8; margin: 0;">
                     <?= !empty($event['description']) ? nl2br($this->escape($event['description'])) : 'Aucune description disponible.' ?>
@@ -21,7 +21,7 @@
         </div>
 
         <div>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem;">
                 <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Informations</h3>
 
                 <div style="margin-bottom: 1rem;">

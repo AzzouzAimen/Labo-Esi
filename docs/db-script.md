@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     photo VARCHAR(255),
     grade VARCHAR(100) NOT NULL,
     poste VARCHAR(100),
+    
     domaine_recherche VARCHAR(255),
     role ENUM('admin','enseignant-chercheur','doctorant','etudiant','invite') DEFAULT 'enseignant-chercheur',
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP

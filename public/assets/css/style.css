@@ -15,7 +15,7 @@
   --accent-color: #e74c3c;
   --text-color: #333;
   --text-light: #777;
-  --bg-light: #f8f9fa;
+  --bg-light: #f5f7faff;
   --border-color: #dee2e6;
   --success-color: #27ae60;
   --warning-color: #f39c12;
@@ -65,15 +65,40 @@ img {
 .logo a {
   display: flex;
   align-items: center;
-  gap: 10px;
   color: white;
-  font-size: 1.3rem;
-  font-weight: 600;
+  text-decoration: none;
 }
 
-.logo img {
-  height: 50px;
+.logo a:hover {
+  color: white;
+  opacity: 0.85;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0px;
+}
+
+.logo-image {
+  max-height: 70px;
+  max-width: 240px;
   width: auto;
+  height: auto;
+  object-fit: contain;
+  background-color: white;
+  /* Crop the white background which fills the image's transparent padding */
+  clip-path: inset(10px 27px 15px 16px);
+}
+
+.logo-full-name {
+  font-family: "Open Sans", "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+  letter-spacing: 0.3px;
 }
 
 .header-right {
@@ -97,6 +122,12 @@ img {
   color: white;
   font-size: 0.9rem;
   opacity: 0.9;
+}
+
+.university-link:hover {
+  color: white;
+  opacity: 1;
+  text-decoration: underline;
 }
 
 /* === Navigation === */
@@ -138,74 +169,123 @@ img {
   padding: 2rem 0;
 }
 
-/* === Homepage Slideshow === */
-.slideshow-container {
-  position: relative;
-  max-width: 100%;
-  margin: 2rem 0;
-  background: var(--bg-light);
-  border-radius: 8px;
+/* === Homepage Updates Section === */
+.update-column {
+  background-color: var(--bg-light);
+  padding: 1.5rem;
+  border-radius: 4px;
+}
+
+/* === Homepage Slideshow - Continuous Scroll === */
+.diapo-div {
+  width: 100%;
+
   overflow: hidden;
+  background-color: black;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.slide {
-  display: none;
-  position: relative;
+.diapo {
+  display: flex;
+  width: 100%;
+  animation: scroll-carousel 25s ease-in-out infinite;
 }
 
-.slide.active {
+.diapo:hover {
+  animation-play-state: paused;
+}
+
+.slide-item {
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
+  min-height: 400px;
+}
+
+.slide-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
   display: block;
 }
 
-.slide img {
-  width: 100%;
+.separator {
+  width: 2%;
+  background: black;
   height: 400px;
-  min-height: 400px;
-  object-fit: cover;
-  background-color: #ddd;
+  flex-shrink: 0;
 }
 
-.slide-content {
+.slide-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  top: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+  display: flex;
+  align-items: flex-end;
+}
+
+.slide-content {
   color: white;
   padding: 2rem;
+  width: 100%;
 }
 
 .slide-content h2 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .slide-content p {
   font-size: 1rem;
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-.slide-controls {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  gap: 10px;
-}
-
-.slide-controls button {
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
-  color: white;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.3s ease;
-}
-
-.slide-controls button:hover {
-  background: rgba(255, 255, 255, 0.5);
+/* Dynamic animation based on number of slides */
+/* This will work for up to 5 slides, adjust keyframes as needed */
+@keyframes scroll-carousel {
+  0% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-102%);
+  }
+  35% {
+    transform: translateX(-102%);
+  }
+  40% {
+    transform: translateX(-204%);
+  }
+  55% {
+    transform: translateX(-204%);
+  }
+  60% {
+    transform: translateX(-306%);
+  }
+  75% {
+    transform: translateX(-306%);
+  }
+  80% {
+    transform: translateX(-408%);
+  }
+  95% {
+    transform: translateX(-408%);
+  }
+  100% {
+    transform: translateX(-408%);
+  }
 }
 
 /* === Cards & Grid === */
@@ -219,7 +299,6 @@ img {
 .card {
   background: white;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -268,7 +347,6 @@ img {
 .badge {
   display: inline-block;
   padding: 0.3rem 0.8rem;
-  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -298,7 +376,6 @@ img {
   display: inline-block;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -325,6 +402,22 @@ img {
   color: white;
 }
 
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-outline-primary {
+  background: transparent;
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+.btn-outline-primary:hover {
+  background: var(--secondary-color);
+  color: white;
+}
+
 /* === Forms === */
 .form-group {
   margin-bottom: 1.5rem;
@@ -341,7 +434,6 @@ img {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
@@ -359,7 +451,6 @@ select.form-control {
 .filter-bar {
   background: var(--bg-light);
   padding: 1.5rem;
-  border-radius: 8px;
   margin-bottom: 2rem;
   display: flex;
   gap: 1rem;
@@ -375,7 +466,6 @@ select.form-control {
 .filter-bar select {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -392,14 +482,12 @@ select.form-control {
   background: var(--primary-color);
   color: white;
   padding: 1rem 1.5rem;
-  border-radius: 8px 8px 0 0;
 }
 
 .team-leader {
   background: var(--bg-light);
   padding: 2rem;
   border: 2px solid var(--secondary-color);
-  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
@@ -414,7 +502,6 @@ select.form-control {
   padding: 1.5rem;
   background: white;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -426,7 +513,6 @@ select.form-control {
 .member-photo {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
   object-fit: cover;
   margin: 0 auto 1rem;
   border: 3px solid var(--secondary-color);
@@ -497,6 +583,12 @@ select.form-control {
 .footer-social a {
   color: white;
   opacity: 0.9;
+}
+
+.footer-section .university-logo img {
+  max-width: 120px;
+  height: auto;
+  margin-top: 1rem;
 }
 
 .footer-bottom {
@@ -595,5 +687,4 @@ select.form-control {
   padding: 3rem;
   color: var(--text-light);
   background: var(--bg-light);
-  border-radius: 8px;
 }

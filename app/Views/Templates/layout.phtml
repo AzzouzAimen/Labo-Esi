@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['site_name'] ?? 'Laboratoire TDW-2CSSIL' ?></title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <title><?= $lang['site_name'] ?? 'LSCI' ?></title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css?v=<?= time() ?>">
     <script>
         // Global BASE_URL for JavaScript AJAX calls
         const BASE_URL = "<?= BASE_URL ?>";
@@ -18,8 +18,10 @@
             <div class="header-content">
                 <div class="logo">
                     <a href="<?= BASE_URL ?>index.php?controller=Home&action=index">
-                        <img src="<?= BASE_URL ?>assets/img/logo.png" alt="<?= $lang['site_name'] ?>" onerror="this.style.display='none'">
-                        <span class="logo-text"><?= $lang['site_name'] ?></span>
+                        <div class="logo-container">
+                            <img src="<?= BASE_URL ?>assets/img/logo_lcsi.png" alt="LSCI" class="logo-image">
+                            <div class="logo-full-name">Laboratoire de la Communication<br>dans les Systèmes Informatiques</div>
+                        </div>
                     </a>
                 </div>
                 <div class="header-right">

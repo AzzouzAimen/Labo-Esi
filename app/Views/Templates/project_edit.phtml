@@ -8,17 +8,17 @@
     <h1 class="section-title">Modifier le projet</h1>
 
     <?php if (!empty($_GET['success'])): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             Modifications enregistrées.
         </div>
     <?php endif; ?>
     <?php if (!empty($_GET['error'])): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             Erreur lors de l'enregistrement.
         </div>
     <?php endif; ?>
 
-    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
         <form method="POST" action="<?= BASE_URL ?>index.php?controller=Project&action=update" style="display: grid; gap: 1rem;">
             <input type="hidden" name="id_project" value="<?= (int)$project['id_project'] ?>">
 

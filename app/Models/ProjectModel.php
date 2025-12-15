@@ -237,4 +237,22 @@ class ProjectModel {
         ");
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+
+    /**
+     * Get recent projects
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentProjects($limit = 2) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.id_project, p.titre, p.domaine, p.date_debut
+            FROM projects p
+            ORDER BY p.date_debut DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

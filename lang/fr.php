@@ -6,7 +6,7 @@
 
 return [
     // Global
-    'site_name' => 'Laboratoire TDW-2CSSIL',
+    'site_name' => 'LCSI: Laboratoire de la Communication dans les Systèmes Informatiques',
     'welcome' => 'Bienvenue',
     'home' => 'Accueil',
     'login' => 'Connexion',

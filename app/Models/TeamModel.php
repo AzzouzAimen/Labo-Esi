@@ -49,19 +49,25 @@ class TeamModel {
 
     /**
      * Get team members (excluding the leader)
+     * Updated for One-to-Many relationship (team_id in users table)
      * @param int $teamId
      * @return array
      */
     public function getTeamMembers($teamId) {
         $stmt = $this->db->prepare("
             SELECT 
-                u.id_user, u.nom, u.prenom, u.photo, u.grade, u.email,
-                u.domaine_recherche, tm.role_dans_equipe
-            FROM team_members tm
-            JOIN users u ON tm.usr_id = u.id_user
-            JOIN teams t ON tm.team_id = t.id_team
-            WHERE tm.team_id = :team_id 
-            AND u.id_user != t.chef_id
+                u.id_user, 
+                u.nom, 
+                u.prenom, 
+                u.photo, 
+                u.grade, 
+                u.email,
+                u.domaine_recherche, 
+                u.role_dans_equipe
+            FROM users u
+            JOIN teams t ON u.team_id = t.id_team
+            WHERE u.team_id = :team_id 
+            AND u.id_user != t.chef_id -- Exclude the leader from the member list
             ORDER BY u.nom, u.prenom
         ");
         $stmt->execute([':team_id' => $teamId]);

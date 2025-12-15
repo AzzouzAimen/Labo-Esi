@@ -2,7 +2,7 @@
 PROJECT SOURCE CODE COMPILATION
 ================================================================================
 Project: Labo-Esi Laboratory Website
-Generated: 2025-12-13 23:14:20
+Generated: 2025-12-15 17:37:03
 Root: C:\wamp64\www\proj
 ================================================================================
 
@@ -384,7 +384,7 @@ class EventController extends Controller {
 ================================================================================
 FILE: app\Controllers\HomeController.php
 ================================================================================
-Lines: 80
+Lines: 89
 --------------------------------------------------------------------------------
 <?php
 /**
@@ -400,11 +400,17 @@ class HomeController extends Controller {
         // Load language
         $lang = $this->loadLang('fr');
         
-        // Load News Model
+        // Load Models
         $newsModel = $this->model('NewsModel');
+        $projectModel = $this->model('ProjectModel');
+        $publicationModel = $this->model('PublicationModel');
+        $partnerModel = $this->model('PartnerModel');
         
         // Get data for homepage
         $recentNews = $newsModel->getRecentNews(5); // For slideshow
+        $recentProjects = $projectModel->getRecentProjects(2);
+        $recentPublications = $publicationModel->getRecentPublications(3);
+        $recentPartners = $partnerModel->getRecentPartners(2);
 
         $eventsPerPage = 3;
         $eventsPage = 1;
@@ -415,6 +421,9 @@ class HomeController extends Controller {
         // Prepare data (ensure arrays even if empty)
         $data = [
             'recentNews' => $recentNews ?: [],
+            'recentProjects' => $recentProjects ?: [],
+            'recentPublications' => $recentPublications ?: [],
+            'recentPartners' => $recentPartners ?: [],
             'upcomingEvents' => $upcomingEvents ?: [],
             'eventsPage' => $eventsPage,
             'eventsTotalPages' => $eventsTotalPages,
@@ -1239,9 +1248,50 @@ class NewsModel {
 
 
 ================================================================================
+FILE: app\Models\PartnerModel.php
+================================================================================
+Lines: 35
+--------------------------------------------------------------------------------
+<?php
+/**
+ * PartnerModel
+ * Handles database operations for partners
+ */
+class PartnerModel {
+    private $db;
+
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+
+    /**
+     * Get all partners
+     * @return array
+     */
+    public function getAllPartners() {
+        $stmt = $this->db->query("SELECT * FROM partners ORDER BY nom ASC");
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get recent partners (just getting random or last added if there was a date, but there isn't, so I'll just take some)
+     * Since there is no date_added, I will just take the last ones by ID assuming auto-increment implies order.
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentPartners($limit = 2) {
+        $stmt = $this->db->prepare("SELECT * FROM partners ORDER BY id_partner DESC LIMIT :limit");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+}
+
+
+================================================================================
 FILE: app\Models\ProjectModel.php
 ================================================================================
-Lines: 241
+Lines: 259
 --------------------------------------------------------------------------------
 <?php
 /**
@@ -1482,13 +1532,31 @@ class ProjectModel {
         ");
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+
+    /**
+     * Get recent projects
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentProjects($limit = 2) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.id_project, p.titre, p.domaine, p.date_debut
+            FROM projects p
+            ORDER BY p.date_debut DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 
 
 ================================================================================
 FILE: app\Models\PublicationModel.php
 ================================================================================
-Lines: 224
+Lines: 242
 --------------------------------------------------------------------------------
 <?php
 /**
@@ -1619,8 +1687,8 @@ class PublicationModel {
             $sql .= " AND EXISTS (
                 SELECT 1
                 FROM publication_authors pa3
-                JOIN team_members tm3 ON pa3.id_user = tm3.usr_id
-                WHERE pa3.id_pub = p.id_pub AND tm3.team_id = :team
+                JOIN users u3 ON pa3.id_user = u3.id_user
+                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
         }
@@ -1701,8 +1769,8 @@ class PublicationModel {
             $sql .= " AND EXISTS (
                 SELECT 1
                 FROM publication_authors pa3
-                JOIN team_members tm3 ON pa3.id_user = tm3.usr_id
-                WHERE pa3.id_pub = p.id_pub AND tm3.team_id = :team
+                JOIN users u3 ON pa3.id_user = u3.id_user
+                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
         }
@@ -1712,13 +1780,31 @@ class PublicationModel {
         $row = $stmt->fetch();
         return (int)($row['total'] ?? 0);
     }
+
+    /**
+     * Get recent publications
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentPublications($limit = 3) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.id_pub, p.titre, YEAR(p.date_publication) as annee
+            FROM publications p
+            ORDER BY p.date_publication DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 
 
 ================================================================================
 FILE: app\Models\TeamModel.php
 ================================================================================
-Lines: 149
+Lines: 155
 --------------------------------------------------------------------------------
 <?php
 /**
@@ -1771,19 +1857,25 @@ class TeamModel {
 
     /**
      * Get team members (excluding the leader)
+     * Updated for One-to-Many relationship (team_id in users table)
      * @param int $teamId
      * @return array
      */
     public function getTeamMembers($teamId) {
         $stmt = $this->db->prepare("
             SELECT 
-                u.id_user, u.nom, u.prenom, u.photo, u.grade, u.email,
-                u.domaine_recherche, tm.role_dans_equipe
-            FROM team_members tm
-            JOIN users u ON tm.usr_id = u.id_user
-            JOIN teams t ON tm.team_id = t.id_team
-            WHERE tm.team_id = :team_id 
-            AND u.id_user != t.chef_id
+                u.id_user, 
+                u.nom, 
+                u.prenom, 
+                u.photo, 
+                u.grade, 
+                u.email,
+                u.domaine_recherche, 
+                u.role_dans_equipe
+            FROM users u
+            JOIN teams t ON u.team_id = t.id_team
+            WHERE u.team_id = :team_id 
+            AND u.id_user != t.chef_id -- Exclude the leader from the member list
             ORDER BY u.nom, u.prenom
         ");
         $stmt->execute([':team_id' => $teamId]);
@@ -1799,10 +1891,10 @@ class TeamModel {
             SELECT 
                 u.id_user, u.nom, u.prenom, u.photo, u.grade, 
                 u.poste, u.domaine_recherche, u.email, u.role
-            FROM users
-            WHERE role IN ('admin', 'enseignant-chercheur', 'doctorant', 'etudiant')
+            FROM users u
+            WHERE u.role IN ('admin', 'enseignant-chercheur', 'doctorant', 'etudiant')
             ORDER BY 
-                CASE role
+                CASE u.role
                     WHEN 'admin' THEN 1
                     WHEN 'enseignant-chercheur' THEN 2
                     WHEN 'doctorant' THEN 3
@@ -2432,7 +2524,7 @@ Lines: 41
     <h1 class="section-title"><?= $lang['footer_contact'] ?></h1>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 2rem;">
-        <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+        <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
             <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Informations de Contact</h2>
             
             <div style="margin-bottom: 1.5rem;">
@@ -2460,7 +2552,7 @@ Lines: 41
             </div>
         </div>
         
-        <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+        <div style="background: var(--bg-light); padding: 2rem;">
             <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Localisation</h2>
             <p>Ã‰cole SupÃ©rieure d'Informatique (ESI)</p>
             <p>Oued Smar, Alger</p>
@@ -2484,14 +2576,14 @@ Lines: 218
     <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
         <!-- Sidebar -->
         <div>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; text-align: center; position: sticky; top: 20px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; text-align: center; position: sticky; top: 20px;">
                 <?php if ($user['photo']): ?>
                 <img src="<?= BASE_URL . $this->escape($user['photo']) ?>" 
                      alt="<?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>"
-                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
+                     style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
                      onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                 <?php else: ?>
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
+                <div style="width: 150px; height: 150px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
                     <?= strtoupper(substr($user['prenom'], 0, 1) . substr($user['nom'], 0, 1)) ?>
                 </div>
                 <?php endif; ?>
@@ -2521,7 +2613,7 @@ Lines: 218
         <!-- Main Content -->
         <div>
             <!-- User Info -->
-            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: var(--bg-light); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $lang['my_profile'] ?>
                 </h2>
@@ -2554,10 +2646,10 @@ Lines: 218
             </div>
             
             <!-- Projects -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_projects'] ?> 
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= count($projects) ?>
                     </span>
                 </h2>
@@ -2565,7 +2657,7 @@ Lines: 218
                 <?php if (!empty($projects)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($projects as $project): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="padding: 1.5rem; background: var(--bg-light); display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                                     <?= $this->escape($project['titre']) ?>
@@ -2605,10 +2697,10 @@ Lines: 218
             </div>
 
             <!-- Reservations -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_reservations'] ?>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= !empty($reservations) ? count($reservations) : 0 ?>
                     </span>
                 </h2>
@@ -2616,7 +2708,7 @@ Lines: 218
                 <?php if (!empty($reservations)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($reservations as $res): ?>
-                            <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                            <div style="padding: 1.5rem; background: var(--bg-light); display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
                                 <div>
                                     <h4 style="color: var(--primary-color); margin-bottom: 0.3rem;">
                                         <?= $this->escape($res['equip_nom']) ?>
@@ -2652,10 +2744,10 @@ Lines: 218
             </div>
             
             <!-- Publications -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_publications'] ?>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= count($publications) ?>
                     </span>
                 </h2>
@@ -2663,7 +2755,7 @@ Lines: 218
                 <?php if (!empty($publications)): ?>
                     <div style="display: grid; gap: 1rem;">
                         <?php foreach ($publications as $pub): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px;">
+                        <div style="padding: 1.5rem; background: var(--bg-light);">
                             <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                                 <?= $this->escape($pub['titre']) ?>
                             </h4>
@@ -2703,12 +2795,12 @@ Lines: 152
     <h1 class="section-title"><?= $lang['equipment_title'] ?></h1>
 
     <?php if (!empty($success)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($success) ?>
         </div>
     <?php endif; ?>
     <?php if (!empty($error)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($error) ?>
         </div>
     <?php endif; ?>
@@ -2754,11 +2846,11 @@ Lines: 152
     </div>
 
     <?php if (!empty($stats)): ?>
-        <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; margin: 1.5rem 0;">
             <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Statistiques d'utilisation</h2>
             <div style="display: grid; gap: 0.75rem;">
                 <?php foreach ($stats as $s): ?>
-                    <div style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem; background: var(--bg-light);">
                         <div>
                             <strong><?= $this->escape($s['nom']) ?></strong>
                             <small style="color: var(--text-light);">(<?= $this->escape($s['categorie']) ?>)</small>
@@ -2867,10 +2959,10 @@ Lines: 47
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem;">
         <div>
             <?php if (!empty($event['image_url'])): ?>
-                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" alt="<?= $this->escape($event['titre']) ?>" style="width: 100%; border-radius: 8px; margin-bottom: 1.5rem;" onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
+                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" alt="<?= $this->escape($event['titre']) ?>" style="width: 100%; margin-bottom: 1.5rem;" onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
             <?php endif; ?>
 
-            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+            <div style="background: var(--bg-light); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Description</h2>
                 <p style="line-height: 1.8; margin: 0;">
                     <?= !empty($event['description']) ? nl2br($this->escape($event['description'])) : 'Aucune description disponible.' ?>
@@ -2879,7 +2971,7 @@ Lines: 47
         </div>
 
         <div>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem;">
                 <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Informations</h3>
 
                 <div style="margin-bottom: 1rem;">
@@ -2907,48 +2999,136 @@ Lines: 47
 ================================================================================
 FILE: app\Views\Templates\home.phtml
 ================================================================================
-Lines: 142
+Lines: 230
 --------------------------------------------------------------------------------
 <!-- Homepage Template -->
 
 <!-- Slideshow Section -->
 <?php if (!empty($recentNews)): ?>
-<section class="slideshow-container">
-    <?php foreach ($recentNews as $index => $news): ?>
-    <div class="slide <?= $index === 0 ? 'active' : '' ?>">
-        <?php if ($news['image_url']): ?>
-            <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
-                 alt="<?= $this->escape($news['titre']) ?>"
-                 onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
-        <?php else: ?>
-            <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
-        <?php endif; ?>
-        
-        <div class="slide-content">
-            <h2><?= $this->escape($news['titre']) ?></h2>
-            <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
-            <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
-               class="btn btn-primary"><?= $lang['view_details'] ?></a>
-        </div>
-    </div>
-    <?php endforeach; ?>
-    
-    <div class="slide-controls">
-        <button class="slide-prev">â—€ <?= $lang['back'] ?></button>
-        <button class="slide-next"><?= $lang['view_details'] ?> â–¶</button>
+<section class="diapo-div">
+    <div class="diapo">
+        <?php foreach ($recentNews as $index => $news): ?>
+            <?php if ($index > 0): ?>
+            <div class="separator"></div>
+            <?php endif; ?>
+            
+            <div class="slide-item">
+                <?php if ($news['image_url']): ?>
+                    <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
+                         alt="<?= $this->escape($news['titre']) ?>"
+                         onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
+                <?php else: ?>
+                    <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
+                <?php endif; ?>
+                
+                <div class="slide-overlay">
+                    <div class="slide-content">
+                        <h2><?= $this->escape($news['titre']) ?></h2>
+                        <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
+                        <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
+                           class="btn btn-primary"><?= $lang['view_details'] ?></a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 <?php endif; ?>
 
+<!-- Scientific Updates Section -->
+<section class="scientific-updates mt-4">
+    <h2 class="section-title">ActualitÃ©s Scientifiques</h2>
+    <div class="updates-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        
+        <!-- Recent Projects -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Nouveaux Projets
+            </h3>
+            <?php if (!empty($recentProjects)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentProjects as $project): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=view&id=<?= $project['id_project'] ?>" style="color: var(--text-color); text-decoration: none;">
+                                <?= $this->escape($project['titre']) ?>
+                            </a>
+                        </h4>
+                        <span class="badge badge-secondary" style="font-size: 0.8rem;"><?= $this->escape($project['domaine']) ?></span>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucun projet rÃ©cent.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Project&action=index" class="btn btn-sm btn-outline-primary">Voir tous les projets</a>
+        </div>
+
+        <!-- Recent Publications -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Publications RÃ©centes
+            </h3>
+            <?php if (!empty($recentPublications)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentPublications as $pub): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                        <p style="margin-bottom: 0.3rem; font-weight: 500;">
+                            <?= $this->escape($pub['titre']) ?>
+                        </p>
+                        <small style="color: var(--text-light);">AnnÃ©e: <?= $this->escape($pub['annee']) ?></small>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucune publication rÃ©cente.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index" class="btn btn-sm btn-outline-primary">Voir toutes les publications</a>
+        </div>
+
+        <!-- Collaborations -->
+        <div class="update-column">
+            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                Collaborations
+            </h3>
+            <?php if (!empty($recentPartners)): ?>
+                <ul style="list-style: none; padding: 0;">
+                    <?php foreach ($recentPartners as $partner): ?>
+                    <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
+                        <?php if ($partner['logo_url']): ?>
+                            <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" alt="<?= $this->escape($partner['nom']) ?>" style="width: 40px; height: 40px; object-fit: contain;">
+                        <?php endif; ?>
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;"><?= $this->escape($partner['nom']) ?></h4>
+                            <small style="color: var(--text-light);"><?= $this->escape($partner['type']) ?></small>
+                        </div>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Aucune nouvelle collaboration.</p>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>index.php?controller=Partner&action=index" class="btn btn-sm btn-outline-primary">Voir les partenaires</a>
+        </div>
+    </div>
+</section>
+
 <!-- Lab Overview Section -->
 <section class="lab-overview mt-4">
     <h2 class="section-title"><?= $lang['lab_overview'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px;">
+    <div style="background: var(--bg-light); padding: 2rem;">
         <p style="line-height: 1.8; font-size: 1.1rem;">
-            Le <strong>Laboratoire TDW-2CSSIL</strong> est un centre de recherche dÃ©diÃ© Ã  l'innovation 
-            technologique et Ã  la recherche scientifique dans les domaines de l'informatique. 
-            Notre Ã©quipe multidisciplinaire travaille sur des projets de pointe en Intelligence Artificielle, 
-            CybersÃ©curitÃ©, Cloud Computing, et SystÃ¨mes EmbarquÃ©s.
+            Le <strong>LCSI</strong> est un centre de recherche dÃ©diÃ© Ã  l'innovation 
+            technologique et Ã  la recherche scientifique dans les domaines de :
+        </p>
+        <ul style="line-height: 1.8; font-size: 1.05rem; margin: 1.5rem 0; padding-left: 2rem;">
+            <li>Conception de structures de donnÃ©es adaptÃ©es pour les environnements distribuÃ©s et mobiles</li>
+            <li>Architectures avancÃ©es des SGBD de la nouvelle gÃ©nÃ©ration</li>
+            <li>Processus intelligents, Intelligence Artificielle, Robotique & Perception</li>
+            <li>Milieux poreux et composites, Traitement d'images, Machine learning, Data analysis, Processus alÃ©atoires, ThÃ©orie des nombres</li>
+        </ul>
+        <p style="line-height: 1.8; font-size: 1.1rem;">
+            Notre Ã©quipe multidisciplinaire travaille sur des projets de pointe dans ces domaines en constante Ã©volution.
         </p>
         <p style="line-height: 1.8; font-size: 1.1rem; margin-top: 1rem;">
             Nous collaborons avec des partenaires acadÃ©miques et industriels pour produire des recherches 
@@ -3025,7 +3205,7 @@ Lines: 142
 <!-- Partners Section -->
 <section class="partners-section mt-4 mb-4">
     <h2 class="section-title"><?= $lang['our_partners'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; text-align: center;">
+    <div style="background: var(--bg-light); padding: 2rem; text-align: center;">
         <p style="color: var(--text-light); margin-bottom: 2rem;">
             Nous travaillons en Ã©troite collaboration avec des partenaires acadÃ©miques et industriels de renom.
         </p>
@@ -3055,15 +3235,15 @@ Lines: 142
 ================================================================================
 FILE: app\Views\Templates\layout.phtml
 ================================================================================
-Lines: 120
+Lines: 122
 --------------------------------------------------------------------------------
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['site_name'] ?? 'Laboratoire TDW-2CSSIL' ?></title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <title><?= $lang['site_name'] ?? 'LSCI' ?></title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css?v=<?= time() ?>">
     <script>
         // Global BASE_URL for JavaScript AJAX calls
         const BASE_URL = "<?= BASE_URL ?>";
@@ -3077,15 +3257,17 @@ Lines: 120
             <div class="header-content">
                 <div class="logo">
                     <a href="<?= BASE_URL ?>index.php?controller=Home&action=index">
-                        <img src="<?= BASE_URL ?>assets/img/logo.png" alt="<?= $lang['site_name'] ?>" onerror="this.style.display='none'">
-                        <span class="logo-text"><?= $lang['site_name'] ?></span>
+                        <div class="logo-container">
+                            <img src="<?= BASE_URL ?>assets/img/logo_lcsi.png" alt="LSCI" class="logo-image">
+                            <div class="logo-full-name">Laboratoire de la Communication<br>dans les SystÃ¨mes Informatiques</div>
+                        </div>
                     </a>
                 </div>
                 <div class="header-right">
                     <div class="social-links">
-                        <a href="#" title="Facebook"><i class="icon-facebook"></i></a>
-                        <a href="#" title="Twitter"><i class="icon-twitter"></i></a>
-                        <a href="#" title="LinkedIn"><i class="icon-linkedin"></i></a>
+                        <a href="#" title="Facebook">FB</a>
+                        <a href="#" title="Twitter">X</a>
+                        <a href="#" title="LinkedIn">In</a>
                     </div>
                     <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - Ã‰cole SupÃ©rieure d'Informatique</a>
                 </div>
@@ -3189,10 +3371,10 @@ Lines: 60
     <div style="max-width: 500px; margin: 3rem auto;">
         <h1 class="section-title" style="text-align: center;"><?= $lang['login_title'] ?></h1>
         
-        <div style="background: white; border: 1px solid var(--border-color); padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="background: white; border: 1px solid var(--border-color); padding: 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             
             <?php if (isset($error) && $error): ?>
-            <div style="background: #fee; border: 1px solid #fcc; color: #c33; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <div style="background: #fee; border: 1px solid #fcc; color: #c33; padding: 1rem; margin-bottom: 1.5rem;">
                 <?= $this->escape($error) ?>
             </div>
             <?php endif; ?>
@@ -3261,14 +3443,14 @@ Lines: 139
     <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
         <!-- Profile Sidebar -->
         <div>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; text-align: center; position: sticky; top: 20px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; text-align: center; position: sticky; top: 20px;">
                 <?php if ($user['photo']): ?>
                 <img src="<?= BASE_URL . $this->escape($user['photo']) ?>" 
                      alt="<?= $this->escape($user['prenom'] . ' ' . $user['nom']) ?>"
-                     style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
+                     style="width: 200px; height: 200px; object-fit: cover; margin-bottom: 1rem; border: 4px solid var(--secondary-color);"
                      onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                 <?php else: ?>
-                <div style="width: 200px; height: 200px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
+                <div style="width: 200px; height: 200px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto 1rem; border: 4px solid var(--secondary-color);">
                     <?= strtoupper(substr($user['prenom'], 0, 1) . substr($user['nom'], 0, 1)) ?>
                 </div>
                 <?php endif; ?>
@@ -3307,17 +3489,17 @@ Lines: 139
         <div>
             <!-- Projects Section -->
             <?php if (!empty($projects)): ?>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_projects'] ?>
                 </h2>
                 <div style="display: grid; gap: 1.5rem;">
                     <?php foreach ($projects as $project): ?>
-                    <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px; display: flex; gap: 1rem; align-items: start;">
+                    <div style="padding: 1.5rem; background: var(--bg-light); display: flex; gap: 1rem; align-items: start;">
                         <?php if ($project['image_url']): ?>
                         <img src="<?= BASE_URL . $this->escape($project['image_url']) ?>" 
                              alt="<?= $this->escape($project['titre']) ?>"
-                             style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;"
+                             style="width: 120px; height: 80px; object-fit: cover;"
                              onerror="this.style.display='none'">
                         <?php endif; ?>
                         <div style="flex: 1;">
@@ -3350,13 +3532,13 @@ Lines: 139
             
             <!-- Publications Section -->
             <?php if (!empty($publications)): ?>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_publications'] ?>
                 </h2>
                 <div style="display: grid; gap: 1.5rem;">
                     <?php foreach ($publications as $pub): ?>
-                    <div style="padding: 1.5rem; background: var(--bg-light); border-radius: 8px;">
+                    <div style="padding: 1.5rem; background: var(--bg-light);">
                         <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                             <?= $this->escape($pub['titre']) ?>
                         </h3>
@@ -3398,7 +3580,7 @@ Lines: 38
 <section class="offers-section">
     <h1 class="section-title"><?= $lang['offers_title'] ?? 'Offres et opportunitÃ©s' ?></h1>
 
-    <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="background: var(--bg-light); padding: 2rem; margin-bottom: 2rem;">
         <p style="color: var(--text-light); margin: 0;">
             Retrouvez ici les opportunitÃ©s proposÃ©es par le laboratoire: stages, thÃ¨ses, bourses, collaborations.
         </p>
@@ -3460,7 +3642,7 @@ Lines: 73
             <div style="margin: 2rem 0;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $this->escape($label) ?>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem;">
+                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
                         <?= !empty($groupedMembers[$role]) ? count($groupedMembers[$role]) : 0 ?>
                     </span>
                 </h2>
@@ -3471,9 +3653,9 @@ Lines: 73
                             <div class="card">
                                 <div class="card-body" style="text-align: center;">
                                     <?php if (!empty($m['photo'])): ?>
-                                        <img src="<?= BASE_URL . $this->escape($m['photo']) ?>" alt="<?= $this->escape($m['prenom'] . ' ' . $m['nom']) ?>" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem;" onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
+                                        <img src="<?= BASE_URL . $this->escape($m['photo']) ?>" alt="<?= $this->escape($m['prenom'] . ' ' . $m['nom']) ?>" style="width: 110px; height: 110px; object-fit: cover; margin: 0 auto 1rem;" onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                                     <?php else: ?>
-                                        <div style="width: 110px; height: 110px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1rem; border: 3px solid var(--secondary-color);">
+                                        <div style="width: 110px; height: 110px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1rem; border: 3px solid var(--secondary-color);">
                                             <?= strtoupper(substr($m['prenom'], 0, 1) . substr($m['nom'], 0, 1)) ?>
                                         </div>
                                     <?php endif; ?>
@@ -3526,18 +3708,18 @@ Lines: 46
     <h1 class="section-title"><?= $lang['update_profile'] ?></h1>
 
     <?php if (!empty($success)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($success) ?>
         </div>
     <?php endif; ?>
 
     <?php if (!empty($error)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($error) ?>
         </div>
     <?php endif; ?>
 
-    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
         <form method="POST" enctype="multipart/form-data" action="<?= BASE_URL ?>index.php?controller=Dashboard&action=profile" style="display: grid; gap: 1rem;">
             <div>
                 <label for="poste"><strong><?= $lang['member_post'] ?></strong></label>
@@ -3586,11 +3768,11 @@ Lines: 165
             <?php if ($project['image_url']): ?>
             <img src="<?= BASE_URL . $this->escape($project['image_url']) ?>" 
                  alt="<?= $this->escape($project['titre']) ?>"
-                 style="width: 100%; border-radius: 8px; margin-bottom: 2rem;"
+                 style="width: 100%; margin-bottom: 2rem;"
                  onerror="this.style.display='none'">
             <?php endif; ?>
             
-            <div style="background: var(--bg-light); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: var(--bg-light); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Description</h2>
                 <p style="line-height: 1.8;">
                     <?= $project['description'] ? nl2br($this->escape($project['description'])) : 'Aucune description disponible.' ?>
@@ -3599,20 +3781,20 @@ Lines: 165
             
             <!-- Project Members -->
             <?php if (!empty($members)): ?>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $lang['project_members'] ?>
                 </h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                     <?php foreach ($members as $member): ?>
-                    <div style="text-align: center; padding: 1rem; background: var(--bg-light); border-radius: 8px;">
+                    <div style="text-align: center; padding: 1rem; background: var(--bg-light);">
                         <?php if ($member['photo']): ?>
                         <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
                              alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"
-                             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 0.5rem;"
+                             style="width: 80px; height: 80px; object-fit: cover; margin-bottom: 0.5rem;"
                              onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                         <?php else: ?>
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-size: 2rem;">
+                        <div style="width: 80px; height: 80px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-size: 2rem;">
                             <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>
                         </div>
                         <?php endif; ?>
@@ -3629,12 +3811,12 @@ Lines: 165
             
             <!-- Project Publications -->
             <?php if (!empty($publications)): ?>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $lang['publications_title'] ?>
                 </h2>
                 <?php foreach ($publications as $pub): ?>
-                <div style="padding: 1rem; background: var(--bg-light); border-radius: 8px; margin-bottom: 1rem;">
+                <div style="padding: 1rem; background: var(--bg-light); margin-bottom: 1rem;">
                     <h4 style="color: var(--primary-color);"><?= $this->escape($pub['titre']) ?></h4>
                     <p style="color: var(--text-light); font-size: 0.9rem; margin: 0.5rem 0;">
                         <span class="badge badge-primary"><?= $this->escape($pub['type']) ?></span>
@@ -3662,7 +3844,7 @@ Lines: 165
         <!-- Sidebar -->
         <div>
             <!-- Project Info -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; margin-bottom: 2rem;">
                 <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Informations</h3>
                 
                 <div style="margin-bottom: 1rem;">
@@ -3707,12 +3889,12 @@ Lines: 165
             
             <!-- Project Partners -->
             <?php if (!empty($partners)): ?>
-            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
+            <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem;">
                 <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
                     <?= $lang['project_partners'] ?>
                 </h3>
                 <?php foreach ($partners as $partner): ?>
-                <div style="padding: 1rem; background: var(--bg-light); border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                <div style="padding: 1rem; background: var(--bg-light); margin-bottom: 1rem; text-align: center;">
                     <?php if ($partner['logo_url']): ?>
                     <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" 
                          alt="<?= $this->escape($partner['nom']) ?>"
@@ -3750,17 +3932,17 @@ Lines: 75
     <h1 class="section-title">Modifier le projet</h1>
 
     <?php if (!empty($_GET['success'])): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             Modifications enregistrÃ©es.
         </div>
     <?php endif; ?>
     <?php if (!empty($_GET['error'])): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             Erreur lors de l'enregistrement.
         </div>
     <?php endif; ?>
 
-    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
         <form method="POST" action="<?= BASE_URL ?>index.php?controller=Project&action=update" style="display: grid; gap: 1rem;">
             <input type="hidden" name="id_project" value="<?= (int)$project['id_project'] ?>">
 
@@ -4180,13 +4362,13 @@ Lines: 179
                              class="member-photo"
                              onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                         <?php else: ?>
-                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; border: 3px solid var(--secondary-color);">
+                        <div style="width: 120px; height: 120px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; border: 3px solid var(--secondary-color);">
                             <?= strtoupper(substr($team['chef_prenom'], 0, 1) . substr($team['chef_nom'], 0, 1)) ?>
                         </div>
                         <?php endif; ?>
                         
                         <div style="flex: 1;">
-                            <div style="background: var(--secondary-color); color: white; display: inline-block; padding: 0.3rem 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                            <div style="background: var(--secondary-color); color: white; display: inline-block; padding: 0.3rem 1rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
                                 <?= $lang['team_leader'] ?>
                             </div>
                             <h3 style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.3rem;">
@@ -4228,7 +4410,7 @@ Lines: 179
                                  class="member-photo"
                                  onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
                             <?php else: ?>
-                            <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; border: 3px solid var(--secondary-color);">
+                            <div style="width: 120px; height: 120px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; border: 3px solid var(--secondary-color);">
                                 <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>
                             </div>
                             <?php endif; ?>
@@ -4926,7 +5108,7 @@ FROM equipment e
 ================================================================================
 FILE: docs\db-script.md
 ================================================================================
-Lines: 249
+Lines: 250
 --------------------------------------------------------------------------------
 -- ============================================================
 -- 1. Users Table
@@ -4941,6 +5123,7 @@ CREATE TABLE IF NOT EXISTS users (
     photo VARCHAR(255),
     grade VARCHAR(100) NOT NULL,
     poste VARCHAR(100),
+    
     domaine_recherche VARCHAR(255),
     role ENUM('admin','enseignant-chercheur','doctorant','etudiant','invite') DEFAULT 'enseignant-chercheur',
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -6587,6 +6770,314 @@ To satisfy the **"View as Class"** and **"Text as Variable"** constraints:
 | **Ergonomics** | Use CSS Flexbox/Grid for responsive layout. |
 
 ================================================================================
+FILE: docs\populate-team-publications.sql
+================================================================================
+Lines: 302
+--------------------------------------------------------------------------------
+-- ============================================================
+-- SQL SCRIPT TO POPULATE TEAM PUBLICATIONS AND DOCUMENT DATABASE
+-- Run this in phpMyAdmin to link authors to teams and publications
+-- ============================================================
+
+-- ============================================================
+-- 1. LINK AUTHORS TO TEAM "EQUIPE IA" (id=1)
+-- ============================================================
+-- Add prof_a (Benali - id=3) to Equipe IA
+INSERT IGNORE INTO
+    team_members (
+        team_id,
+        usr_id,
+        role_dans_equipe
+    )
+VALUES (1, 3, 'Chef d\'Ã©quipe');
+
+-- Add phd_b (Amrani - id=4) to Equipe IA
+INSERT IGNORE INTO
+    team_members (
+        team_id,
+        usr_id,
+        role_dans_equipe
+    )
+VALUES (1, 4, 'Doctorante');
+
+-- Add user (Chercheur - id=2) to Equipe IA for more content
+INSERT IGNORE INTO
+    team_members (
+        team_id,
+        usr_id,
+        role_dans_equipe
+    )
+VALUES (1, 2, 'Membre chercheur');
+
+-- ============================================================
+-- 2. ADD SAMPLE PUBLICATIONS (Articles, These, Rapports)
+-- ============================================================
+
+-- Article 1 - Linked to project "Smart City Algiers" (id=1)
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id,
+        doi
+    )
+VALUES (
+        'Deep Learning for Smart City Traffic Optimization',
+        'This paper presents a novel approach using deep neural networks to optimize traffic flow in urban environments. We demonstrate significant improvements in congestion reduction using real-time data from Algiers metropolitan area.',
+        '2024-11-15',
+        'article',
+        1,
+        '10.1109/ACCESS.2024.123456'
+    );
+
+-- Article 2 - General AI research
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Hybrid Neural Architecture for Arabic NLP Tasks',
+        'We propose a hybrid architecture combining transformer models with traditional linguistic features for improved performance on Arabic natural language processing tasks including named entity recognition and sentiment analysis.',
+        '2024-09-20',
+        'article',
+        NULL
+    );
+
+-- Article 3 - Recent publication
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id,
+        doi
+    )
+VALUES (
+        'Machine Learning Applications in Agricultural IoT Systems',
+        'An extensive survey of machine learning techniques applied to agricultural IoT systems, with case studies from North African farming contexts. Includes predictive models for crop yield and disease detection.',
+        '2025-01-10',
+        'article',
+        3,
+        '10.1016/j.compag.2025.001'
+    );
+
+-- Communication 1 - Conference paper
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Blockchain-based Authentication for Cloud Services',
+        'Presented at International Conference on Cloud Computing 2024. This work introduces a decentralized authentication mechanism using blockchain technology to enhance security in multi-tenant cloud environments.',
+        '2024-06-12',
+        'communication',
+        2
+    );
+
+-- These (Doctorate Thesis) - Sarah Amrani
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Apprentissage Profond pour la Reconnaissance d\'Images MÃ©dicales: Application au Diagnostic PrÃ©coce du Cancer',
+        'Cette thÃ¨se explore l\'utilisation des rÃ©seaux de neurones convolutifs et des architectures d\'attention pour amÃ©liorer la prÃ©cision du diagnostic prÃ©coce du cancer Ã  partir d\'imagerie mÃ©dicale. Les expÃ©riences montrent une amÃ©lioration de 15% par rapport aux mÃ©thodes traditionnelles.',
+        '2024-12-05',
+        'these',
+        NULL
+    );
+
+-- Rapport Technique 1
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Rapport Technique: Infrastructure Cloud du Laboratoire TDW',
+        'Ce rapport prÃ©sente l\'architecture complÃ¨te de l\'infrastructure cloud mise en place au laboratoire, incluant les services de calcul haute performance, le stockage distribuÃ© et les mÃ©canismes de sauvegarde. Document technique destinÃ© Ã  l\'Ã©quipe IT.',
+        '2024-08-15',
+        'rapport',
+        NULL
+    );
+
+-- Rapport Technique 2 - IoT Equipment
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Ã‰tude de FaisabilitÃ©: DÃ©ploiement de Capteurs IoT pour Agriculture de PrÃ©cision',
+        'Rapport d\'Ã©tude sur la faisabilitÃ© technique et Ã©conomique du dÃ©ploiement d\'un rÃ©seau de capteurs IoT pour l\'agriculture de prÃ©cision en AlgÃ©rie. Inclut une analyse coÃ»t-bÃ©nÃ©fice et des recommandations d\'implÃ©mentation.',
+        '2024-10-25',
+        'rapport',
+        3
+    );
+
+-- Poster de confÃ©rence
+INSERT INTO
+    publications (
+        titre,
+        resume,
+        date_publication,
+        type,
+        project_id
+    )
+VALUES (
+        'Visualisation Interactive des DonnÃ©es de Recherche du Laboratoire',
+        'Poster prÃ©sentÃ© au symposium de visualisation scientifique 2024. DÃ©montre un tableau de bord interactif pour explorer les donnÃ©es de recherche du laboratoire en temps rÃ©el.',
+        '2024-07-18',
+        'poster',
+        NULL
+    );
+
+-- ============================================================
+-- 3. LINK PUBLICATIONS TO AUTHORS
+-- ============================================================
+-- Get the IDs of recently inserted publications
+-- NOTE: Adjust these IDs based on your current max(id_pub) + offset
+
+-- For this script, we'll use the LAST_INSERT_ID() approach
+-- But since we have multiple inserts, we'll manually specify IDs
+-- Assuming your publications table is currently empty or has few entries
+
+-- Let's assume the new publications have IDs starting from 1 to 8
+-- If you already have publications, adjust these numbers accordingly
+
+-- Article 1: "Deep Learning for Smart City" - Authors: Benali (3), Amrani (4)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (1, 3), -- Prof Benali
+    (1, 4);
+-- PhD Amrani
+
+-- Article 2: "Hybrid Neural Architecture" - Authors: Benali (3), User (2)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (2, 3), -- Prof Benali
+    (2, 2);
+-- User (Chercheur)
+
+-- Article 3: "Machine Learning in AgriTech" - Authors: Benali (3), Amrani (4), User (2)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (3, 3), -- Prof Benali
+    (3, 4), -- PhD Amrani
+    (3, 2);
+-- User (Chercheur)
+
+-- Communication 1: "Blockchain Authentication" - Authors: User (2), Admin (1)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (4, 2), -- User (Chercheur)
+    (4, 1);
+-- Admin
+
+-- These: "Apprentissage Profond" - Author: Amrani (4) - single author thesis
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (5, 4);
+-- PhD Amrani
+
+-- Rapport 1: "Infrastructure Cloud" - Authors: User (2), Admin (1)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (6, 2), -- User (Chercheur)
+    (6, 1);
+-- Admin
+
+-- Rapport 2: "Capteurs IoT" - Authors: Benali (3), Amrani (4)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (7, 3), -- Prof Benali
+    (7, 4);
+-- PhD Amrani
+
+-- Poster: "Visualisation Interactive" - Authors: Amrani (4), stud_c (5)
+INSERT IGNORE INTO
+    publication_authors (id_pub, id_user)
+VALUES (8, 4), -- PhD Amrani
+    (8, 5);
+-- Student Yacine
+
+-- ============================================================
+-- 4. VERIFICATION QUERIES (Optional - Run to check results)
+-- ============================================================
+
+-- Check team members of Equipe IA
+-- SELECT t.nom AS equipe, u.prenom, u.nom, u.grade, tm.role_dans_equipe
+-- FROM team_members tm
+-- JOIN teams t ON tm.team_id = t.id_team
+-- JOIN users u ON tm.usr_id = u.id_user
+-- WHERE t.id_team = 1;
+
+-- Check publications with authors
+-- SELECT p.titre, p.type, p.date_publication,
+--        GROUP_CONCAT(CONCAT(u.prenom, ' ', u.nom) SEPARATOR ', ') AS auteurs
+-- FROM publications p
+-- LEFT JOIN publication_authors pa ON p.id_pub = pa.id_pub
+-- LEFT JOIN users u ON pa.id_user = u.id_user
+-- GROUP BY p.id_pub
+-- ORDER BY p.date_publication DESC;
+
+-- Check publications by team members of Equipe IA
+-- SELECT p.titre, p.type, u.prenom, u.nom
+-- FROM publications p
+-- JOIN publication_authors pa ON p.id_pub = pa.id_pub
+-- JOIN users u ON pa.id_user = u.id_user
+-- JOIN team_members tm ON u.id_user = tm.usr_id
+-- WHERE tm.team_id = 1
+-- ORDER BY p.date_publication DESC;
+
+-- ============================================================
+-- IMPORTANT NOTES:
+-- ============================================================
+-- 1. If you already have publications in your database, you need to:
+--    - Find the current MAX(id_pub) from publications table
+--    - Add that number to all id_pub values in the publication_authors INSERT statements
+--
+--    For example, if MAX(id_pub) = 5, then change:
+--    INSERT INTO publication_authors (id_pub, id_user) VALUES (1, 3)
+--    to:
+--    INSERT INTO publication_authors (id_pub, id_user) VALUES (6, 3)
+--
+-- 2. User IDs in this script:
+--    - id=1: admin (Directeur Laboratoire)
+--    - id=2: user (Chercheur Membre)
+--    - id=3: prof_a (Benali Mohamed) - Professor
+--    - id=4: phd_b (Amrani Sarah) - PhD Student
+--    - id=5: stud_c (Kader Yacine) - Student
+--
+-- 3. After running this script:
+--    - Navigate to Team page and click "Voir les publications de l'Ã©quipe"
+--    - Publications should now appear
+--    - Navigate to Publications page and filter by type "ThÃ¨se" or "Rapport"
+--    - Base Documentaire should show content
+-- ============================================================
+
+================================================================================
 FILE: docs\QUICKSTART.md
 ================================================================================
 Lines: 173
@@ -7148,6 +7639,153 @@ Lines: 99
 *   **Validation:** Must be able to demonstrate and explain every line of code.
 
 ================================================================================
+FILE: docs\update-event-images.sql
+================================================================================
+Lines: 141
+--------------------------------------------------------------------------------
+-- ============================================
+-- Update Event Images for Carousel
+-- ============================================
+-- This script updates the image_url column in the events table
+-- with proper image paths for the homepage carousel
+
+-- Option 1: Update existing events with specific images
+-- Replace the id_event values with your actual event IDs
+
+-- Example: Conference AI 2025
+UPDATE events
+SET
+    image_url = 'uploads/docs/conference-ai-2025.jpg'
+WHERE
+    id_event = 1;
+
+-- Example: New Publication
+UPDATE events
+SET
+    image_url = 'uploads/docs/publication-research.jpg'
+WHERE
+    id_event = 2;
+
+-- Example: Workshop Event
+UPDATE events
+SET
+    image_url = 'uploads/docs/workshop-event.jpg'
+WHERE
+    id_event = 3;
+
+-- Example: Seminar
+UPDATE events
+SET
+    image_url = 'uploads/docs/seminar-2025.jpg'
+WHERE
+    id_event = 4;
+
+-- Example: Project Launch
+UPDATE events
+SET
+    image_url = 'uploads/docs/project-launch.jpg'
+WHERE
+    id_event = 5;
+
+-- ============================================
+-- OR Option 2: Bulk update with placeholder images
+-- (useful for testing the carousel functionality)
+-- ============================================
+
+-- Update all events to use a generic event image
+-- UPDATE events
+-- SET image_url = 'assets/img/event-placeholder.jpg';
+
+-- ============================================
+-- OR Option 3: Update by event type
+-- ============================================
+
+-- Update conferences
+-- UPDATE events
+-- SET image_url = 'uploads/docs/conference-default.jpg'
+-- WHERE type = 'ConfÃ©rence';
+
+-- Update workshops
+-- UPDATE events
+-- SET image_url = 'uploads/docs/workshop-default.jpg'
+-- WHERE type = 'Workshop';
+
+-- Update publications
+-- UPDATE events
+-- SET image_url = 'uploads/docs/publication-default.jpg'
+-- WHERE type = 'Publication';
+
+-- Update seminars
+-- UPDATE events
+-- SET image_url = 'uploads/docs/seminar-default.jpg'
+-- WHERE type = 'SÃ©minaire';
+
+-- ============================================
+-- Check current events and their images
+-- ============================================
+-- Run this query to see all events and their current image_url values:
+-- SELECT id_event, titre, type, image_url, date_event
+-- FROM events
+-- ORDER BY date_event DESC
+-- LIMIT 10;
+
+-- ============================================
+-- Insert new sample events with images (optional)
+-- ============================================
+/*
+INSERT INTO events (titre, description, date_event, type, image_url, lieu) VALUES
+('ConfÃ©rence Intelligence Artificielle 2025', 
+'Grande confÃ©rence annuelle sur les derniÃ¨res avancÃ©es en IA et Machine Learning. Avec des experts internationaux.', 
+'2025-03-15 09:00:00', 
+'ConfÃ©rence', 
+'uploads/docs/ai-conference.jpg', 
+'AmphithÃ©Ã¢tre Central'),
+
+('Publication: Deep Learning Applications', 
+'Nouvelle publication de notre Ã©quipe dans une revue internationale sur les applications du deep learning.', 
+'2025-02-20 10:00:00', 
+'Publication', 
+'uploads/docs/publication-dl.jpg', 
+'Revue Scientifique'),
+
+('Workshop CybersÃ©curitÃ©', 
+'Atelier pratique sur les derniÃ¨res techniques de cybersÃ©curitÃ© et protection des donnÃ©es.', 
+'2025-04-10 14:00:00', 
+'Workshop', 
+'uploads/docs/cybersecurity-workshop.jpg', 
+'Salle de TP 3'),
+
+('SÃ©minaire Cloud Computing', 
+'SÃ©minaire sur les architectures cloud modernes et les bonnes pratiques DevOps.', 
+'2025-05-05 11:00:00', 
+'SÃ©minaire', 
+'uploads/docs/cloud-seminar.jpg', 
+'Salle de confÃ©rence'),
+
+('PrÃ©sentation Projet IoT', 
+'PrÃ©sentation des rÃ©sultats du projet de recherche sur l\'Internet des Objets et les systÃ¨mes embarquÃ©s.', 
+'2025-06-12 15:00:00', 
+'PrÃ©sentation', 
+'uploads/docs/iot-project.jpg', 
+'Auditorium');
+*/
+
+-- ============================================
+-- NOTES:
+-- ============================================
+-- 1. Image paths are relative to the 'public/' directory
+-- 2. Recommended locations for images:
+--    - uploads/docs/        (for event/publication images)
+--    - assets/img/          (for default/placeholder images)
+--    - uploads/projects/    (for project-related images)
+--
+-- 3. Make sure to upload actual image files to these directories
+-- 4. Supported formats: .jpg, .jpeg, .png, .gif, .webp
+--
+-- 5. If image doesn't exist, the template will fallback to:
+--    assets/img/news-placeholder.jpg
+
+================================================================================
 FILE: lang\fr.php
 ================================================================================
 Lines: 149
@@ -7160,7 +7798,7 @@ Lines: 149
 
 return [
     // Global
-    'site_name' => 'Laboratoire TDW-2CSSIL',
+    'site_name' => 'LCSI: Laboratoire de la Communication dans les SystÃ¨mes Informatiques',
     'welcome' => 'Bienvenue',
     'home' => 'Accueil',
     'login' => 'Connexion',
@@ -7406,7 +8044,7 @@ $router->dispatch();
 ================================================================================
 FILE: public\assets\css\style.css
 ================================================================================
-Lines: 598
+Lines: 691
 --------------------------------------------------------------------------------
 /* ============================================
    TDW Laboratory - Main Stylesheet
@@ -7425,7 +8063,7 @@ Lines: 598
   --accent-color: #e74c3c;
   --text-color: #333;
   --text-light: #777;
-  --bg-light: #f8f9fa;
+  --bg-light: #f5f7faff;
   --border-color: #dee2e6;
   --success-color: #27ae60;
   --warning-color: #f39c12;
@@ -7475,15 +8113,40 @@ img {
 .logo a {
   display: flex;
   align-items: center;
-  gap: 10px;
   color: white;
-  font-size: 1.3rem;
-  font-weight: 600;
+  text-decoration: none;
 }
 
-.logo img {
-  height: 50px;
+.logo a:hover {
+  color: white;
+  opacity: 0.85;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0px;
+}
+
+.logo-image {
+  max-height: 70px;
+  max-width: 240px;
   width: auto;
+  height: auto;
+  object-fit: contain;
+  background-color: white;
+  /* Crop the white background which fills the image's transparent padding */
+  clip-path: inset(10px 27px 15px 16px);
+}
+
+.logo-full-name {
+  font-family: "Open Sans", "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+  letter-spacing: 0.3px;
 }
 
 .header-right {
@@ -7507,6 +8170,12 @@ img {
   color: white;
   font-size: 0.9rem;
   opacity: 0.9;
+}
+
+.university-link:hover {
+  color: white;
+  opacity: 1;
+  text-decoration: underline;
 }
 
 /* === Navigation === */
@@ -7548,72 +8217,123 @@ img {
   padding: 2rem 0;
 }
 
-/* === Homepage Slideshow === */
-.slideshow-container {
-  position: relative;
-  max-width: 100%;
-  margin: 2rem 0;
-  background: var(--bg-light);
-  border-radius: 8px;
+/* === Homepage Updates Section === */
+.update-column {
+  background-color: var(--bg-light);
+  padding: 1.5rem;
+  border-radius: 4px;
+}
+
+/* === Homepage Slideshow - Continuous Scroll === */
+.diapo-div {
+  width: 100%;
+
   overflow: hidden;
+  background-color: black;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.slide {
-  display: none;
+.diapo {
+  display: flex;
+  width: 100%;
+  animation: scroll-carousel 25s ease-in-out infinite;
+}
+
+.diapo:hover {
+  animation-play-state: paused;
+}
+
+.slide-item {
+  width: 100%;
+  flex-shrink: 0;
   position: relative;
+  min-height: 400px;
 }
 
-.slide.active {
-  display: block;
-}
-
-.slide img {
+.slide-item img {
   width: 100%;
   height: 400px;
   object-fit: cover;
+  display: block;
 }
 
-.slide-content {
+.separator {
+  width: 2%;
+  background: black;
+  height: 400px;
+  flex-shrink: 0;
+}
+
+.slide-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  top: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+  display: flex;
+  align-items: flex-end;
+}
+
+.slide-content {
   color: white;
   padding: 2rem;
+  width: 100%;
 }
 
 .slide-content h2 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .slide-content p {
   font-size: 1rem;
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-.slide-controls {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  gap: 10px;
-}
-
-.slide-controls button {
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
-  color: white;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.3s ease;
-}
-
-.slide-controls button:hover {
-  background: rgba(255, 255, 255, 0.5);
+/* Dynamic animation based on number of slides */
+/* This will work for up to 5 slides, adjust keyframes as needed */
+@keyframes scroll-carousel {
+  0% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-102%);
+  }
+  35% {
+    transform: translateX(-102%);
+  }
+  40% {
+    transform: translateX(-204%);
+  }
+  55% {
+    transform: translateX(-204%);
+  }
+  60% {
+    transform: translateX(-306%);
+  }
+  75% {
+    transform: translateX(-306%);
+  }
+  80% {
+    transform: translateX(-408%);
+  }
+  95% {
+    transform: translateX(-408%);
+  }
+  100% {
+    transform: translateX(-408%);
+  }
 }
 
 /* === Cards & Grid === */
@@ -7627,7 +8347,6 @@ img {
 .card {
   background: white;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -7676,7 +8395,6 @@ img {
 .badge {
   display: inline-block;
   padding: 0.3rem 0.8rem;
-  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -7706,7 +8424,6 @@ img {
   display: inline-block;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -7733,6 +8450,22 @@ img {
   color: white;
 }
 
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-outline-primary {
+  background: transparent;
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+.btn-outline-primary:hover {
+  background: var(--secondary-color);
+  color: white;
+}
+
 /* === Forms === */
 .form-group {
   margin-bottom: 1.5rem;
@@ -7749,7 +8482,6 @@ img {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
@@ -7767,7 +8499,6 @@ select.form-control {
 .filter-bar {
   background: var(--bg-light);
   padding: 1.5rem;
-  border-radius: 8px;
   margin-bottom: 2rem;
   display: flex;
   gap: 1rem;
@@ -7783,7 +8514,6 @@ select.form-control {
 .filter-bar select {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -7800,14 +8530,12 @@ select.form-control {
   background: var(--primary-color);
   color: white;
   padding: 1rem 1.5rem;
-  border-radius: 8px 8px 0 0;
 }
 
 .team-leader {
   background: var(--bg-light);
   padding: 2rem;
   border: 2px solid var(--secondary-color);
-  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
@@ -7822,7 +8550,6 @@ select.form-control {
   padding: 1.5rem;
   background: white;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -7834,7 +8561,6 @@ select.form-control {
 .member-photo {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
   object-fit: cover;
   margin: 0 auto 1rem;
   border: 3px solid var(--secondary-color);
@@ -7905,6 +8631,12 @@ select.form-control {
 .footer-social a {
   color: white;
   opacity: 0.9;
+}
+
+.footer-section .university-logo img {
+  max-width: 120px;
+  height: auto;
+  margin-top: 1rem;
 }
 
 .footer-bottom {
@@ -8003,7 +8735,6 @@ select.form-control {
   padding: 3rem;
   color: var(--text-light);
   background: var(--bg-light);
-  border-radius: 8px;
 }
 
 
@@ -8020,6 +8751,20 @@ FILE: public\assets\img\event-placeholder.jpg
 [BINARY/MEDIA FILE - Content not included]
 Type: .jpg
 Size: 591.98 KB
+
+================================================================================
+FILE: public\assets\img\logo_lcsi.png
+================================================================================
+[BINARY/MEDIA FILE - Content not included]
+Type: .png
+Size: 29.77 KB
+
+================================================================================
+FILE: public\assets\img\news-placeholder.jpg
+================================================================================
+[BINARY/MEDIA FILE - Content not included]
+Type: .jpg
+Size: 44.55 KB
 
 ================================================================================
 FILE: public\assets\img\project-placeholder.jpg
@@ -8692,10 +9437,10 @@ $(document).ready(function () {
 ================================================================================
 COMPILATION SUMMARY
 ================================================================================
-Source files included: 67
-Files mentioned only: 6
+Source files included: 70
+Files mentioned only: 8
 Files skipped: 2
-Total lines of code: 8240
-Generated: 2025-12-13 23:14:21
+Total lines of code: 8953
+Generated: 2025-12-15 17:37:04
 ================================================================================
 

@@ -7,18 +7,18 @@
     <h1 class="section-title"><?= $lang['update_profile'] ?></h1>
 
     <?php if (!empty($success)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($success) ?>
         </div>
     <?php endif; ?>
 
     <?php if (!empty($error)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
             <?= $this->escape($error) ?>
         </div>
     <?php endif; ?>
 
-    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px;">
+    <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
         <form method="POST" enctype="multipart/form-data" action="<?= BASE_URL ?>index.php?controller=Dashboard&action=profile" style="display: grid; gap: 1rem;">
             <div>
                 <label for="poste"><strong><?= $lang['member_post'] ?></strong></label>

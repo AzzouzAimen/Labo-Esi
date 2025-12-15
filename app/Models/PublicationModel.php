@@ -127,8 +127,8 @@ class PublicationModel {
             $sql .= " AND EXISTS (
                 SELECT 1
                 FROM publication_authors pa3
-                JOIN team_members tm3 ON pa3.id_user = tm3.usr_id
-                WHERE pa3.id_pub = p.id_pub AND tm3.team_id = :team
+                JOIN users u3 ON pa3.id_user = u3.id_user
+                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
         }
@@ -209,8 +209,8 @@ class PublicationModel {
             $sql .= " AND EXISTS (
                 SELECT 1
                 FROM publication_authors pa3
-                JOIN team_members tm3 ON pa3.id_user = tm3.usr_id
-                WHERE pa3.id_pub = p.id_pub AND tm3.team_id = :team
+                JOIN users u3 ON pa3.id_user = u3.id_user
+                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters['team'];
         }
@@ -219,5 +219,23 @@ class PublicationModel {
         $stmt->execute($params);
         $row = $stmt->fetch();
         return (int)($row['total'] ?? 0);
+    }
+
+    /**
+     * Get recent publications
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentPublications($limit = 3) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.id_pub, p.titre, YEAR(p.date_publication) as annee
+            FROM publications p
+            ORDER BY p.date_publication DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }
