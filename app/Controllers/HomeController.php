@@ -27,9 +27,12 @@ class HomeController extends Controller {
 
         $eventsPerPage = 3;
         $eventsPage = 1;
-        $upcomingEvents = $newsModel->getUpcomingEventsPaginated($eventsPage, $eventsPerPage);
-        $totalUpcoming = $newsModel->countUpcomingEvents();
+        // Fetch all upcoming events at once for client-side pagination
+        $allUpcomingEvents = $newsModel->getAllUpcomingEvents();
+        $totalUpcoming = count($allUpcomingEvents);
         $eventsTotalPages = (int)ceil($totalUpcoming / $eventsPerPage);
+        // Get first page for initial display
+        $upcomingEvents = array_slice($allUpcomingEvents, 0, $eventsPerPage);
         
         // Prepare data (ensure arrays even if empty)
         $data = [
@@ -39,6 +42,7 @@ class HomeController extends Controller {
             'recentPartners' => $recentPartners ?: [],
             'allPartners' => $allPartners ?: [],
             'upcomingEvents' => $upcomingEvents ?: [],
+            'allUpcomingEvents' => $allUpcomingEvents ?: [], // Pass all events for JS
             'eventsPage' => $eventsPage,
             'eventsTotalPages' => $eventsTotalPages,
             'eventsPerPage' => $eventsPerPage

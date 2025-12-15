@@ -288,51 +288,60 @@ $(document).ready(function () {
     const grid = $("#upcoming-events-grid");
     if (!grid.length) return;
 
+    // Get all events from data attribute
+    let allEvents = grid.data("all-events");
+
+    // Parse JSON if it's a string
+    if (typeof allEvents === "string") {
+      try {
+        allEvents = JSON.parse(allEvents);
+      } catch (e) {
+        console.error("Failed to parse events data:", e);
+        return;
+      }
+    }
+
+    if (!allEvents || !Array.isArray(allEvents)) {
+      console.error("No events data found or invalid format");
+      return;
+    }
+
     const perPage = parseInt(grid.data("per-page"), 10) || 3;
-    $("#upcoming-events-grid").html('<div class="loading">Chargement...</div>');
+    const totalEvents = allEvents.length;
+    const totalPages = Math.ceil(totalEvents / perPage);
 
-    $.ajax({
-      url: BASE_URL + "index.php",
-      method: "GET",
-      data: {
-        controller: "Home",
-        action: "upcomingEvents",
-        page: targetPage,
-        perPage: perPage,
-      },
-      dataType: "json",
-      success: function (response) {
-        if (!response || !response.success) {
-          $("#upcoming-events-grid").html(
-            '<div class="no-results">Erreur lors du chargement des événements</div>'
-          );
-          return;
-        }
+    // Validate target page
+    const page = Math.max(1, Math.min(targetPage, totalPages));
 
-        const events = response.data || [];
-        const pagination = response.pagination || {};
-        const page = pagination.page || targetPage;
-        const totalPages = pagination.totalPages || 1;
+    // Calculate slice indices
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    const pageEvents = allEvents.slice(startIndex, endIndex);
 
-        grid.data("page", page);
-        grid.data("total-pages", totalPages);
+    // Disable buttons during transition
+    $("#events-prev, #events-next").prop("disabled", true);
 
-        if (events.length > 0) {
-          renderUpcomingEvents(events);
-        } else {
-          $("#upcoming-events-grid").html(
-            '<div class="no-results">Aucun événement trouvé</div>'
-          );
-        }
+    // Fade out
+    grid.addClass("fade-out");
 
+    // Wait for fade-out, then update content
+    setTimeout(function () {
+      if (pageEvents.length > 0) {
+        renderUpcomingEvents(pageEvents);
+      } else {
+        grid.html('<div class="no-results">Aucun événement trouvé</div>');
+      }
+
+      // Update data attributes
+      grid.data("page", page);
+      grid.data("total-pages", totalPages);
+
+      // Fade in
+      setTimeout(function () {
+        grid.removeClass("fade-out");
         updateEventsPagerState(page, totalPages);
-      },
-      error: function () {
-        $("#upcoming-events-grid").html(
-          '<div class="no-results">Erreur lors du chargement des événements</div>'
-        );
-      },
-    });
+      }, 50);
+    }, 50);
   }
 
   if ($("#upcoming-events-grid").length) {
@@ -342,18 +351,32 @@ $(document).ready(function () {
       parseInt($("#upcoming-events-grid").data("total-pages"), 10) || 1;
     updateEventsPagerState(initialPage, initialTotalPages);
 
-    $("#events-prev").on("click", function () {
+    $("#events-prev").on("click", function (e) {
+      e.preventDefault();
+      if ($(this).prop("disabled")) return;
+
       const current =
         parseInt($("#upcoming-events-grid").data("page"), 10) || 1;
-      loadUpcomingEventsPage(Math.max(1, current - 1));
+      const newPage = Math.max(1, current - 1);
+
+      if (newPage !== current) {
+        loadUpcomingEventsPage(newPage);
+      }
     });
 
-    $("#events-next").on("click", function () {
+    $("#events-next").on("click", function (e) {
+      e.preventDefault();
+      if ($(this).prop("disabled")) return;
+
       const current =
         parseInt($("#upcoming-events-grid").data("page"), 10) || 1;
       const total =
         parseInt($("#upcoming-events-grid").data("total-pages"), 10) || 1;
-      loadUpcomingEventsPage(Math.min(total, current + 1));
+      const newPage = Math.min(total, current + 1);
+
+      if (newPage !== current) {
+        loadUpcomingEventsPage(newPage);
+      }
     });
   }
 
@@ -613,4 +636,134 @@ $(document).ready(function () {
       }
     });
   }
+
+  // ====================================
+  // Partners Carousel - Infinite Loop
+  // ====================================
+  (function initPartnersCarousel() {
+    const carousel = $("#partners-carousel");
+    const prevBtn = $("#partners-prev");
+    const nextBtn = $("#partners-next");
+
+    if (!carousel.length || !prevBtn.length || !nextBtn.length) return;
+
+    const originalItems = carousel.find(".partner-carousel-item").toArray();
+    const totalItems = originalItems.length;
+    const itemsPerView = 3;
+    let currentIndex = itemsPerView; // Start at the first real item (after clones)
+    let isTransitioning = false;
+    let autoPlayInterval;
+
+    if (totalItems <= itemsPerView) {
+      // Hide arrows if not enough items
+      prevBtn.hide();
+      nextBtn.hide();
+      return;
+    }
+
+    // Clone items for infinite loop effect
+    // Clone last itemsPerView items and prepend
+    for (let i = totalItems - itemsPerView; i < totalItems; i++) {
+      const clone = $(originalItems[i]).clone();
+      carousel.prepend(clone);
+    }
+
+    // Clone first itemsPerView items and append
+    for (let i = 0; i < itemsPerView; i++) {
+      const clone = $(originalItems[i]).clone();
+      carousel.append(clone);
+    }
+
+    // Update carousel position with or without transition
+    function updateCarousel(withTransition) {
+      if (withTransition) {
+        carousel.css("transition", "transform 0.5s ease-in-out");
+      } else {
+        carousel.css("transition", "none");
+      }
+      const offset = -(currentIndex * (100 / itemsPerView));
+      carousel.css("transform", "translateX(" + offset + "%)");
+    }
+
+    // Initialize position
+    updateCarousel(false);
+
+    function nextSlide() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      currentIndex++;
+      updateCarousel(true);
+
+      // Check if we're at a clone, reset to real item
+      setTimeout(function () {
+        if (currentIndex >= totalItems + itemsPerView) {
+          currentIndex = itemsPerView;
+          updateCarousel(false);
+        }
+        isTransitioning = false;
+      }, 500); // Match transition duration
+    }
+
+    function prevSlide() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      currentIndex--;
+      updateCarousel(true);
+
+      // Check if we're at a clone, reset to real item
+      setTimeout(function () {
+        if (currentIndex < itemsPerView) {
+          currentIndex = totalItems + itemsPerView - 1;
+          updateCarousel(false);
+        }
+        isTransitioning = false;
+      }, 500); // Match transition duration
+    }
+
+    function startAutoPlay() {
+      autoPlayInterval = setInterval(nextSlide, 3000); // Change every 3 seconds
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlayInterval);
+    }
+
+    // Event listeners
+    nextBtn.on("click", function () {
+      stopAutoPlay();
+      nextSlide();
+      startAutoPlay();
+    });
+
+    prevBtn.on("click", function () {
+      stopAutoPlay();
+      prevSlide();
+      startAutoPlay();
+    });
+
+    // Pause on hover
+    carousel.on("mouseenter", stopAutoPlay);
+    carousel.on("mouseleave", startAutoPlay);
+
+    // Start auto-play
+    startAutoPlay();
+  })();
+
+  // ====================================
+  // Smooth Scroll to Section
+  // ====================================
+  $('a.scroll-to-section[href^="#"]').on("click", function (e) {
+    e.preventDefault();
+    const target = $(this).attr("href");
+    const $target = $(target);
+
+    if ($target.length) {
+      $("html, body").animate(
+        {
+          scrollTop: $target.offset().top - 80, // 80px offset for header
+        },
+        800
+      );
+    }
+  });
 });

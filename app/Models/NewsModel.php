@@ -68,6 +68,21 @@ class NewsModel {
     }
 
     /**
+     * Get all upcoming events without pagination
+     * @return array
+     */
+    public function getAllUpcomingEvents() {
+        $stmt = $this->db->prepare("
+            SELECT id_event, titre, description, date_event, type, image_url, lieu
+            FROM events
+            WHERE date_event >= NOW()
+            ORDER BY date_event ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Count upcoming events
      * @return int
      */
