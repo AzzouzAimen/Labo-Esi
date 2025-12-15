@@ -78,18 +78,18 @@ img {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0px;
+  gap: 15px;
 }
 
 .logo-image {
   max-height: 70px;
   max-width: 240px;
   width: auto;
-  height: auto;
+  height: 70px !important;
   object-fit: contain;
   background-color: white;
   /* Crop the white background which fills the image's transparent padding */
-  clip-path: inset(10px 27px 15px 16px);
+  //clip-path: inset(0px 0px 0px 16px);
 }
 
 .logo-full-name {
@@ -349,26 +349,32 @@ img {
   padding: 0.3rem 0.8rem;
   font-size: 0.85rem;
   font-weight: 500;
+  border-radius: 12px;
+  border: 2px solid;
 }
 
 .badge-primary {
-  background: var(--secondary-color);
-  color: white;
+  background: rgba(52, 152, 219, 0.15);
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
 }
 
 .badge-success {
-  background: var(--success-color);
-  color: white;
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--success-color);
+  border-color: var(--success-color);
 }
 
 .badge-warning {
-  background: var(--warning-color);
-  color: white;
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--warning-color);
+  border-color: var(--warning-color);
 }
 
 .badge-danger {
-  background: var(--accent-color);
-  color: white;
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 /* === Buttons === */
@@ -784,12 +790,12 @@ select.form-control {
 }
 
 .partner-carousel-item .partner-badge {
-  background: var(--bg-light);
-  border: 2px solid var(--border-color);
+  background: rgba(52, 152, 219, 0.1);
+  border: 2px solid var(--secondary-color);
   padding: 1rem;
-  border-radius: 0;
+  border-radius: 12px;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--secondary-color);
   text-align: center;
   font-size: 0.9rem;
   transition: all 0.3s ease;
@@ -802,8 +808,8 @@ select.form-control {
 }
 
 .partner-carousel-item:hover .partner-badge {
-  background: var(--secondary-color);
-  color: white;
+  background: rgba(52, 152, 219, 0.25);
+  color: var(--secondary-color);
   border-color: var(--secondary-color);
 }
 
@@ -1048,10 +1054,11 @@ select.form-control {
 }
 
 .org-badge {
-  background: var(--secondary-color);
-  color: white;
+  background: rgba(52, 152, 219, 0.15);
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
   padding: 0.4rem 1rem;
-  border-radius: 0;
+  border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 600;
   display: inline-block;
@@ -1059,7 +1066,9 @@ select.form-control {
 }
 
 .director-card .org-badge {
-  background: var(--accent-color);
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .org-card h3 {
@@ -1248,10 +1257,11 @@ select.form-control {
 
 .team-acronym {
   display: inline-block;
-  background: var(--secondary-color);
-  color: white;
+  background: rgba(52, 152, 219, 0.15);
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
   padding: 0.3rem 0.8rem;
-  border-radius: 0;
+  border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
@@ -1317,10 +1327,11 @@ select.form-control {
 }
 
 .leader-badge {
-  background: var(--secondary-color);
-  color: white;
+  background: rgba(52, 152, 219, 0.15);
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
   padding: 0.3rem 0.8rem;
-  border-radius: 0;
+  border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 1rem;

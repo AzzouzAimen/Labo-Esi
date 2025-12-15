@@ -94,39 +94,6 @@ class TeamController extends Controller {
     }
 
     /**
-     * Organizational chart page
-     */
-    public function orgChart() {
-        $lang = $this->loadLang('fr');
-        
-        // Load Team Model
-        $teamModel = $this->model('TeamModel');
-        
-        // Get all members
-        $members = $teamModel->getAllMembers();
-        
-        // Group members by role
-        $groupedMembers = [
-            'admin' => [],
-            'enseignant-chercheur' => [],
-            'doctorant' => [],
-            'etudiant' => []
-        ];
-        
-        foreach ($members as $member) {
-            $groupedMembers[$member['role']][] = $member;
-        }
-        
-        // Prepare data
-        $data = [
-            'groupedMembers' => $groupedMembers
-        ];
-        
-        // Load OrgChart View
-        $this->view('OrgChart', $data, $lang);
-    }
-
-    /**
      * Member profile page
      */
     public function profile() {
