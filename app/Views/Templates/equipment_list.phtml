@@ -119,7 +119,7 @@
                                 </h4>
                                 <form method="POST" action="<?= BASE_URL ?>index.php?controller=Equipment&action=reserve" style="display: grid; gap: 0.5rem;">
                                     <input type="hidden" name="equip_id" value="<?= (int)$equip['id_equip'] ?>">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                         <div>
                                             <label style="display:block; font-size:0.9rem; color: var(--text-light);">Début</label>
                                             <input required type="datetime-local" name="date_debut" class="form-control">

@@ -325,7 +325,7 @@ $(document).ready(function () {
             <p class="card-text">${escapeHtml(
               truncate(event.description, 120)
             )}...</p>
-            <a href="${BASE_URL}index.php?controller=Event&action=view&id=${
+            <a href="${BASE_URL}index.php?controller=Event&action=detail&id=${
         event.id_event
       }" class="btn btn-primary">${LANG.read_more}</a>
           </div>
@@ -879,6 +879,8 @@ $(document).ready(function () {
     const searchInput = document.getElementById("member-search");
     const filterTeam = document.getElementById("filter-team");
     const filterGrade = document.getElementById("filter-grade");
+    const sortColumnSelect = document.getElementById("sort-column");
+    const sortOrderSelect = document.getElementById("sort-order");
     const resetBtn = document.getElementById("reset-filters");
     const membersTable = document.getElementById("members-table");
     const membersTbody = document.getElementById("members-tbody");
@@ -887,7 +889,6 @@ $(document).ready(function () {
 
     if (!membersTable || !membersTbody) return;
 
-    let currentSort = { column: null, direction: "asc" };
     let allMembers = []; // Store all member data
 
     // Initialize: Extract all member data from table
@@ -932,58 +933,100 @@ $(document).ready(function () {
       return groups;
     }
 
-    // Rebuild table with rowspan grouping
-    function rebuildTable(members) {
+    // Rebuild table with rowspan grouping or flat list
+    function rebuildTable(members, sortColumn, sortDirection) {
       membersTbody.innerHTML = "";
 
       if (members.length === 0) {
         return;
       }
 
-      const groupedMembers = groupByTeam(members);
+      if (sortColumn === "team") {
+        const groupedMembers = groupByTeam(members);
 
-      // Sort teams: named teams first (alphabetically), then "Sans équipe"
-      const teamNames = Object.keys(groupedMembers).sort((a, b) => {
-        if (a === "Sans équipe") return 1;
-        if (b === "Sans équipe") return -1;
-        return a.localeCompare(b, "fr");
-      });
+        // Sort teams: named teams first (alphabetically), then "Sans équipe"
+        // Respect sortDirection
+        const teamNames = Object.keys(groupedMembers).sort((a, b) => {
+          if (a === "Sans équipe") return sortDirection === "asc" ? 1 : -1;
+          if (b === "Sans équipe") return sortDirection === "asc" ? -1 : 1;
+          const cmp = a.localeCompare(b, "fr");
+          return sortDirection === "asc" ? cmp : -cmp;
+        });
 
-      let rowIndex = 0; // Track actual visual row index for alternating colors
+        let rowIndex = 0; // Track actual visual row index for alternating colors
 
-      teamNames.forEach((teamName) => {
-        const teamMembers = groupedMembers[teamName];
-        const memberCount = teamMembers.length;
+        teamNames.forEach((teamName) => {
+          const teamMembers = groupedMembers[teamName];
+          const memberCount = teamMembers.length;
 
-        teamMembers.forEach((member, index) => {
+          teamMembers.forEach((member, index) => {
+            const tr = document.createElement("tr");
+            tr.className = "member-row";
+
+            // Apply alternating background color based on visual row index
+            const bgColor = rowIndex % 2 === 0 ? "white" : "var(--bg-light)";
+
+            // Team cell (only for first member or all "Sans équipe" members)
+            if (index === 0) {
+              const teamCell = document.createElement("td");
+              teamCell.className = "team-cell";
+              teamCell.textContent = teamName;
+              if (teamName !== "Sans équipe") {
+                teamCell.setAttribute("rowspan", memberCount);
+              }
+              tr.appendChild(teamCell);
+            } else if (teamName === "Sans équipe") {
+              const teamCell = document.createElement("td");
+              teamCell.className = "team-cell";
+              teamCell.textContent = teamName;
+              tr.appendChild(teamCell);
+            }
+
+            // Name cell
+            const nameCell = document.createElement("td");
+            nameCell.textContent = member.prenom + " " + member.nom;
+            nameCell.style.backgroundColor = bgColor;
+
+            // Add team leader badge if applicable
+            if (member.is_team_leader == 1) {
+              const leaderBadge = document.createElement("span");
+              leaderBadge.className = "team-leader-badge";
+              leaderBadge.textContent = "(chef d'équipe)";
+              nameCell.appendChild(document.createTextNode(" "));
+              nameCell.appendChild(leaderBadge);
+            }
+
+            tr.appendChild(nameCell);
+
+            // Grade cell
+            const gradeCell = document.createElement("td");
+            gradeCell.textContent = member.grade;
+            gradeCell.style.backgroundColor = bgColor;
+            tr.appendChild(gradeCell);
+
+            membersTbody.appendChild(tr);
+            rowIndex++;
+          });
+        });
+      } else {
+        // Flat view for other sort columns
+        let rowIndex = 0;
+        members.forEach((member) => {
           const tr = document.createElement("tr");
           tr.className = "member-row";
-
-          // Apply alternating background color based on visual row index
           const bgColor = rowIndex % 2 === 0 ? "white" : "var(--bg-light)";
 
-          // Team cell (only for first member or all "Sans équipe" members)
-          if (index === 0) {
-            const teamCell = document.createElement("td");
-            teamCell.className = "team-cell";
-            teamCell.textContent = teamName;
-            if (teamName !== "Sans équipe") {
-              teamCell.setAttribute("rowspan", memberCount);
-            }
-            tr.appendChild(teamCell);
-          } else if (teamName === "Sans équipe") {
-            const teamCell = document.createElement("td");
-            teamCell.className = "team-cell";
-            teamCell.textContent = teamName;
-            tr.appendChild(teamCell);
-          }
+          // Team cell
+          const teamCell = document.createElement("td");
+          teamCell.className = "team-cell";
+          teamCell.textContent = member.team_nom || "Sans équipe";
+          tr.appendChild(teamCell);
 
           // Name cell
           const nameCell = document.createElement("td");
           nameCell.textContent = member.prenom + " " + member.nom;
           nameCell.style.backgroundColor = bgColor;
 
-          // Add team leader badge if applicable
           if (member.is_team_leader == 1) {
             const leaderBadge = document.createElement("span");
             leaderBadge.className = "team-leader-badge";
@@ -991,7 +1034,6 @@ $(document).ready(function () {
             nameCell.appendChild(document.createTextNode(" "));
             nameCell.appendChild(leaderBadge);
           }
-
           tr.appendChild(nameCell);
 
           // Grade cell
@@ -1003,7 +1045,7 @@ $(document).ready(function () {
           membersTbody.appendChild(tr);
           rowIndex++;
         });
-      });
+      }
     }
 
     // Filter and display members
@@ -1012,7 +1054,9 @@ $(document).ready(function () {
         ? searchInput.value.toLowerCase().trim()
         : "";
       const teamFilter = filterTeam ? filterTeam.value : "all";
-      const gradeFilter = filterGrade ? filterGrade.value : "all";
+      const gradeFilter = filterGrade ? filterGrade.value.toLowerCase() : "all";
+      const sortColumn = sortColumnSelect ? sortColumnSelect.value : "team";
+      const sortDirection = sortOrderSelect ? sortOrderSelect.value : "asc";
 
       const filteredMembers = allMembers.filter((member) => {
         // Check search term
@@ -1030,18 +1074,15 @@ $(document).ready(function () {
         return matchesSearch && matchesTeam && matchesGrade;
       });
 
-      // Apply current sort if any
-      let displayMembers = filteredMembers;
-      if (currentSort.column) {
-        displayMembers = sortMembers(
-          filteredMembers,
-          currentSort.column,
-          currentSort.direction
-        );
-      }
+      // Apply sorting
+      const displayMembers = sortMembers(
+        filteredMembers,
+        sortColumn,
+        sortDirection
+      );
 
       // Rebuild table
-      rebuildTable(displayMembers);
+      rebuildTable(displayMembers, sortColumn, sortDirection);
 
       // Update results count
       if (resultsCount) {
@@ -1091,44 +1132,13 @@ $(document).ready(function () {
       return sorted;
     }
 
-    // Sort table by column
-    function sortTable(column) {
-      // Determine sort direction
-      if (currentSort.column === column) {
-        currentSort.direction =
-          currentSort.direction === "asc" ? "desc" : "asc";
-      } else {
-        currentSort.column = column;
-        currentSort.direction = "asc";
-      }
-
-      // Update sort indicators
-      document.querySelectorAll(".members-table th.sortable").forEach((th) => {
-        th.classList.remove("sort-asc", "sort-desc");
-      });
-
-      const activeHeader = document.querySelector(
-        `.members-table th[data-sort="${column}"]`
-      );
-      if (activeHeader) {
-        activeHeader.classList.add(`sort-${currentSort.direction}`);
-      }
-
-      // Re-filter and display (which will apply the sort)
-      filterMembers();
-    }
-
     // Reset all filters
     function resetFilters() {
       if (searchInput) searchInput.value = "";
       if (filterTeam) filterTeam.value = "all";
       if (filterGrade) filterGrade.value = "all";
-      currentSort = { column: null, direction: "asc" };
-
-      // Clear sort indicators
-      document.querySelectorAll(".members-table th.sortable").forEach((th) => {
-        th.classList.remove("sort-asc", "sort-desc");
-      });
+      if (sortColumnSelect) sortColumnSelect.value = "team";
+      if (sortOrderSelect) sortOrderSelect.value = "asc";
 
       filterMembers();
     }
@@ -1140,14 +1150,10 @@ $(document).ready(function () {
     if (searchInput) searchInput.addEventListener("input", filterMembers);
     if (filterTeam) filterTeam.addEventListener("change", filterMembers);
     if (filterGrade) filterGrade.addEventListener("change", filterMembers);
+    if (sortColumnSelect)
+      sortColumnSelect.addEventListener("change", filterMembers);
+    if (sortOrderSelect)
+      sortOrderSelect.addEventListener("change", filterMembers);
     if (resetBtn) resetBtn.addEventListener("click", resetFilters);
-
-    // Sorting event listeners
-    document.querySelectorAll(".members-table th.sortable").forEach((th) => {
-      th.addEventListener("click", function () {
-        const sortColumn = this.getAttribute("data-sort");
-        sortTable(sortColumn);
-      });
-    });
   })();
 });

@@ -56,37 +56,45 @@ class PublicationController extends Controller {
      * AJAX filter endpoint for publications
      */
     public function filter() {
-        $pubModel = $this->model('PublicationModel');
+        try {
+            $pubModel = $this->model('PublicationModel');
 
-        $filters = [
-            'year' => $_GET['year'] ?? 'all',
-            'type' => $_GET['type'] ?? 'all',
-            'domain' => $_GET['domain'] ?? 'all',
-            'author' => $_GET['author'] ?? 'all',
-            'team' => $_GET['team'] ?? 'all',
-            'project' => $_GET['project'] ?? 'all',
-            'q' => trim($_GET['q'] ?? '')
-        ];
+            $filters = [
+                'year' => $_GET['year'] ?? 'all',
+                'type' => $_GET['type'] ?? 'all',
+                'domain' => $_GET['domain'] ?? 'all',
+                'author' => $_GET['author'] ?? 'all',
+                'team' => $_GET['team'] ?? 'all',
+                'project' => $_GET['project'] ?? 'all',
+                'q' => trim($_GET['q'] ?? '')
+            ];
 
-        $sort = $_GET['sort'] ?? 'date_desc';
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $perPage = isset($_GET['perPage']) ? (int)$_GET['perPage'] : 6;
-        $page = max(1, $page);
-        $perPage = max(1, min(24, $perPage));
+            $sort = $_GET['sort'] ?? 'date_desc';
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $perPage = isset($_GET['perPage']) ? (int)$_GET['perPage'] : 6;
+            $page = max(1, $page);
+            $perPage = max(1, min(24, $perPage));
 
-        $publications = $pubModel->searchPublications($filters, $page, $perPage, $sort);
-        $total = $pubModel->countPublications($filters);
-        $totalPages = (int)ceil($total / $perPage);
+            $publications = $pubModel->searchPublications($filters, $page, $perPage, $sort);
+            $total = $pubModel->countPublications($filters);
+            $totalPages = (int)ceil($total / $perPage);
 
-        $this->json([
-            'success' => true,
-            'data' => $publications ?: [],
-            'pagination' => [
-                'page' => $page,
-                'perPage' => $perPage,
-                'total' => $total,
-                'totalPages' => $totalPages
-            ]
-        ]);
+            $this->json([
+                'success' => true,
+                'data' => $publications ?: [],
+                'pagination' => [
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'total' => $total,
+                    'totalPages' => $totalPages
+                ]
+            ]);
+        } catch (Exception $e) {
+            error_log("Publication filter error: " . $e->getMessage());
+            $this->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

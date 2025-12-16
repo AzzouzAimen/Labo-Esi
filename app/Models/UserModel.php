@@ -7,8 +7,6 @@ class UserModel extends Model {
 
     /**
      * Find user by username
-     * @param string $username
-     * @return array|false
      */
     public function findByUsername($username) {
         $stmt = $this->db->prepare("
@@ -23,9 +21,6 @@ class UserModel extends Model {
 
     /**
      * Verify user credentials
-     * @param string $username
-     * @param string $password
-     * @return array|false Returns user data if successful, false otherwise
      */
     public function authenticate($username, $password) {
         $user = $this->findByUsername($username);
@@ -46,8 +41,6 @@ class UserModel extends Model {
 
     /**
      * Get user by ID
-     * @param int $userId
-     * @return array|false
      */
     public function getUserById($userId) {
         $stmt = $this->db->prepare("
@@ -62,9 +55,6 @@ class UserModel extends Model {
 
     /**
      * Update user profile
-     * @param int $userId
-     * @param array $data
-     * @return bool
      */
     public function updateProfile($userId, $data) {
         $sql = "UPDATE users SET ";
@@ -99,9 +89,6 @@ class UserModel extends Model {
 
     /**
      * Change user password
-     * @param int $userId
-     * @param string $newPassword
-     * @return bool
      */
     public function changePassword($userId, $newPassword) {
         // Hash the password securely before storing

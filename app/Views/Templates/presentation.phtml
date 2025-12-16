@@ -23,19 +23,15 @@
             <div class="research-themes">
                 <div class="theme-item">
                     <h4><?= $lang['theme_d3_title'] ?></h4>
-                    <p><?= $lang['theme_d3_desc'] ?></p>
                 </div>
                 <div class="theme-item">
                     <h4><?= $lang['theme_db_title'] ?></h4>
-                    <p><?= $lang['theme_db_desc'] ?></p>
                 </div>
                 <div class="theme-item">
                     <h4><?= $lang['theme_ai_title'] ?></h4>
-                    <p><?= $lang['theme_ai_desc'] ?></p>
                 </div>
                 <div class="theme-item">
                     <h4><?= $lang['theme_math_title'] ?></h4>
-                    <p><?= $lang['theme_math_desc'] ?></p>
                 </div>
             </div>
             
@@ -45,34 +41,28 @@
                     <?= $lang['mission_vision_text'] ?>
                 </p>
                 
-                <h3><?= $lang['infrastructure_title'] ?></h3>
-                <div class="facilities-grid">
-                    <div class="facility-item">
-                        <strong><?= $lang['infra_labs_title'] ?></strong>
-                        <p><?= $lang['infra_labs_desc'] ?></p>
-                    </div>
-                    <div class="facility-item">
-                        <strong><?= $lang['infra_cluster_title'] ?></strong>
-                        <p><?= $lang['infra_cluster_desc'] ?></p>
-                    </div>
-                    <div class="facility-item">
-                        <strong><?= $lang['infra_library_title'] ?></strong>
-                        <p><?= $lang['infra_library_desc'] ?></p>
-                    </div>
-                    <div class="facility-item">
-                        <strong><?= $lang['infra_space_title'] ?></strong>
-                        <p><?= $lang['infra_space_desc'] ?></p>
-                    </div>
-                </div>
+                <!-- New Textual Presentation of Teams -->
+                <h3><?= $lang['teams_presentation_text_title'] ?></h3>
+                <p><?= $lang['teams_presentation_intro'] ?></p>
                 
-                <h3><?= $lang['achievements_title'] ?></h3>
-                <ul class="achievements-list">
-                    <li><?= $lang['achievement_1'] ?></li>
-                    <li><?= $lang['achievement_2'] ?></li>
-                    <li><?= $lang['achievement_3'] ?></li>
-                    <li><?= $lang['achievement_4'] ?></li>
-                    <li><?= $lang['achievement_5'] ?></li>
-                </ul>
+                <div class="teams-text-container">
+                    <?php if (!empty($teams)): ?>
+                        <?php foreach ($teams as $team): ?>
+                            <div class="team-text-item">
+                                <h4>
+                                    <span class="team-bullet">▪</span> 
+                                    <?= $this->escape($team['nom']) ?> 
+                                    <?php if(!empty($team['acronyme'])): ?>
+                                        (<?= $this->escape($team['acronyme']) ?>)
+                                    <?php endif; ?>
+                                </h4>
+                                <p>
+                                    <?= !empty($team['description']) ? nl2br($this->escape($team['description'])) : 'Description à venir.' ?>
+                                </p>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         </div>

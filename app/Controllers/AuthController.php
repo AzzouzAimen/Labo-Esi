@@ -71,7 +71,6 @@ class AuthController extends Controller {
 
     /**
      * Check if user is authenticated (helper method)
-     * @return bool
      */
     public static function isAuthenticated() {
         return isset($_SESSION['user_id']);
@@ -79,8 +78,6 @@ class AuthController extends Controller {
 
     /**
      * Check if user has a specific role
-     * @param string $role
-     * @return bool
      */
     public static function hasRole($role) {
         return isset($_SESSION['role']) && $_SESSION['role'] === $role;

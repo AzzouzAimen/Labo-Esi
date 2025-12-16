@@ -106,9 +106,14 @@ class PublicationModel extends Model {
             $params[':domain'] = $filters[self::FILT_DOMAIN];
         }
 
-        if (!empty($filters[self::FILT_Q])) {
-            $sql .= " AND (p.titre LIKE :q OR p.resume LIKE :q OR p.doi LIKE :q)";
-            $params[':q'] = '%' . $filters[self::FILT_Q] . '%';
+        if (isset($filters[self::FILT_Q]) && $filters[self::FILT_Q] !== '') {
+            $sql .= " AND (p.titre LIKE :q1 OR p.resume LIKE :q2 OR p.doi LIKE :q3 OR COALESCE(u.nom, '') LIKE :q4 OR COALESCE(u.prenom, '') LIKE :q5)";
+            $searchTerm = '%' . $filters[self::FILT_Q] . '%';
+            $params[':q1'] = $searchTerm;
+            $params[':q2'] = $searchTerm;
+            $params[':q3'] = $searchTerm;
+            $params[':q4'] = $searchTerm;
+            $params[':q5'] = $searchTerm;
         }
 
         if (!empty($filters[self::FILT_AUTHOR]) && $filters[self::FILT_AUTHOR] !== 'all') {
@@ -168,7 +173,7 @@ class PublicationModel extends Model {
         $params = [];
         $sql .= $this->buildWhereClause($filters, $params);
 
-        $sql .= " GROUP BY p.id_pub";
+        $sql .= " GROUP BY p.id_pub, p.titre, p.resume, p.date_publication, p.lien_pdf, p.doi, p.type, pr.domaine";
 
         $orderBy = "p.date_publication DESC";
         switch ($sort) {
@@ -210,6 +215,8 @@ class PublicationModel extends Model {
             SELECT COUNT(DISTINCT p.id_pub) as total
             FROM publications p
             LEFT JOIN projects pr ON p.project_id = pr.id_project
+            LEFT JOIN publication_authors pa ON p.id_pub = pa.id_pub
+            LEFT JOIN users u ON pa.id_user = u.id_user
             WHERE 1=1
         ";
 
@@ -217,7 +224,10 @@ class PublicationModel extends Model {
         $sql .= $this->buildWhereClause($filters, $params);
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v, is_int($v) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt->execute();
         $row = $stmt->fetch();
         return (int)($row['total'] ?? 0);
     }

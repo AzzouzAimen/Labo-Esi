@@ -25,7 +25,7 @@ if (isset($membersByTeam['Sans équipe'])) {
     <!-- Search and Filter Bar -->
     <div class="members-filter-bar">
         <div class="filter-group">
-            <label for="member-search">🔍 Rechercher:</label>
+            <label for="member-search">Rechercher:</label>
             <input type="text" 
                    id="member-search" 
                    class="form-control" 
@@ -60,6 +60,23 @@ if (isset($membersByTeam['Sans équipe'])) {
                 <?php endif; ?>
             </select>
         </div>
+
+        <div class="filter-group">
+            <label for="sort-column">Trier par:</label>
+            <select id="sort-column" class="form-control">
+                <option value="name">Nom</option>
+                <option value="team">Équipe</option>
+                <option value="grade">Grade</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="sort-order">Ordre:</label>
+            <select id="sort-order" class="form-control">
+                <option value="asc">A-Z</option>
+                <option value="desc">Z-A</option>
+            </select>
+        </div>
         
         <div class="filter-actions">
             <button type="button" id="reset-filters" class="btn btn-secondary">
@@ -78,15 +95,9 @@ if (isset($membersByTeam['Sans équipe'])) {
             <table class="members-table" id="members-table">
                 <thead>
                     <tr>
-                        <th class="sortable" data-sort="team">
-                            Équipe <span class="sort-arrow"></span>
-                        </th>
-                        <th class="sortable" data-sort="name">
-                            Nom Complet <span class="sort-arrow"></span>
-                        </th>
-                        <th class="sortable" data-sort="grade">
-                            Grade <span class="sort-arrow"></span>
-                        </th>
+                        <th>Équipe</th>
+                        <th>Nom Complet</th>
+                        <th>Grade</th>
                     </tr>
                 </thead>
                 <tbody id="members-tbody">

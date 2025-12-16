@@ -4,7 +4,7 @@
  * Minimal event detail page for links from the homepage
  */
 class EventController extends Controller {
-    public function view() {
+    public function detail() {
         $lang = $this->loadLang('fr');
 
         $eventId = $_GET['id'] ?? null;

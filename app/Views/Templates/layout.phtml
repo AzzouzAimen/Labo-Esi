@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +38,7 @@
     </script>
     <script src="<?= BASE_URL ?>assets/js/jquery-3.6.0.js"></script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="site-header">
@@ -46,7 +48,8 @@
                     <a href="<?= BASE_URL ?>index.php?controller=Home&action=index">
                         <div class="logo-container">
                             <img src="<?= BASE_URL ?>assets/img/logo_lcsi.png" alt="LSCI" class="logo-image">
-                            <div class="logo-full-name">Laboratoire de la Communication<br>dans les Systèmes Informatiques</div>
+                            <div class="logo-full-name">Laboratoire de la Communication<br>dans les Systèmes
+                                Informatiques</div>
                         </div>
                     </a>
                 </div>
@@ -59,13 +62,16 @@
                         </div>
                         <div class="auth-links">
                             <?php if (isset($_SESSION['user_id'])): ?>
-                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=logout" class="btn-logout"><?= $lang['logout'] ?></a>
+                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=logout"
+                                    class="btn-logout"><?= $lang['logout'] ?></a>
                             <?php else: ?>
-                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=login" class="btn-login"><?= $lang['login'] ?></a>
+                                <a href="<?= BASE_URL ?>index.php?controller=Auth&action=login"
+                                    class="btn-login"><?= $lang['login'] ?></a>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - École Supérieure d'Informatique</a>
+                    <a href="https://www.esi.dz" target="_blank" class="university-link">ESI - École Supérieure
+                        d'Informatique</a>
                 </div>
                 <button class="mobile-menu-toggle" aria-label="Menu">
                     <span></span>
@@ -81,16 +87,34 @@
         <div class="container">
             <ul class="nav-menu">
                 <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=index"><?= $lang['nav_home'] ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=presentation"><?= $lang['nav_presentation'] ?? 'Présentation' ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Publication&action=index"><?= $lang['nav_publications'] ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Equipment&action=index"><?= $lang['nav_equipment'] ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Offer&action=index"><?= $lang['nav_offers'] ?? 'Offres' ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=membres"><?= $lang['nav_members'] ?? 'Membres' ?></a></li>
-                <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a></li>
+                <li><a
+                        href="<?= BASE_URL ?>index.php?controller=Team&action=presentation"><?= $lang['nav_presentation'] ?? 'Présentation' ?></a>
+                </li>
+                <li><a href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a>
+                </li>
+                <li><a
+                        href="<?= BASE_URL ?>index.php?controller=Publication&action=index"><?= $lang['nav_publications'] ?></a>
+                </li>
+                <li><a
+                        href="<?= BASE_URL ?>index.php?controller=Equipment&action=index"><?= $lang['nav_equipment'] ?></a>
+                </li>
+                <li><a
+                        href="<?= BASE_URL ?>index.php?controller=Offer&action=index"><?= $lang['nav_offers'] ?? 'Offres' ?></a>
+                </li>
+                <li><a
+                        href="<?= BASE_URL ?>index.php?controller=Team&action=membres"><?= $lang['nav_members'] ?? 'Membres' ?></a>
+                </li>
+                <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a>
+                </li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="user-menu">
                         <a href="<?= BASE_URL ?>index.php?controller=Dashboard&action=index"><?= $lang['dashboard'] ?></a>
+                    </li>
+                    <li class="notification-item" style="display: flex; align-items: center;">
+                        <a href="#" style="padding: 0.5rem 1rem; display: flex; align-items: center; height: 100%;">
+                            <img src="<?= BASE_URL ?>assets/img/notif.png" alt="Notifications"
+                                style="width: 20px; height: 20px; object-fit: contain;">
+                        </a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -116,23 +140,30 @@
                 <div class="footer-section">
                     <h3><?= $lang['footer_contact'] ?></h3>
                     <p><strong><?= $lang['footer_address'] ?>:</strong><br>
-                    BP 68M, Oued Smar, 16270, Alger, Algérie</p>
+                        BP 68M, Oued Smar, 16270, Alger, Algérie</p>
                     <p><strong><?= $lang['footer_email'] ?>:</strong><br>
-                    contact@labo-tdw.dz</p>
+                        contact@labo-tdw.dz</p>
                     <p><strong><?= $lang['footer_phone'] ?>:</strong><br>
-                    +213 (0) 21 51 11 00</p>
+                        +213 (0) 21 51 11 00</p>
                 </div>
-                
+
                 <div class="footer-section">
                     <h3><?= $lang['nav_home'] ?></h3>
                     <ul class="footer-menu">
-                        <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=index"><?= $lang['nav_home'] ?></a></li>
-                        <li><a href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a></li>
-                        <li><a href="<?= BASE_URL ?>index.php?controller=Team&action=index"><?= $lang['nav_teams'] ?></a></li>
-                        <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a></li>
+                        <li><a href="<?= BASE_URL ?>index.php?controller=Home&action=index"><?= $lang['nav_home'] ?></a>
+                        </li>
+                        <li><a
+                                href="<?= BASE_URL ?>index.php?controller=Project&action=index"><?= $lang['nav_projects'] ?></a>
+                        </li>
+                        <li><a
+                                href="<?= BASE_URL ?>index.php?controller=Team&action=index"><?= $lang['nav_teams'] ?></a>
+                        </li>
+                        <li><a
+                                href="<?= BASE_URL ?>index.php?controller=Home&action=contact"><?= $lang['nav_contact'] ?></a>
+                        </li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-section">
                     <h3><?= $lang['footer_social'] ?></h3>
                     <div class="footer-social">
@@ -142,12 +173,13 @@
                     </div>
                     <div class="university-logo">
                         <a href="https://www.esi.dz" target="_blank">
-                            <img src="<?= BASE_URL ?>assets/img/esi-logo.png" alt="ESI" onerror="this.alt='ESI - École Supérieure d\'Informatique'">
+                            <img src="<?= BASE_URL ?>assets/img/esi-logo.png" alt="ESI"
+                                onerror="this.alt='ESI - École Supérieure d\'Informatique'">
                         </a>
                     </div>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 <p><?= $lang['footer_copyright'] ?></p>
             </div>
@@ -156,4 +188,5 @@
 
     <script src="<?= BASE_URL ?>assets/js/script.js?v=<?= time() ?>"></script>
 </body>
+
 </html>

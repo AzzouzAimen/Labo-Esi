@@ -154,17 +154,21 @@ return [
     'about_lab_text' => 'Fondé en 2005 et agréé par le Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique, le LCSI est un laboratoire de recherche multidisciplinaire rattaché à l\'École nationale Supérieure d\'Informatique (ESI). Notre équipe regroupe plus de 45 chercheurs permanents et doctorants travaillant sur des problématiques de pointe en systèmes distribués, intelligence artificielle et architectures de données.',
     
     'research_themes_title' => 'Thèmes de Recherche',
-    'theme_d3_title' => 'Distribution Dynamique de Données (D3)',
-    'theme_d3_desc' => 'Conception de structures de données adaptées pour les environnements distribués et mobiles',
-    'theme_db_title' => 'Architectures des SGBD',
-    'theme_db_desc' => 'Architectures avancées des SGBD de la nouvelle génération',
-    'theme_ai_title' => 'Intelligence Artificielle & Robotique',
-    'theme_ai_desc' => 'Processus intelligents, Intelligence Artificielle, Robotique & Perception',
-    'theme_math_title' => 'Mathématiques Appliquées',
-    'theme_math_desc' => 'Milieux poreux et composites, Traitement d\'images, Machine learning, Data analysis, Processus aléatoires, Théorie des nombres',
+    'theme_d3_title' => 'Conception de structures de données adaptées pour les environnements distribués et mobiles',
+    'theme_d3_desc' => '',
+    'theme_db_title' => 'Architectures avancées des SGBD de la nouvelle génération',
+    'theme_db_desc' => '',
+    'theme_ai_title' => 'Processus intelligents, Intelligence Artificielle, Robotique & Perception',
+    'theme_ai_desc' => '',
+    'theme_math_title' => 'Milieux poreux et composites, Traitement d\'images, Machine learning, Data analysis, Processus aléatoires, Théorie des nombres',
+    'theme_math_desc' => '',
 
     'mission_vision_title' => 'Mission et Vision',
     'mission_vision_text' => 'Notre mission est de contribuer à l\'avancement des connaissances dans le domaine des systèmes informatiques et de la communication à travers des recherches fondamentales et appliquées. Nous visons à former la prochaine génération de chercheurs et à établir des partenariats stratégiques avec l\'industrie et les institutions académiques nationales et internationales.',
+
+    // Replace/Add inside 'Presentation Page' section:
+    'teams_presentation_text_title' => 'Présentation des Équipes de Recherche',
+    'teams_presentation_intro' => 'Le laboratoire est structuré en plusieurs équipes de recherche, chacune se concentrant sur des problématiques spécifiques :',
 
     'infrastructure_title' => 'Infrastructures et Moyens',
     'infra_labs_title' => 'Laboratoires Équipés',

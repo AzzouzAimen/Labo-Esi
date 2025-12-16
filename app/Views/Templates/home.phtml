@@ -22,7 +22,7 @@
                     <div class="slide-content">
                         <h2><?= $this->escape($news['titre']) ?></h2>
                         <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
-                        <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $news['id_event'] ?>" 
+                        <a href="<?= BASE_URL ?>index.php?controller=Event&action=detail&id=<?= $news['id_event'] ?>" 
                            class="btn btn-primary"><?= $lang['view_details'] ?></a>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                     <?php foreach ($recentProjects as $project): ?>
                     <div class="update-card">
                         <h4 class="update-card-title">
-                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=view&id=<?= $project['id_project'] ?>">
+                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>">
                                 <?= $this->escape($project['titre']) ?>
                             </a>
                         </h4>
@@ -179,7 +179,7 @@
                     <?= $this->escape(substr($event['description'], 0, 120)) ?>...
                 </p>
                 
-                <a href="<?= BASE_URL ?>index.php?controller=Event&action=view&id=<?= $event['id_event'] ?>" 
+                <a href="<?= BASE_URL ?>index.php?controller=Event&action=detail&id=<?= $event['id_event'] ?>" 
                    class="btn btn-primary"><?= $lang['read_more'] ?></a>
             </div>
         </div>

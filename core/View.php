@@ -25,9 +25,7 @@ abstract class View {
     abstract public function render();
 
     /**
-     * Include a template file
-     * @param string $templateName Template file name (without .phtml)
-     * @param array $templateData Additional data for this template
+     * Include a template file ( Template file name without .phtml)
      */
     protected function template($templateName, $templateData = []) {
         $templateFile = BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . $templateName . '.phtml';

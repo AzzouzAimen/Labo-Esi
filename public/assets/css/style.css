@@ -224,9 +224,9 @@ img {
   color: white;
 }
 
-.nav-menu .user-menu a {
+/* .nav-menu .user-menu a {
   background: rgba(255, 255, 255, 0.1);
-}
+} */
 
 /* === Main Content === */
 .main-content {
@@ -1160,6 +1160,41 @@ select.form-control {
   font-size: 1.2rem;
 }
 
+/* === Teams Text Presentation === */
+.teams-text-container {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.team-text-item {
+  padding-left: 1rem;
+  border-left: 2px solid var(--border-color);
+}
+
+.team-text-item h4 {
+  color: var(--secondary-color);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.team-text-item .team-bullet {
+  color: var(--accent-color);
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.team-text-item p {
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  text-align: justify;
+}
+
 /* === Organigramme Styles === */
 .organigramme-section {
   background: white;
@@ -1993,16 +2028,13 @@ select.form-control {
    ============================================ */
 .members-directory-section {
   max-width: 1200px;
-  margin: 2rem auto;
+  margin: 0 auto 2rem;
   padding: 0 1rem;
 }
 
 .members-directory-section .section-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
   text-align: left;
-  color: var(--text-color);
+  margin-bottom: 2rem;
 }
 
 /* Filter Bar */
