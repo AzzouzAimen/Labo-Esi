@@ -3,12 +3,7 @@
  * UserModel
  * Handles user authentication and profile management
  */
-class UserModel {
-    private $db;
-
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+class UserModel extends Model {
 
     /**
      * Find user by username

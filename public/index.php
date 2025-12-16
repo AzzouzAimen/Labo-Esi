@@ -12,6 +12,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATO
 
 // Load core classes
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Database.php';
+require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Model.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Router.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Controller.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'View.php';

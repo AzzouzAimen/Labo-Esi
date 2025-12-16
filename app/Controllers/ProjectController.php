@@ -50,7 +50,7 @@ class ProjectController extends Controller {
         
         // Return JSON response
         $this->json([
-            'success' => true,
+            KEY_SUCCESS => true,
             'data' => $projects
         ]);
     }
@@ -84,8 +84,8 @@ class ProjectController extends Controller {
             'project' => $project,
             'domains' => $projectModel->getDomains(),
             'statuses' => $projectModel->getStatuses(),
-            'success' => null,
-            'error' => null
+            KEY_SUCCESS => null,
+            KEY_ERROR => null
         ];
 
         $this->view('ProjectEdit', $data, $lang);
@@ -126,9 +126,9 @@ class ProjectController extends Controller {
 
         $redirectParams = ['id' => (int)$projectId];
         if ($ok) {
-            $redirectParams['success'] = 1;
+            $redirectParams[KEY_SUCCESS] = 1;
         } else {
-            $redirectParams['error'] = 1;
+            $redirectParams[KEY_ERROR] = 1;
         }
 
         $this->redirect('Project', 'edit', $redirectParams);

@@ -3,12 +3,7 @@
  * ProjectModel
  * Handles database operations for research projects
  */
-class ProjectModel {
-    private $db;
-
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+class ProjectModel extends Model {
 
     /**
      * Get all projects with manager information

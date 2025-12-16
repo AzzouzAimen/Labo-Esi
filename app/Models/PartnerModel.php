@@ -3,12 +3,7 @@
  * PartnerModel
  * Handles database operations for partners
  */
-class PartnerModel {
-    private $db;
-
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+class PartnerModel extends Model {
 
     /**
      * Get all partners

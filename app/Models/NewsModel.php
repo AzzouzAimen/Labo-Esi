@@ -3,12 +3,7 @@
  * NewsModel
  * Handles database operations for events/news
  */
-class NewsModel {
-    private $db;
-
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+class NewsModel extends Model {
 
     /**
      * Get recent news/events for slideshow (limit 5)

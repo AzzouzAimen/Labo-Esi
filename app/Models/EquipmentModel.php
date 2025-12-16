@@ -3,12 +3,13 @@
  * EquipmentModel
  * Handles equipment listing, reservations, and simple usage stats
  */
-class EquipmentModel {
-    private $db;
+class EquipmentModel extends Model {
 
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+    private const COL_CATEGORY = 'category';
+    private const COL_STATUS = 'status';
+    private const STATE_MAINTENANCE = 'maintenance';
+    private const STATE_RESERVED = 'réservé';
+    private const STATE_FREE = 'libre';
 
     /**
      * Get categories
@@ -40,13 +41,13 @@ class EquipmentModel {
                         SELECT 1 FROM maintenances m
                         WHERE m.equip_id = e.id_equip
                         AND m.date_debut <= NOW() AND m.date_fin >= NOW()
-                    ) THEN 'maintenance'
+                    ) THEN '" . self::STATE_MAINTENANCE . "'
                     WHEN EXISTS (
                         SELECT 1 FROM reservations r
                         WHERE r.equip_id = e.id_equip
                         AND r.date_debut <= NOW() AND r.date_fin >= NOW()
-                    ) THEN 'réservé'
-                    ELSE 'libre'
+                    ) THEN '" . self::STATE_RESERVED . "'
+                    ELSE '" . self::STATE_FREE . "'
                 END as etat_actuel
             FROM equipment e
             WHERE 1=1
@@ -54,9 +55,9 @@ class EquipmentModel {
 
         $params = [];
 
-        if (!empty($filters['category']) && $filters['category'] !== 'all') {
+        if (!empty($filters[self::COL_CATEGORY]) && $filters[self::COL_CATEGORY] !== 'all') {
             $sql .= " AND e.categorie = :cat";
-            $params[':cat'] = $filters['category'];
+            $params[':cat'] = $filters[self::COL_CATEGORY];
         }
 
         if (!empty($filters['q'])) {
@@ -65,23 +66,23 @@ class EquipmentModel {
         }
 
         // Filter by computed state
-        if (!empty($filters['status']) && $filters['status'] !== 'all') {
+        if (!empty($filters[self::COL_STATUS]) && $filters[self::COL_STATUS] !== 'all') {
             $sql .= " AND (
                 CASE
                     WHEN EXISTS (
                         SELECT 1 FROM maintenances m
                         WHERE m.equip_id = e.id_equip
                         AND m.date_debut <= NOW() AND m.date_fin >= NOW()
-                    ) THEN 'maintenance'
+                    ) THEN '" . self::STATE_MAINTENANCE . "'
                     WHEN EXISTS (
                         SELECT 1 FROM reservations r
                         WHERE r.equip_id = e.id_equip
                         AND r.date_debut <= NOW() AND r.date_fin >= NOW()
-                    ) THEN 'réservé'
-                    ELSE 'libre'
+                    ) THEN '" . self::STATE_RESERVED . "'
+                    ELSE '" . self::STATE_FREE . "'
                 END
             ) = :status";
-            $params[':status'] = $filters['status'];
+            $params[':status'] = $filters[self::COL_STATUS];
         }
 
         $sql .= " ORDER BY e.nom";
@@ -132,7 +133,7 @@ class EquipmentModel {
             $endDt = new DateTime($end);
 
             if ($endDt <= $startDt) {
-                return ['success' => false, 'error' => 'La date de fin doit être après la date de début.'];
+                return [KEY_SUCCESS => false, KEY_ERROR => 'La date de fin doit être après la date de début.'];
             }
 
             // Check overlaps with existing reservations
@@ -149,7 +150,7 @@ class EquipmentModel {
             ]);
             $row = $stmt->fetch();
             if ((int)($row['c'] ?? 0) > 0) {
-                return ['success' => false, 'error' => 'Ce créneau est déjà réservé pour cet équipement.'];
+                return [KEY_SUCCESS => false, KEY_ERROR => 'Ce créneau est déjà réservé pour cet équipement.'];
             }
 
             // Check overlaps with maintenances
@@ -166,7 +167,7 @@ class EquipmentModel {
             ]);
             $row = $stmt->fetch();
             if ((int)($row['c'] ?? 0) > 0) {
-                return ['success' => false, 'error' => 'Cet équipement est en maintenance pendant ce créneau.'];
+                return [KEY_SUCCESS => false, KEY_ERROR => 'Cet équipement est en maintenance pendant ce créneau.'];
             }
 
             $stmt = $this->db->prepare("
@@ -181,9 +182,9 @@ class EquipmentModel {
                 ':motif' => $motif
             ]);
 
-            return ['success' => (bool)$ok, 'error' => $ok ? null : 'Erreur lors de la réservation.'];
+            return [KEY_SUCCESS => (bool)$ok, KEY_ERROR => $ok ? null : 'Erreur lors de la réservation.'];
         } catch (Exception $e) {
-            return ['success' => false, 'error' => 'Erreur: ' . $e->getMessage()];
+            return [KEY_SUCCESS => false, KEY_ERROR => 'Erreur: ' . $e->getMessage()];
         }
     }
 

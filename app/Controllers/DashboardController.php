@@ -54,8 +54,8 @@ class DashboardController extends Controller {
         $userModel = $this->model('UserModel');
         
         $data = [
-            'success' => null,
-            'error' => null
+            KEY_SUCCESS => null,
+            KEY_ERROR => null
         ];
         
         // Handle POST request (profile update)
@@ -84,9 +84,9 @@ class DashboardController extends Controller {
             }
             
             if ($userModel->updateProfile($_SESSION['user_id'], $updateData)) {
-                $data['success'] = 'Profil mis à jour avec succès';
+                $data[KEY_SUCCESS] = 'Profil mis à jour avec succès';
             } else {
-                $data['error'] = 'Erreur lors de la mise à jour du profil';
+                $data[KEY_ERROR] = 'Erreur lors de la mise à jour du profil';
             }
         }
         

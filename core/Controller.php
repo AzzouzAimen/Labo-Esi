@@ -5,10 +5,8 @@
  */
 abstract class Controller {
     
-    /**
+    /*
      * Load a model
-     * @param string $modelName
-     * @return object Model instance
      */
     protected function model($modelName) {
         $modelFile = BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR . $modelName . '.php';
@@ -28,9 +26,6 @@ abstract class Controller {
 
     /**
      * Load a view
-     * @param string $viewName Name of the view class (without 'View' suffix)
-     * @param array $data Data to pass to the view
-     * @param array $lang Language strings
      */
     protected function view($viewName, $data = [], $lang = []) {
         $viewClass = $viewName . 'View';
@@ -52,8 +47,6 @@ abstract class Controller {
 
     /**
      * Load language file
-     * @param string $langCode Language code (default: fr)
-     * @return array Language strings
      */
     protected function loadLang($langCode = 'fr') {
         $langFile = BASE_PATH . 'lang' . DIRECTORY_SEPARATOR . $langCode . '.php';
@@ -67,9 +60,6 @@ abstract class Controller {
 
     /**
      * Redirect to another page
-     * @param string $controller
-     * @param string $action
-     * @param array $params
      */
     protected function redirect($controller = 'Home', $action = 'index', $params = []) {
         $url = BASE_URL . 'index.php?controller=' . $controller . '&action=' . $action;
@@ -84,8 +74,6 @@ abstract class Controller {
 
     /**
      * Return JSON response (for AJAX)
-     * @param mixed $data
-     * @param int $statusCode
      */
     protected function json($data, $statusCode = 200) {
         http_response_code($statusCode);

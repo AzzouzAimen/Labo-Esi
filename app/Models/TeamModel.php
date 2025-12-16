@@ -3,12 +3,7 @@
  * TeamModel
  * Handles database operations for teams and members
  */
-class TeamModel {
-    private $db;
-
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+class TeamModel extends Model {
 
     /**
      * Get all teams with their leaders

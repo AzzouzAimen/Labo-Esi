@@ -3,12 +3,15 @@
  * PublicationModel
  * Handles database operations for publications listing & filters
  */
-class PublicationModel {
-    private $db;
+class PublicationModel extends Model {
 
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+    private const FILT_YEAR = 'year';
+    private const FILT_TYPE = 'type';
+    private const FILT_DOMAIN = 'domain';
+    private const FILT_AUTHOR = 'author';
+    private const FILT_TEAM = 'team';
+    private const FILT_PROJECT = 'project';
+    private const FILT_Q = 'q';
 
     /**
      * Get available years from publications
@@ -80,6 +83,58 @@ class PublicationModel {
     }
 
     /**
+     * Build WHERE clause for search and count
+     * @param array $filters
+     * @param array &$params
+     * @return string
+     */
+    private function buildWhereClause($filters, &$params) {
+        $sql = "";
+
+        if (!empty($filters[self::FILT_YEAR]) && $filters[self::FILT_YEAR] !== 'all') {
+            $sql .= " AND YEAR(p.date_publication) = :year";
+            $params[':year'] = (int)$filters[self::FILT_YEAR];
+        }
+
+        if (!empty($filters[self::FILT_TYPE]) && $filters[self::FILT_TYPE] !== 'all') {
+            $sql .= " AND p.type = :type";
+            $params[':type'] = $filters[self::FILT_TYPE];
+        }
+
+        if (!empty($filters[self::FILT_DOMAIN]) && $filters[self::FILT_DOMAIN] !== 'all') {
+            $sql .= " AND pr.domaine = :domain";
+            $params[':domain'] = $filters[self::FILT_DOMAIN];
+        }
+
+        if (!empty($filters[self::FILT_Q])) {
+            $sql .= " AND (p.titre LIKE :q OR p.resume LIKE :q OR p.doi LIKE :q)";
+            $params[':q'] = '%' . $filters[self::FILT_Q] . '%';
+        }
+
+        if (!empty($filters[self::FILT_AUTHOR]) && $filters[self::FILT_AUTHOR] !== 'all') {
+            $sql .= " AND EXISTS (SELECT 1 FROM publication_authors pa2 WHERE pa2.id_pub = p.id_pub AND pa2.id_user = :author)";
+            $params[':author'] = (int)$filters[self::FILT_AUTHOR];
+        }
+
+        if (!empty($filters[self::FILT_TEAM]) && $filters[self::FILT_TEAM] !== 'all') {
+            $sql .= " AND EXISTS (
+                SELECT 1
+                FROM publication_authors pa3
+                JOIN users u3 ON pa3.id_user = u3.id_user
+                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
+            )";
+            $params[':team'] = (int)$filters[self::FILT_TEAM];
+        }
+
+        if (!empty($filters[self::FILT_PROJECT]) && $filters[self::FILT_PROJECT] !== 'all') {
+            $sql .= " AND p.project_id = :project";
+            $params[':project'] = (int)$filters[self::FILT_PROJECT];
+        }
+
+        return $sql;
+    }
+
+    /**
      * Search publications with filters
      * @param array $filters
      * @param int $page
@@ -111,46 +166,7 @@ class PublicationModel {
         ";
 
         $params = [];
-
-        if (!empty($filters['year']) && $filters['year'] !== 'all') {
-            $sql .= " AND YEAR(p.date_publication) = :year";
-            $params[':year'] = (int)$filters['year'];
-        }
-
-        if (!empty($filters['type']) && $filters['type'] !== 'all') {
-            $sql .= " AND p.type = :type";
-            $params[':type'] = $filters['type'];
-        }
-
-        if (!empty($filters['domain']) && $filters['domain'] !== 'all') {
-            $sql .= " AND pr.domaine = :domain";
-            $params[':domain'] = $filters['domain'];
-        }
-
-        if (!empty($filters['q'])) {
-            $sql .= " AND (p.titre LIKE :q OR p.resume LIKE :q OR p.doi LIKE :q)";
-            $params[':q'] = '%' . $filters['q'] . '%';
-        }
-
-        if (!empty($filters['author']) && $filters['author'] !== 'all') {
-            $sql .= " AND EXISTS (SELECT 1 FROM publication_authors pa2 WHERE pa2.id_pub = p.id_pub AND pa2.id_user = :author)";
-            $params[':author'] = (int)$filters['author'];
-        }
-
-        if (!empty($filters['team']) && $filters['team'] !== 'all') {
-            $sql .= " AND EXISTS (
-                SELECT 1
-                FROM publication_authors pa3
-                JOIN users u3 ON pa3.id_user = u3.id_user
-                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
-            )";
-            $params[':team'] = (int)$filters['team'];
-        }
-
-        if (!empty($filters['project']) && $filters['project'] !== 'all') {
-            $sql .= " AND p.project_id = :project";
-            $params[':project'] = (int)$filters['project'];
-        }
+        $sql .= $this->buildWhereClause($filters, $params);
 
         $sql .= " GROUP BY p.id_pub";
 
@@ -198,46 +214,7 @@ class PublicationModel {
         ";
 
         $params = [];
-
-        if (!empty($filters['year']) && $filters['year'] !== 'all') {
-            $sql .= " AND YEAR(p.date_publication) = :year";
-            $params[':year'] = (int)$filters['year'];
-        }
-
-        if (!empty($filters['type']) && $filters['type'] !== 'all') {
-            $sql .= " AND p.type = :type";
-            $params[':type'] = $filters['type'];
-        }
-
-        if (!empty($filters['domain']) && $filters['domain'] !== 'all') {
-            $sql .= " AND pr.domaine = :domain";
-            $params[':domain'] = $filters['domain'];
-        }
-
-        if (!empty($filters['q'])) {
-            $sql .= " AND (p.titre LIKE :q OR p.resume LIKE :q OR p.doi LIKE :q)";
-            $params[':q'] = '%' . $filters['q'] . '%';
-        }
-
-        if (!empty($filters['author']) && $filters['author'] !== 'all') {
-            $sql .= " AND EXISTS (SELECT 1 FROM publication_authors pa2 WHERE pa2.id_pub = p.id_pub AND pa2.id_user = :author)";
-            $params[':author'] = (int)$filters['author'];
-        }
-
-        if (!empty($filters['team']) && $filters['team'] !== 'all') {
-            $sql .= " AND EXISTS (
-                SELECT 1
-                FROM publication_authors pa3
-                JOIN users u3 ON pa3.id_user = u3.id_user
-                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
-            )";
-            $params[':team'] = (int)$filters['team'];
-        }
-
-        if (!empty($filters['project']) && $filters['project'] !== 'all') {
-            $sql .= " AND p.project_id = :project";
-            $params[':project'] = (int)$filters['project'];
-        }
+        $sql .= $this->buildWhereClause($filters, $params);
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
