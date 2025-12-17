@@ -1,0 +1,646 @@
+/* ============================================
+   TDW Laboratory - Components Stylesheet
+   Buttons, Cards, Badges, Forms, Tables
+   ============================================ */
+
+/* === Cards & Grid === */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    min-height: 400px;
+    position: relative;
+}
+
+.card-grid.fade-out {
+    opacity: 0;
+}
+
+.card {
+    background: white;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.card-text {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* === Badges === */
+.badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 12px;
+    border: 2px solid;
+}
+
+.badge-primary {
+    background: rgba(52, 152, 219, 0.15);
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.badge-success {
+    background: rgba(39, 174, 96, 0.15);
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.badge-warning {
+    background: rgba(243, 156, 18, 0.15);
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.badge-danger {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* === Buttons === */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #1a252f;
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--secondary-color);
+    color: white;
+}
+
+/* === Forms === */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+/* Password Input Wrapper with Toggle */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-control {
+    padding-right: 3rem;
+    flex: 1;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--text-light);
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+.forgot-password-link {
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.forgot-password-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.password-toggle .eye-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+/* === Filter Bar === */
+.filter-bar {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-bar label {
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.filter-bar select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+/* === Team Organization Cards === */
+.team-container {
+    margin: 2rem 0;
+}
+
+.team-section {
+    margin-bottom: 3rem;
+}
+
+.team-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+.team-leader {
+    background: var(--bg-light);
+    padding: 2rem;
+    border: 2px solid var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.team-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.member-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.member-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.member-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    border: 3px solid var(--secondary-color);
+}
+
+.member-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.member-grade {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* === Documentary Base Styles === */
+.document-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.document-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-left: 4px solid var(--secondary-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.doc-title {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.doc-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.doc-authors {
+    font-style: italic;
+    color: var(--text-color);
+}
+
+.doc-abstract {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+    background: var(--bg-light);
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.doc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.doc-doi {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.doc-type-badge {
+    background: transparent;
+    color: var(--secondary-color);
+    padding: 0.2rem 0.6rem;
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty-field {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+}
+
+.btn-download:hover {
+    background-color: #1a252f;
+    color: white;
+}
+
+.btn-download.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* === Members Directory Table === */
+.members-directory-section {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1rem;
+}
+
+.members-directory-section .section-title {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.members-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    align-items: flex-end;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.filter-group .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.filter-group .form-control:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.filter-actions {
+    display: flex;
+    align-items: flex-end;
+}
+
+.results-info {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+#results-count {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.members-table-container {
+    overflow-x: auto;
+    background: white;
+    border: 1px solid var(--border-color);
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.members-table thead {
+    background-color: var(--bg-light);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.members-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    border-right: 1px solid var(--border-color);
+}
+
+.members-table th:last-child {
+    border-right: none;
+}
+
+.members-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.members-table th.sortable:hover {
+    background-color: #e9ecef;
+}
+
+.sort-arrow {
+    margin-left: 0.5rem;
+    color: var(--text-light);
+}
+
+.sort-arrow::after {
+    content: "⇅";
+}
+
+th.sort-asc .sort-arrow::after {
+    content: "↑";
+    color: var(--primary-color);
+}
+
+th.sort-desc .sort-arrow::after {
+    content: "↓";
+    color: var(--primary-color);
+}
+
+.members-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.members-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.members-table tbody tr:hover {
+    background-color: #e9ecef !important;
+}
+
+.members-table tbody tr:hover td {
+    background-color: #e9ecef !important;
+}
+
+.members-table td {
+    padding: 1rem;
+    color: var(--text-color);
+    border-right: 1px solid var(--border-color);
+    background-color: inherit;
+}
+
+.members-table td:last-child {
+    border-right: none;
+}
+
+.members-table td.team-cell {
+    font-weight: 500;
+    color: var(--primary-color);
+    background-color: var(--bg-light);
+    vertical-align: top;
+}
+
+.members-table td:nth-child(2) {
+    font-weight: normal;
+}
+
+.members-table td:nth-child(3) {
+    color: var(--text-light);
+    font-weight: normal;
+}
+
+.team-leader-badge {
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+    font-style: italic;
+    font-weight: 500;
+}
+
+.members-directory-section .no-results {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-style: italic;
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .members-filter-bar {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .members-table {
+        font-size: 0.875rem;
+    }
+
+    .members-table th,
+    .members-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}

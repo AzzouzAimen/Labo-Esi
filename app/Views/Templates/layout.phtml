@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['site_name'] ?? 'LSCI' ?></title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/base.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/components.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pages.css?v=<?= time() ?>">
     <script>
         // Global BASE_URL for JavaScript AJAX calls
         const BASE_URL = "<?= BASE_URL ?>";
@@ -186,7 +188,9 @@
         </div>
     </footer>
 
-    <script src="<?= BASE_URL ?>assets/js/script.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>assets/js/utils.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>assets/js/carousels.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>assets/js/filters.js?v=<?= time() ?>"></script>
 </body>
 
 </html>

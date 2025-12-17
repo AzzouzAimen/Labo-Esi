@@ -1,0 +1,1101 @@
+/* ============================================
+   TDW Laboratory - Pages Stylesheet
+   Slideshow, Organigramme, Presentation, Members
+   ============================================ */
+
+/* === Homepage Updates Section === */
+.update-column {
+    background-color: var(--bg-light);
+    padding: var(--spacing-md);
+    border-radius: 4px;
+}
+
+.update-column .btn {
+    margin-top: 1.5rem;
+}
+
+.updates-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.update-card {
+    background: white;
+    padding: var(--spacing-sm);
+    border-left: 3px solid var(--secondary-color);
+    transition: all 0.3s ease;
+}
+
+.update-card:hover {
+    transform: translateX(4px);
+    border-left-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.update-card-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: var(--text-color);
+}
+
+.update-card-title a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.update-card-title a:hover {
+    color: var(--secondary-color);
+}
+
+.update-card-meta {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.collaboration-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.collab-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.collab-info {
+    flex: 1;
+}
+
+/* === Homepage Slideshow - Continuous Scroll === */
+.diapo-div {
+    width: 100%;
+    overflow: hidden;
+    background-color: black;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.diapo {
+    display: flex;
+    width: 100%;
+    animation: scroll-carousel 25s ease-in-out infinite;
+}
+
+.diapo:hover {
+    animation-play-state: paused;
+}
+
+.slide-item {
+    width: 100%;
+    flex-shrink: 0;
+    position: relative;
+    min-height: 400px;
+}
+
+.slide-item img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+.separator {
+    width: 2%;
+    background: black;
+    height: 400px;
+    flex-shrink: 0;
+}
+
+.slide-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.4) 50%,
+            transparent 100%);
+    display: flex;
+    align-items: flex-end;
+}
+
+.slide-content {
+    color: white;
+    padding: 2rem;
+    width: 100%;
+}
+
+.slide-content h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.slide-content p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes scroll-carousel {
+    0% {
+        transform: translateX(0);
+    }
+
+    15% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-102%);
+    }
+
+    35% {
+        transform: translateX(-102%);
+    }
+
+    40% {
+        transform: translateX(-204%);
+    }
+
+    55% {
+        transform: translateX(-204%);
+    }
+
+    60% {
+        transform: translateX(-306%);
+    }
+
+    75% {
+        transform: translateX(-306%);
+    }
+
+    80% {
+        transform: translateX(-408%);
+    }
+
+    95% {
+        transform: translateX(-408%);
+    }
+
+    100% {
+        transform: translateX(-408%);
+    }
+}
+
+/* === Partners Logo Grid === */
+.partners-section {
+    padding: 0;
+}
+
+.partners-carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.partners-carousel-mask {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-width: 0;
+}
+
+.partners-carousel {
+    display: flex;
+    transition: transform 0.5s ease;
+    width: 100%;
+}
+
+.partner-carousel-item {
+    min-width: calc(100% / 3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.partner-carousel-item .partner-logo {
+    max-width: 150px;
+    max-height: 100px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.partner-carousel-item .partner-badge {
+    background: rgba(52, 152, 219, 0.1);
+    border: 2px solid var(--secondary-color);
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    color: var(--secondary-color);
+    text-align: center;
+    font-size: 0.9rem;
+    width: 150px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.partner-name {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0.5rem 0 0.2rem 0;
+    font-size: 1rem;
+}
+
+.partner-type {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 12px;
+    border: 2px solid;
+    background: rgba(52, 152, 219, 0.15);
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    margin: 0;
+}
+
+.carousel-arrow {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+    line-height: 1;
+}
+
+.carousel-arrow:hover {
+    background: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.carousel-arrow:active {
+    transform: scale(0.95);
+}
+
+.carousel-arrow-left {
+    order: -1;
+}
+
+.carousel-arrow-right {
+    order: 1;
+}
+
+/* === Presentation Page Styles === */
+.presentation-section .section-title {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.lab-introduction {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 0;
+    border: 2px solid var(--secondary-color);
+    margin-bottom: 3rem;
+}
+
+.intro-content h2 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.lead-text {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+}
+
+.intro-content h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin: 2rem 0 1.5rem 0;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 0.5rem;
+}
+
+.research-themes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.theme-item {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 0;
+    border-left: 4px solid var(--secondary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.theme-item h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.theme-item p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Lab Details Section */
+.lab-details {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.lab-details h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.lab-details p {
+    color: var(--text-color);
+    line-height: 1.8;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.facility-item {
+    background: var(--bg-light);
+    padding: 1.3rem;
+    border-left: 3px solid var(--accent-color);
+    transition: transform 0.3s ease;
+}
+
+.facility-item:hover {
+    transform: translateX(5px);
+}
+
+.facility-item strong {
+    color: var(--primary-color);
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.facility-item p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    text-align: left;
+}
+
+.achievements-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.achievements-list li {
+    padding: 0.8rem 0 0.8rem 2rem;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.achievements-list li:last-child {
+    border-bottom: none;
+}
+
+.achievements-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* === Teams Text Presentation === */
+.teams-text-container {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.team-text-item {
+    padding-left: 1rem;
+    border-left: 2px solid var(--border-color);
+}
+
+.team-text-item h4 {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.team-text-item .team-bullet {
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.team-text-item p {
+    color: var(--text-color);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+    text-align: justify;
+}
+
+/* === Organigramme Styles === */
+.organigramme-section {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 0;
+    border: 2px solid var(--secondary-color);
+    margin-bottom: 3rem;
+}
+
+.org-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.org-director {
+    margin-bottom: 1rem;
+}
+
+.org-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 0;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.org-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.director-card {
+    border-color: var(--accent-color);
+    border-width: 2px;
+    min-width: 240px;
+}
+
+.org-badge {
+    background: rgba(52, 152, 219, 0.15);
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    padding: 0.4rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+}
+
+.director-card .org-badge {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.org-card h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-bottom: 0rem;
+}
+
+.org-card h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.org-card p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.org-leaders {
+    width: 100%;
+    max-width: 1000px;
+    position: relative;
+}
+
+.org-connector-trunk {
+    width: 2px;
+    height: 30px;
+    background: var(--border-color);
+    margin: 0 auto;
+}
+
+.org-connector-split {
+    height: 2px;
+    background: var(--border-color);
+    margin: 0 auto 0;
+    width: 80%;
+    max-width: 900px;
+}
+
+.org-connector-to-leader {
+    width: 2px;
+    height: 20px;
+    background: var(--border-color);
+    margin: 0 auto 1rem;
+}
+
+.leaders-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    justify-items: center;
+}
+
+.leader-card {
+    min-width: 220px;
+    max-width: 250px;
+}
+
+.leader-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+    border: 3px solid var(--secondary-color);
+}
+
+.leader-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.leader-grade {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+}
+
+.leader-team {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+/* Organigramme Team Column */
+.org-team-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 250px;
+}
+
+.org-members-tree {
+    display: flex;
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+    position: relative;
+}
+
+.org-trunk {
+    width: 2px;
+    background: var(--border-color);
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.org-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.org-member-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.org-branch {
+    width: 20px;
+    height: 2px;
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+.member-card-org {
+    min-width: 160px;
+    max-width: 180px;
+    padding: 0.7rem 0.8rem;
+}
+
+.member-card-org h5 {
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+}
+
+.member-grade-org {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* === Team Split-Row Layout === */
+.teams-detailed-section {
+    margin-top: 3rem;
+}
+
+.team-split-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    background: white;
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+}
+
+.team-info-column {
+    background: var(--bg-light);
+    padding: 2rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.team-name {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-acronym {
+    display: inline-block;
+    background: rgba(52, 152, 219, 0.15);
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.team-description {
+    margin-bottom: 2rem;
+}
+
+.team-description h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.team-description p {
+    color: var(--text-color);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.team-actions {
+    margin-top: 1.5rem;
+}
+
+.team-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.team-members-column {
+    padding: 2rem;
+}
+
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+.member-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.member-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+
+.leader-member-card {
+    border: 2px solid var(--secondary-color);
+    background: linear-gradient(to bottom, rgba(52, 152, 219, 0.05), white);
+}
+
+.leader-badge {
+    background: rgba(52, 152, 219, 0.15);
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    order: 5;
+}
+
+.leader-member-card .member-photo,
+.leader-member-card .member-placeholder {
+    order: 1;
+}
+
+.leader-member-card .member-name {
+    order: 2;
+}
+
+.leader-member-card .member-grade {
+    order: 3;
+}
+
+.leader-member-card .member-role {
+    order: 4;
+}
+
+.leader-member-card .member-actions {
+    order: 6;
+}
+
+.member-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid var(--secondary-color);
+}
+
+.member-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.member-name {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.member-grade {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.member-role {
+    margin: 0.5rem 0;
+}
+
+.member-actions {
+    margin-top: auto;
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.member-actions .btn {
+    width: 100%;
+}
+
+.no-members {
+    text-align: center;
+    color: var(--text-light);
+    padding: 2rem;
+}
+
+/* === Collapsible Introduction Styles === */
+.intro-content-wrapper {
+    position: relative;
+    transition: max-height 0.5s ease;
+    overflow: hidden;
+}
+
+.intro-content-wrapper.collapsed {
+    max-height: 400px;
+}
+
+.intro-content-wrapper.collapsed::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.95) 70%,
+            rgba(255, 255, 255, 1) 100%);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.intro-content-wrapper.expanded {
+    max-height: none;
+}
+
+.intro-content-wrapper.expanded::after {
+    opacity: 0;
+}
+
+.intro-toggle-wrapper {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+.btn-toggle-intro {
+    background: #fff;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.btn-toggle-intro:hover {
+    background: var(--secondary-color);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    font-size: 12px;
+}
+
+.btn-toggle-intro.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.directory-intro {
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+/* === Members Directory Cards === */
+.members-directory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.member-directory-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+}
+
+.member-directory-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+
+.member-card-photo img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--secondary-color);
+}
+
+.member-card-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.member-card-info {
+    flex: 1;
+}
+
+.member-card-name {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+}
+
+.member-card-grade {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.member-card-team {
+    margin: 0.5rem 0;
+}
+
+.member-card-role {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    font-style: italic;
+}
+
+.member-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* === Responsive Design === */
+@media (max-width: 1024px) {
+    .team-split-row {
+        grid-template-columns: 1fr;
+    }
+
+    .team-info-column {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+@media (max-width: 768px) {
+    .slide-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .partner-carousel-item {
+        min-width: 100%;
+    }
+
+    .carousel-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+
+    .leaders-row {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .members-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .members-directory-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .member-directory-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .updates-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

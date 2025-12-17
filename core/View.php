@@ -26,6 +26,7 @@ abstract class View {
 
     /**
      * Include a template file ( Template file name without .phtml)
+
      */
     protected function template($templateName, $templateData = []) {
         $templateFile = BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . $templateName . '.phtml';
