@@ -1,6 +1,13 @@
 <!-- Publications List -->
 <section class="publications-section">
-    <h1 class="section-title"><?= $lang['publications_title'] ?></h1>
+    <?php
+    // Page Header
+    $pageHeader = new PageHeader([
+        'title' => $lang['publications_title'] ?? 'Publications',
+        'lang' => $lang
+    ]);
+    echo $pageHeader->render();
+    ?>
 
     <div class="filter-bar">
         <div>
@@ -96,49 +103,14 @@
 
         <?php if (!empty($publications)): ?>
             <?php foreach ($publications as $pub): ?>
-                <div class="document-item">
-                    <div class="doc-header">
-                        <h3 class="doc-title"><?= $this->escape($pub['titre']) ?></h3>
-                        <span class="doc-type-badge"><?= $this->escape($pub['type']) ?></span>
-                    </div>
-
-                    <div class="doc-meta-row">
-                        <span>
-                            <strong><?= $lang['pub_date'] ?>:</strong> 
-                            <?= $pub['date_publication'] ? date('d/m/Y', strtotime($pub['date_publication'])) : '<span class="empty-field">N/A</span>' ?>
-                        </span>
-                        <span>
-                            <strong><?= $lang['project_domain'] ?>:</strong> 
-                            <?= !empty($pub['domaine']) ? $this->escape($pub['domaine']) : '<span class="empty-field">' . $lang['not_specified'] . '</span>' ?>
-                        </span>
-                    </div>
-
-                    <div class="doc-authors">
-                        <strong><?= $lang['pub_authors'] ?>:</strong> 
-                        <?= !empty($pub['auteurs']) ? $this->escape($pub['auteurs']) : '<span class="empty-field">Aucun auteur listé</span>' ?>
-                    </div>
-
-                    <div class="doc-abstract">
-                        <strong><?= $lang['pub_abstract'] ?>:</strong><br>
-                        <?= !empty($pub['resume']) ? $this->escape(substr($pub['resume'], 0, 250)) . '...' : '<span class="empty-field">Aucun résumé disponible.</span>' ?>
-                    </div>
-
-                    <div class="doc-footer">
-                        <span class="doc-doi">
-                            DOI: <?= !empty($pub['doi']) ? $this->escape($pub['doi']) : '<span class="empty-field">Non disponible</span>' ?>
-                        </span>
-                        
-                        <?php if (!empty($pub['lien_pdf'])): ?>
-                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" target="_blank" class="btn-download">
-                                <?= $lang['pub_download'] ?>
-                            </a>
-                        <?php else: ?>
-                            <span class="btn-download disabled">
-                                <?= $lang['pub_download'] ?> (Indisponible)
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <?php
+                $publicationItem = new PublicationItem([
+                    'publication' => $pub,
+                    'lang' => $lang,
+                    'truncateAbstract' => 250
+                ]);
+                echo $publicationItem->render();
+                ?>
             <?php endforeach; ?>
         <?php else: ?>
             <div class="no-results">Aucune publication trouvée</div>

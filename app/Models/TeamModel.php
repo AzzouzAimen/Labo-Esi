@@ -143,11 +143,10 @@ class TeamModel extends Model {
      */
     public function getUserPublications($userId) {
         $stmt = $this->db->prepare("
-            SELECT DISTINCT
+            SELECT
                 p.id_pub, p.titre, p.date_publication, p.type, p.lien_pdf
             FROM publications p
-            JOIN publication_authors pa ON p.id_pub = pa.id_pub
-            WHERE pa.id_user = :user_id
+            WHERE p.author_id = :user_id
             ORDER BY p.date_publication DESC
         ");
         $stmt->execute([':user_id' => $userId]);

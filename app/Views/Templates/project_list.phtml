@@ -1,132 +1,62 @@
 <!-- Project Catalog Template -->
 
 <section class="projects-section">
-    <h1 class="section-title"><?= $lang['projects_title'] ?></h1>
+    <?php
+    // Page Header
+    $header = new PageHeader([
+        'title' => $lang['projects_title']
+    ]);
+    echo $header->render();
     
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <div>
-            <label for="filter-domain"><?= $lang['filter_by_domain'] ?>:</label>
-            <select id="filter-domain" class="form-control" style="width: auto; display: inline-block;">
-                <option value="all"><?= $lang['all'] ?></option>
-                <?php if (!empty($domains)): ?>
-                    <?php foreach ($domains as $domain): ?>
-                        <option value="<?= $this->escape($domain) ?>">
-                            <?= $this->escape($domain) ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
-        </div>
-        
-        <div>
-            <label for="filter-status"><?= $lang['filter_by_status'] ?>:</label>
-            <select id="filter-status" class="form-control" style="width: auto; display: inline-block;">
-                <option value="all"><?= $lang['all'] ?></option>
-                <?php if (!empty($statuses)): ?>
-                    <?php foreach ($statuses as $status): ?>
-                        <option value="<?= $this->escape($status) ?>">
-                            <?php
-                            // Translate status
-                            $statusKey = 'status_' . str_replace(' ', '_', $status);
-                            echo $lang[$statusKey] ?? $this->escape($status);
-                            ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
-        </div>
-
-        <div>
-            <label for="filter-supervisor">Filtrer par responsable:</label>
-            <select id="filter-supervisor" class="form-control" style="width: auto; display: inline-block;">
-                <option value="all"><?= $lang['all'] ?></option>
-                <?php if (!empty($supervisors)): ?>
-                    <?php foreach ($supervisors as $sup): ?>
-                        <option value="<?= (int)$sup['id_user'] ?>">
-                            <?= $this->escape($sup['prenom'] . ' ' . $sup['nom']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
-        </div>
-    </div>
+    // Filter Bar
+    $filters = [
+        [
+            'type' => 'select',
+            'id' => 'filter-domain',
+            'name' => 'domain',
+            'label' => $lang['filter_by_domain'] ?? 'Filtrer par domaine',
+            'options' => $domains ?? []
+        ],
+        [
+            'type' => 'select',
+            'id' => 'filter-status',
+            'name' => 'status',
+            'label' => $lang['filter_by_status'] ?? 'Filtrer par statut',
+            'options' => array_map(function($status) use ($lang) {
+                $statusKey = 'status_' . str_replace(' ', '_', $status);
+                return [
+                    'value' => $status,
+                    'text' => $lang[$statusKey] ?? $status
+                ];
+            }, $statuses ?? [])
+        ],
+        [
+            'type' => 'select',
+            'id' => 'filter-supervisor',
+            'name' => 'supervisor',
+            'label' => 'Filtrer par responsable',
+            'options' => array_map(function($sup) {
+                return [
+                    'value' => $sup['id_user'],
+                    'text' => $sup['prenom'] . ' ' . $sup['nom']
+                ];
+            }, $supervisors ?? [])
+        ]
+    ];
     
-    <!-- Projects Grid -->
-    <div class="card-grid" id="projects-grid">
-        <?php if (!empty($projects)): ?>
-            <?php foreach ($projects as $project): ?>
-                <div class="card">
-                    <?php if ($project['image_url']): ?>
-                        <img src="<?= BASE_URL . $this->escape($project['image_url']) ?>" 
-                             alt="<?= $this->escape($project['titre']) ?>"
-                             onerror="this.src='<?= BASE_URL ?>assets/img/project-placeholder.jpg'">
-                    <?php else: ?>
-                        <img src="<?= BASE_URL ?>assets/img/project-placeholder.jpg" 
-                             alt="<?= $this->escape($project['titre']) ?>">
-                    <?php endif; ?>
-                    
-                    <div class="card-body">
-                        <h3 class="card-title"><?= $this->escape($project['titre']) ?></h3>
-                        
-                        <div class="card-meta">
-                            <span>
-                                <strong><?= $lang['project_domain'] ?>:</strong> 
-                                <?= $this->escape($project['domaine']) ?>
-                            </span>
-                            <?php if ($project['responsable_nom']): ?>
-                            <span>
-                                <strong><?= $lang['project_manager'] ?>:</strong> 
-                                <?= $this->escape($project['responsable_prenom'] . ' ' . $project['responsable_nom']) ?>
-                            </span>
-                            <?php endif; ?>
-                            <span>
-                                <strong><?= $lang['project_associated_members'] ?>:</strong> 
-                                <?= !empty($project['membres_noms']) ? $this->escape($project['membres_noms']) : $lang['none'] ?>
-                            </span>
-                            <span>
-                                <strong><?= $lang['project_funding'] ?>:</strong>
-                                <?= $project['type_financement'] ? $this->escape($project['type_financement']) : 'N/A' ?>
-                            </span>
-                            <span>
-                                <strong><?= $lang['project_members'] ?>:</strong>
-                                <?= isset($project['membres_count']) ? (int)$project['membres_count'] : 0 ?>
-                            </span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <?php
-                            $statusClass = 'badge-primary';
-                            if ($project['statut'] === 'terminé') {
-                                $statusClass = 'badge-success';
-                            } elseif ($project['statut'] === 'soumis') {
-                                $statusClass = 'badge-warning';
-                            }
-                            ?>
-                            <span class="badge <?= $statusClass ?>">
-                                <?= $this->escape($project['statut']) ?>
-                            </span>
-                        </div>
-                        
-                        
-                        
-                        <div style="margin-top: auto;">
-                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
-                               class="btn btn-primary" style="display: block; width: 100%; margin-bottom: 0.5rem;">
-                                <?= $lang['view_details'] ?>
-                            </a>
-                            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index&project=<?= $project['id_project'] ?>" 
-                               class="btn btn-outline-primary" style="display: block; width: 100%;">
-                                <?= $lang['view_publications'] ?>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="no-results">
-                <?= $lang['no_projects'] ?>
-            </div>
-        <?php endif; ?>
-    </div>
+    $filterBar = new FilterBar([
+        'filters' => $filters,
+        'lang' => $lang,
+        'showResetButton' => true
+    ]);
+    echo $filterBar->render();
+    
+    // Project Grid
+    $projectGrid = new ProjectGrid([
+        'projects' => $projects ?? [],
+        'lang' => $lang,
+        'baseUrl' => BASE_URL
+    ]);
+    echo $projectGrid->render();
+    ?>
 </section>

@@ -1,7 +1,14 @@
 <!-- Team Listing Template -->
 
 <section class="teams-section">
-    <h1 class="section-title"><?= $lang['teams_title'] ?></h1>
+    <?php
+    // Page Header
+    $pageHeader = new PageHeader([
+        'title' => $lang['teams_title'] ?? 'Équipes',
+        'lang' => $lang
+    ]);
+    echo $pageHeader->render();
+    ?>
     
     <div style="text-align: center; margin-bottom: 2rem;">
         <a href="<?= BASE_URL ?>index.php?controller=Team&action=orgChart" class="btn btn-secondary">
@@ -62,112 +69,16 @@
 
         <div class="team-container">
             <?php foreach ($teams as $team): ?>
-            <div class="team-section" data-team-id="<?= (int)$team['id_team'] ?>">
-                <!-- Team Header -->
-                <div class="team-header">
-                    <h2><?= $this->escape($team['nom']) ?></h2>
-                    <?php if ($team['description']): ?>
-                    <p style="opacity: 0.9; margin-top: 0.5rem;">
-                        <?= $this->escape($team['description']) ?>
-                    </p>
-                    <?php endif; ?>
-
-                    <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index&team_id=<?= (int)$team['id_team'] ?>" class="btn btn-secondary">
-                            Voir les publications de l’équipe
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Team Leader -->
-                <?php if ($team['chef_id']): ?>
-                <div class="team-leader">
-                    <div style="display: flex; align-items: center; gap: 2rem;">
-                        <?php if ($team['chef_photo']): ?>
-                        <img src="<?= BASE_URL . $this->escape($team['chef_photo']) ?>" 
-                             alt="<?= $this->escape($team['chef_prenom'] . ' ' . $team['chef_nom']) ?>"
-                             class="member-photo"
-                             onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
-                        <?php else: ?>
-                        <div style="width: 120px; height: 120px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; border: 3px solid var(--secondary-color);">
-                            <?= strtoupper(substr($team['chef_prenom'], 0, 1) . substr($team['chef_nom'], 0, 1)) ?>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div style="flex: 1;">
-                            <div style="background: var(--secondary-color); color: white; display: inline-block; padding: 0.3rem 1rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                <?= $lang['team_leader'] ?>
-                            </div>
-                            <h3 style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.3rem;">
-                                <?= $this->escape($team['chef_prenom'] . ' ' . $team['chef_nom']) ?>
-                            </h3>
-                            <p style="color: var(--text-light); margin-bottom: 0.5rem;">
-                                <strong><?= $this->escape($team['chef_grade']) ?></strong>
-                            </p>
-                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                                <a href="<?= BASE_URL ?>index.php?controller=Team&action=profile&id=<?= $team['chef_id'] ?>" 
-                                   class="btn btn-primary">
-                                    <?= $lang['member_bio'] ?>
-                                </a>
-                                <?php if ($team['chef_email']): ?>
-                                <a href="mailto:<?= $this->escape($team['chef_email']) ?>" class="btn btn-secondary">
-                                    Contact
-                                </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Team Members -->
-                <?php if (!empty($team['members'])): ?>
-                <div style="margin-top: 2rem;">
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem; font-size: 1.2rem;">
-                        <?= $lang['team_members'] ?>
-                    </h3>
-                    <div class="team-members">
-                        <?php foreach ($team['members'] as $member): ?>
-                        <div class="member-card"
-                             data-grade="<?= $this->escape($member['grade']) ?>"
-                             data-name="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>">
-                            <?php if ($member['photo']): ?>
-                            <img src="<?= BASE_URL . $this->escape($member['photo']) ?>" 
-                                 alt="<?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>"
-                                 class="member-photo"
-                                 onerror="this.src='<?= BASE_URL ?>assets/img/user-placeholder.jpg'">
-                            <?php else: ?>
-                            <div style="width: 120px; height: 120px; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; border: 3px solid var(--secondary-color);">
-                                <?= strtoupper(substr($member['prenom'], 0, 1) . substr($member['nom'], 0, 1)) ?>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <div class="member-name">
-                                <?= $this->escape($member['prenom'] . ' ' . $member['nom']) ?>
-                            </div>
-                            <div class="member-grade">
-                                <?= $this->escape($member['grade']) ?>
-                            </div>
-                            <?php if ($member['role_dans_equipe']): ?>
-                            <div style="margin-top: 0.5rem;">
-                                <span class="badge badge-primary">
-                                    <?= $this->escape($member['role_dans_equipe']) ?>
-                                </span>
-                            </div>
-                            <?php endif; ?>
-                            <div style="margin-top: 1rem;">
-                                <a href="<?= BASE_URL ?>index.php?controller=Team&action=profile&id=<?= $member['id_user'] ?>" 
-                                   class="btn btn-primary" 
-                                   style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-                                    <?= $lang['view_details'] ?>
-                                </a>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-            </div>
+                <?php
+                // Use TeamSection component for each team
+                $teamSection = new TeamSection([
+                    'team' => $team,
+                    'lang' => $lang,
+                    'baseUrl' => BASE_URL,
+                    'showPublicationsLink' => true
+                ]);
+                echo $teamSection->render();
+                ?>
             <?php endforeach; ?>
         </div>
     <?php else: ?>

@@ -1,59 +1,84 @@
 <!-- Equipment List -->
 <section class="equipment-section">
-    <h1 class="section-title"><?= $lang['equipment_title'] ?></h1>
+    <?php
+    // Page Header
+    $pageHeader = new PageHeader([
+        'title' => $lang['equipment_title'] ?? 'Équipements',
+        'lang' => $lang
+    ]);
+    echo $pageHeader->render();
+    ?>
 
-    <?php if (!empty($success)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid var(--secondary-color); padding: 1rem; margin-bottom: 1rem;">
-            <?= $this->escape($success) ?>
-        </div>
-    <?php endif; ?>
-    <?php if (!empty($error)): ?>
-        <div style="background: var(--bg-light); border-left: 4px solid #e74c3c; padding: 1rem; margin-bottom: 1rem;">
-            <?= $this->escape($error) ?>
-        </div>
-    <?php endif; ?>
+    <?php
+    // Success/Error Alerts
+    if (!empty($success)) {
+        $successAlert = new Alert([
+            'message' => $success,
+            'type' => 'success'
+        ]);
+        echo $successAlert->render();
+    }
+    if (!empty($error)) {
+        $errorAlert = new Alert([
+            'message' => $error,
+            'type' => 'error'
+        ]);
+        echo $errorAlert->render();
+    }
+    ?>
 
-    <div class="filter-bar">
-        <form method="GET" action="<?= BASE_URL ?>index.php" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-            <input type="hidden" name="controller" value="Equipment">
-            <input type="hidden" name="action" value="index">
+    <?php
+    // Filter Bar
+    $filterBarConfig = [
+        'filters' => [
+            [
+                'type' => 'text',
+                'id' => 'equip-q',
+                'name' => 'q',
+                'label' => $lang['search'] ?? 'Recherche',
+                'value' => $filters['q'] ?? '',
+                'placeholder' => 'Nom, référence...'
+            ],
+            [
+                'type' => 'select',
+                'id' => 'equip-category',
+                'name' => 'category',
+                'label' => $lang['equip_category'] ?? 'Catégorie',
+                'value' => $filters['category'] ?? 'all',
+                'options' => array_merge(
+                    [['value' => 'all', 'label' => $lang['all'] ?? 'Tous']],
+                    array_map(fn($cat) => ['value' => $cat, 'label' => $cat], $categories ?? [])
+                )
+            ],
+            [
+                'type' => 'select',
+                'id' => 'equip-status',
+                'name' => 'status',
+                'label' => $lang['equip_status'] ?? 'Statut',
+                'value' => $filters['status'] ?? 'all',
+                'options' => [
+                    ['value' => 'all', 'label' => $lang['all'] ?? 'Tous'],
+                    ['value' => 'libre', 'label' => $lang['status_free'] ?? 'Libre'],
+                    ['value' => 'réservé', 'label' => $lang['status_reserved'] ?? 'Réservé'],
+                    ['value' => 'maintenance', 'label' => $lang['status_maintenance'] ?? 'Maintenance']
+                ]
+            ]
+        ],
+        'action' => BASE_URL . 'index.php',
+        'method' => 'GET',
+        'hiddenFields' => [
+            'controller' => 'Equipment',
+            'action' => 'index'
+        ],
+        'lang' => $lang
+    ];
+    $filterBar = new FilterBar($filterBarConfig);
+    echo $filterBar->render();
+    ?>
 
-            <div>
-                <label for="equip-q"><?= $lang['search'] ?>:</label>
-                <input id="equip-q" name="q" class="form-control" style="width: 240px; display: inline-block;" type="text" value="<?= $this->escape($filters['q'] ?? '') ?>" placeholder="Nom, référence...">
-            </div>
-
-            <div>
-                <label for="equip-category"><?= $lang['equip_category'] ?>:</label>
-                <select id="equip-category" name="category" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="all"><?= $lang['all'] ?></option>
-                    <?php if (!empty($categories)): ?>
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $this->escape($cat) ?>" <?= (($filters['category'] ?? 'all') == $cat) ? 'selected' : '' ?>>
-                                <?= $this->escape($cat) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-
-            <div>
-                <label for="equip-status"><?= $lang['equip_status'] ?>:</label>
-                <select id="equip-status" name="status" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="all"><?= $lang['all'] ?></option>
-                    <option value="libre" <?= (($filters['status'] ?? 'all') === 'libre') ? 'selected' : '' ?>><?= $lang['status_free'] ?></option>
-                    <option value="réservé" <?= (($filters['status'] ?? 'all') === 'réservé') ? 'selected' : '' ?>><?= $lang['status_reserved'] ?></option>
-                    <option value="maintenance" <?= (($filters['status'] ?? 'all') === 'maintenance') ? 'selected' : '' ?>><?= $lang['status_maintenance'] ?></option>
-                </select>
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-primary"><?= $lang['filter'] ?></button>
-            </div>
-        </form>
-    </div>
-
-    <?php if (!empty($stats)): ?>
+    <?php
+    // Usage Statistics Section (preserved from original)
+    if (!empty($stats)): ?>
         <div style="background: white; border: 1px solid var(--border-color); padding: 1.5rem; margin: 1.5rem 0;">
             <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Statistiques d'utilisation</h2>
             <div style="display: grid; gap: 0.75rem;">
@@ -72,80 +97,30 @@
         </div>
     <?php endif; ?>
 
+    <!-- Equipment Grid -->
     <div class="card-grid">
         <?php if (!empty($equipment)): ?>
             <?php foreach ($equipment as $equip): ?>
-                <div class="card">
-                    <?php if (!empty($equip['image_url'])): ?>
-                        <img src="<?= BASE_URL . $this->escape($equip['image_url']) ?>" alt="<?= $this->escape($equip['nom']) ?>" onerror="this.src='<?= BASE_URL ?>assets/img/project-placeholder.jpg'">
-                    <?php else: ?>
-                        <img src="<?= BASE_URL ?>assets/img/project-placeholder.jpg" alt="<?= $this->escape($equip['nom']) ?>">
-                    <?php endif; ?>
-
-                    <div class="card-body">
-                        <h3 class="card-title"><?= $this->escape($equip['nom']) ?></h3>
-
-                        <div class="card-meta">
-                            <span><strong><?= $lang['equip_category'] ?>:</strong> <?= $this->escape($equip['categorie']) ?></span>
-                            <?php if (!empty($equip['reference'])): ?>
-                                <span><strong>Réf:</strong> <?= $this->escape($equip['reference']) ?></span>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="mb-2">
-                            <?php
-                            $etat = $equip['etat_actuel'] ?? $equip['etat'] ?? 'libre';
-                            $badge = 'badge-success';
-                            $label = $lang['status_free'];
-                            if ($etat === 'réservé') {
-                                $badge = 'badge-warning';
-                                $label = $lang['status_reserved'];
-                            } elseif ($etat === 'maintenance') {
-                                $badge = 'badge-primary';
-                                $label = $lang['status_maintenance'];
-                            }
-                            ?>
-                            <span class="badge <?= $badge ?>"><?= $this->escape($label) ?></span>
-                        </div>
-
-                        <?php if (!empty($equip['description'])): ?>
-                            <p class="card-text"><?= $this->escape(substr($equip['description'], 0, 140)) ?>...</p>
-                        <?php endif; ?>
-
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <div style="margin-top: 1rem;">
-                                <h4 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 0.5rem;">
-                                    <?= $lang['equip_reserve'] ?>
-                                </h4>
-                                <form method="POST" action="<?= BASE_URL ?>index.php?controller=Equipment&action=reserve" style="display: grid; gap: 0.5rem;">
-                                    <input type="hidden" name="equip_id" value="<?= (int)$equip['id_equip'] ?>">
-                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                        <div>
-                                            <label style="display:block; font-size:0.9rem; color: var(--text-light);">Début</label>
-                                            <input required type="datetime-local" name="date_debut" class="form-control">
-                                        </div>
-                                        <div>
-                                            <label style="display:block; font-size:0.9rem; color: var(--text-light);">Fin</label>
-                                            <input required type="datetime-local" name="date_fin" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label style="display:block; font-size:0.9rem; color: var(--text-light);">Motif (optionnel)</label>
-                                        <input type="text" name="motif" class="form-control" placeholder="Ex: Expérience, TP, test...">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary" style="width: 100%;">Réserver</button>
-                                </form>
-                            </div>
-                        <?php else: ?>
-                            <a href="<?= BASE_URL ?>index.php?controller=Auth&action=login" class="btn btn-primary">
-                                Se connecter pour réserver
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <?php
+                $equipmentCard = new EquipmentCard([
+                    'equipment' => $equip,
+                    'lang' => $lang,
+                    'baseUrl' => BASE_URL,
+                    'userId' => $_SESSION['user_id'] ?? null
+                ]);
+                echo $equipmentCard->render();
+                ?>
             <?php endforeach; ?>
         <?php else: ?>
             <div class="no-results">Aucun équipement trouvé</div>
         <?php endif; ?>
     </div>
+
+    <?php
+    // Reservation History Modal (rendered once per page)
+    $reservationModal = new ReservationHistoryModal([
+        'baseUrl' => BASE_URL
+    ]);
+    echo $reservationModal->render();
+    ?>
 </section>

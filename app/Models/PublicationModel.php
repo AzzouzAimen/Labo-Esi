@@ -61,8 +61,9 @@ class PublicationModel extends Model {
     public function getAuthors() {
         $stmt = $this->db->query("
             SELECT DISTINCT u.id_user, u.prenom, u.nom
-            FROM publication_authors pa
-            JOIN users u ON pa.id_user = u.id_user
+            FROM publications p
+            JOIN users u ON p.author_id = u.id_user
+            WHERE p.author_id IS NOT NULL
             ORDER BY u.nom, u.prenom
         ");
         return $stmt->fetchAll();
@@ -117,16 +118,15 @@ class PublicationModel extends Model {
         }
 
         if (!empty($filters[self::FILT_AUTHOR]) && $filters[self::FILT_AUTHOR] !== 'all') {
-            $sql .= " AND EXISTS (SELECT 1 FROM publication_authors pa2 WHERE pa2.id_pub = p.id_pub AND pa2.id_user = :author)";
+            $sql .= " AND p.author_id = :author";
             $params[':author'] = (int)$filters[self::FILT_AUTHOR];
         }
 
         if (!empty($filters[self::FILT_TEAM]) && $filters[self::FILT_TEAM] !== 'all') {
             $sql .= " AND EXISTS (
                 SELECT 1
-                FROM publication_authors pa3
-                JOIN users u3 ON pa3.id_user = u3.id_user
-                WHERE pa3.id_pub = p.id_pub AND u3.team_id = :team
+                FROM users u3
+                WHERE u3.id_user = p.author_id AND u3.team_id = :team
             )";
             $params[':team'] = (int)$filters[self::FILT_TEAM];
         }
@@ -161,19 +161,17 @@ class PublicationModel extends Model {
                 p.lien_pdf,
                 p.doi,
                 p.type,
+                p.author_id,
                 pr.domaine as domaine,
-                GROUP_CONCAT(DISTINCT CONCAT(u.prenom, ' ', u.nom) ORDER BY u.nom, u.prenom SEPARATOR ', ') as auteurs
+                CONCAT(u.prenom, ' ', u.nom) as auteur
             FROM publications p
             LEFT JOIN projects pr ON p.project_id = pr.id_project
-            LEFT JOIN publication_authors pa ON p.id_pub = pa.id_pub
-            LEFT JOIN users u ON pa.id_user = u.id_user
+            LEFT JOIN users u ON p.author_id = u.id_user
             WHERE 1=1
         ";
 
         $params = [];
         $sql .= $this->buildWhereClause($filters, $params);
-
-        $sql .= " GROUP BY p.id_pub, p.titre, p.resume, p.date_publication, p.lien_pdf, p.doi, p.type, pr.domaine";
 
         $orderBy = "p.date_publication DESC";
         switch ($sort) {
@@ -212,11 +210,10 @@ class PublicationModel extends Model {
      */
     public function countPublications($filters = []) {
         $sql = "
-            SELECT COUNT(DISTINCT p.id_pub) as total
+            SELECT COUNT(p.id_pub) as total
             FROM publications p
             LEFT JOIN projects pr ON p.project_id = pr.id_project
-            LEFT JOIN publication_authors pa ON p.id_pub = pa.id_pub
-            LEFT JOIN users u ON pa.id_user = u.id_user
+            LEFT JOIN users u ON p.author_id = u.id_user
             WHERE 1=1
         ";
 

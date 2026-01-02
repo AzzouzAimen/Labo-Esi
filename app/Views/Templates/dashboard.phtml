@@ -1,9 +1,46 @@
 <!-- Dashboard Template -->
 
 <section class="dashboard-section">
-    <h1 class="section-title">
-        <?= $lang['welcome'] ?>, <?= $this->escape($_SESSION['prenom'] . ' ' . $_SESSION['nom']) ?>
-    </h1>
+    <?php
+    // Page Header with welcome message
+    $pageHeader = new PageHeader([
+        'title' => ($lang['welcome'] ?? 'Bienvenue') . ', ' . htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom'], ENT_QUOTES, 'UTF-8'),
+        'lang' => $lang
+    ]);
+    echo $pageHeader->render();
+    ?>
+
+    <!-- Quick Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <?php
+        $statProjects = new DashboardStat([
+            'label' => $lang['my_projects'] ?? 'Mes Projets',
+            'value' => count($projects),
+            'icon' => '📁',
+            'color' => 'var(--primary-color)',
+            'href' => '#projects-section'
+        ]);
+        echo $statProjects->render();
+
+        $statPublications = new DashboardStat([
+            'label' => $lang['my_publications'] ?? 'Mes Publications',
+            'value' => count($publications),
+            'icon' => '📄',
+            'color' => 'var(--secondary-color)',
+            'href' => '#publications-section'
+        ]);
+        echo $statPublications->render();
+
+        $statReservations = new DashboardStat([
+            'label' => $lang['my_reservations'] ?? 'Mes Réservations',
+            'value' => !empty($reservations) ? count($reservations) : 0,
+            'icon' => '🔧',
+            'color' => '#3498db',
+            'href' => '#reservations-section'
+        ]);
+        echo $statReservations->render();
+        ?>
+    </div>
     
     <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
         <!-- Sidebar -->
@@ -78,7 +115,7 @@
             </div>
             
             <!-- Projects -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
+            <div id="projects-section" style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_projects'] ?> 
                     <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
@@ -87,38 +124,17 @@
                 </h2>
                 
                 <?php if (!empty($projects)): ?>
-                    <div style="display: grid; gap: 1rem;">
+                    <div class="card-grid">
                         <?php foreach ($projects as $project): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
-                                    <?= $this->escape($project['titre']) ?>
-                                </h4>
-                                <div>
-                                    <span class="badge badge-primary"><?= $this->escape($project['domaine']) ?></span>
-                                    <?php
-                                    $statusClass = 'badge-primary';
-                                    if ($project['statut'] === 'terminé') {
-                                        $statusClass = 'badge-success';
-                                    } elseif ($project['statut'] === 'soumis') {
-                                        $statusClass = 'badge-warning';
-                                    }
-                                    ?>
-                                    <span class="badge <?= $statusClass ?>"><?= $this->escape($project['statut']) ?></span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                <?php if (!empty($project['responsable_id']) && (int)$project['responsable_id'] === (int)$_SESSION['user_id']): ?>
-                                    <a href="<?= BASE_URL ?>index.php?controller=Project&action=edit&id=<?= $project['id_project'] ?>" class="btn btn-secondary">
-                                        <?= $lang['edit'] ?>
-                                    </a>
-                                <?php endif; ?>
-                                <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>" 
-                                   class="btn btn-primary">
-                                    <?= $lang['view_details'] ?>
-                                </a>
-                            </div>
-                        </div>
+                            <?php
+                            // Reuse ProjectCard component from Increment 8
+                            $projectCard = new ProjectCard([
+                                'project' => $project,
+                                'lang' => $lang,
+                                'baseUrl' => BASE_URL
+                            ]);
+                            echo $projectCard->render();
+                            ?>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
@@ -129,7 +145,7 @@
             </div>
 
             <!-- Reservations -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
+            <div id="reservations-section" style="background: white; border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_reservations'] ?>
                     <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
@@ -176,7 +192,7 @@
             </div>
             
             <!-- Publications -->
-            <div style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
+            <div id="publications-section" style="background: white; border: 1px solid var(--border-color); padding: 2rem;">
                 <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
                     <?= $lang['my_publications'] ?>
                     <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.6rem; font-size: 0.9rem;">
@@ -185,25 +201,22 @@
                 </h2>
                 
                 <?php if (!empty($publications)): ?>
-                    <div style="display: grid; gap: 1rem;">
+                    <div class="document-list">
                         <?php foreach ($publications as $pub): ?>
-                        <div style="padding: 1.5rem; background: var(--bg-light);">
-                            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
-                                <?= $this->escape($pub['titre']) ?>
-                            </h4>
-                            <p style="color: var(--text-light); font-size: 0.9rem;">
-                                <span class="badge badge-primary"><?= $this->escape($pub['type']) ?></span>
-                                <?= date('Y', strtotime($pub['date_publication'])) ?>
-                            </p>
-                            <?php if ($pub['lien_pdf']): ?>
-                            <a href="<?= $this->escape($pub['lien_pdf']) ?>" 
-                               target="_blank" 
-                               class="btn btn-primary" 
-                               style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">
-                                <?= $lang['pub_download'] ?>
-                            </a>
-                            <?php endif; ?>
-                        </div>
+                            <?php
+                            // Prepare publication data for PublicationItem component
+                            $pubData = array_merge($pub, [
+                                'auteur' => $_SESSION['prenom'] . ' ' . $_SESSION['nom'] // Current user is the author
+                            ]);
+                            
+                            // Reuse PublicationItem component from Increment 12
+                            $publicationItem = new PublicationItem([
+                                'publication' => $pubData,
+                                'lang' => $lang,
+                                'truncateAbstract' => 150 // Shorter for dashboard
+                            ]);
+                            echo $publicationItem->render();
+                            ?>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
