@@ -16,6 +16,7 @@ require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Model.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Router.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Controller.php';
 require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'View.php';
+require_once BASE_PATH . 'core' . DIRECTORY_SEPARATOR . 'Component.php';
 
 // Load LayoutView class (required by all view classes)
 $layoutViewPath = BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Classes' . DIRECTORY_SEPARATOR . 'LayoutView.php';
@@ -35,6 +36,14 @@ require_once BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPAR
 require_once BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Classes' . DIRECTORY_SEPARATOR . 'MemberProfileView.php';
 require_once BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Classes' . DIRECTORY_SEPARATOR . 'LoginView.php';
 require_once BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'Classes' . DIRECTORY_SEPARATOR . 'DashboardView.php';
+
+// Autoload all components
+$componentsPath = BASE_PATH . 'app' . DIRECTORY_SEPARATOR . 'Components' . DIRECTORY_SEPARATOR;
+if (is_dir($componentsPath)) {
+    foreach (glob($componentsPath . '*.php') as $componentFile) {
+        require_once $componentFile;
+    }
+}
 
 // Create router and dispatch request
 $router = new Router();

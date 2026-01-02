@@ -10,10 +10,12 @@ class UserModel extends Model {
      */
     public function findByUsername($username) {
         $stmt = $this->db->prepare("
-            SELECT id_user, username, password, nom, prenom, email, photo, 
-                   grade, poste, domaine_recherche, role
-            FROM users
-            WHERE username = :username
+            SELECT u.id_user, u.username, u.password, u.nom, u.prenom, u.email, u.photo, 
+                   u.grade, u.poste, u.domaine_recherche, u.role_id,
+                   r.name as role_name
+            FROM users u
+            LEFT JOIN roles r ON u.role_id = r.id
+            WHERE u.username = :username
         ");
         $stmt->execute([':username' => $username]);
         return $stmt->fetch();
@@ -44,10 +46,12 @@ class UserModel extends Model {
      */
     public function getUserById($userId) {
         $stmt = $this->db->prepare("
-            SELECT id_user, username, nom, prenom, email, photo, 
-                   grade, poste, domaine_recherche, role
-            FROM users
-            WHERE id_user = :id
+            SELECT u.id_user, u.username, u.nom, u.prenom, u.email, u.photo, 
+                   u.grade, u.poste, u.domaine_recherche, u.role_id,
+                   r.name as role_name
+            FROM users u
+            LEFT JOIN roles r ON u.role_id = r.id
+            WHERE u.id_user = :id
         ");
         $stmt->execute([':id' => $userId]);
         return $stmt->fetch();
@@ -103,5 +107,72 @@ class UserModel extends Model {
             ':password' => $hashedPassword,
             ':id' => $userId
         ]);
+    }
+
+    /**
+     * Get all permissions for a user based on their role
+     * 
+     * @param int $userId The user ID
+     * @return array Array of permission slugs
+     */
+    public function getPermissions($userId) {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT p.slug
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            INNER JOIN role_permissions rp ON r.id = rp.role_id
+            INNER JOIN permissions p ON rp.permission_id = p.id
+            WHERE u.id_user = :userId
+        ");
+        $stmt->execute([':userId' => $userId]);
+        
+        $permissions = [];
+        while ($row = $stmt->fetch()) {
+            $permissions[] = $row['slug'];
+        }
+        
+        return $permissions;
+    }
+
+    /**
+     * Check if a user has a specific permission
+     * 
+     * @param int $userId The user ID
+     * @param string $permissionSlug The permission slug to check (e.g., 'edit_layout')
+     * @return bool True if user has the permission, false otherwise
+     */
+    public function hasPermission($userId, $permissionSlug) {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as count
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            INNER JOIN role_permissions rp ON r.id = rp.role_id
+            INNER JOIN permissions p ON rp.permission_id = p.id
+            WHERE u.id_user = :userId AND p.slug = :slug
+        ");
+        $stmt->execute([
+            ':userId' => $userId,
+            ':slug' => $permissionSlug
+        ]);
+        
+        $result = $stmt->fetch();
+        return $result['count'] > 0;
+    }
+
+    /**
+     * Get user's role information
+     * 
+     * @param int $userId The user ID
+     * @return array|false Role data or false if not found
+     */
+    public function getUserRole($userId) {
+        $stmt = $this->db->prepare("
+            SELECT r.id, r.name, r.description
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            WHERE u.id_user = :userId
+        ");
+        $stmt->execute([':userId' => $userId]);
+        return $stmt->fetch();
     }
 }

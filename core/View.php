@@ -45,10 +45,13 @@ abstract class View {
 
     /**
      * Escape HTML output
-     * @param string $string
+     * @param string|null $string
      * @return string
      */
     protected function escape($string) {
+        if ($string === null) {
+            return '';
+        }
         return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }
 

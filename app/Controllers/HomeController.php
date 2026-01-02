@@ -9,8 +9,7 @@ class HomeController extends Controller
     /**
      * Homepage - Display slideshow and recent news
      * 
-     * Note: This controller loads multiple models (NewsModel, ProjectModel, 
-     * PublicationModel, PartnerModel).
+     * Now uses dynamic layout configuration from database
      */
     public function index()
     {
@@ -39,15 +38,33 @@ class HomeController extends Controller
         // Get first page for initial display
         $upcomingEvents = array_slice($allUpcomingEvents, 0, $eventsPerPage);
 
-        // Prepare data (ensure arrays even if empty)
-        $data = [
+        // Load dynamic layout configuration from database
+        $components = $this->loadDynamicComponents('home', [
             'recentNews' => $recentNews ?: [],
             'recentProjects' => $recentProjects ?: [],
             'recentPublications' => $recentPublications ?: [],
             'recentPartners' => $recentPartners ?: [],
             'allPartners' => $allPartners ?: [],
             'upcomingEvents' => $upcomingEvents ?: [],
-            'allUpcomingEvents' => $allUpcomingEvents ?: [], // Pass all events for JS
+            'allUpcomingEvents' => $allUpcomingEvents ?: [],
+            'eventsPage' => $eventsPage,
+            'eventsTotalPages' => $eventsTotalPages,
+            'eventsPerPage' => $eventsPerPage,
+            'lang' => $lang,
+            'baseUrl' => BASE_URL
+        ]);
+
+        // Prepare data
+        $data = [
+            'components' => $components,
+            // Keep legacy data for backward compatibility if needed
+            'recentNews' => $recentNews ?: [],
+            'recentProjects' => $recentProjects ?: [],
+            'recentPublications' => $recentPublications ?: [],
+            'recentPartners' => $recentPartners ?: [],
+            'allPartners' => $allPartners ?: [],
+            'upcomingEvents' => $upcomingEvents ?: [],
+            'allUpcomingEvents' => $allUpcomingEvents ?: [],
             'eventsPage' => $eventsPage,
             'eventsTotalPages' => $eventsTotalPages,
             'eventsPerPage' => $eventsPerPage
@@ -55,6 +72,58 @@ class HomeController extends Controller
 
         // Load Home View
         $this->view('Home', $data, $lang);
+    }
+
+    /**
+     * Load dynamic components from database configuration
+     * 
+     * @param string $pageName The page name to load layout for
+     * @param array $pageData All available data for component props
+     * @return array Array of instantiated component objects
+     */
+    private function loadDynamicComponents($pageName, $pageData)
+    {
+        $components = [];
+        
+        try {
+            // Get layout configuration from database
+            $db = Database::getInstance();
+            $stmt = $db->prepare("
+                SELECT component_class, props_json, order_index
+                FROM layout_settings
+                WHERE page_name = :pageName AND is_visible = 1
+                ORDER BY order_index ASC
+            ");
+            $stmt->execute([':pageName' => $pageName]);
+            $layoutConfig = $stmt->fetchAll();
+            
+            // Instantiate each component with its configured props
+            foreach ($layoutConfig as $config) {
+                $componentClass = $config['component_class'];
+                
+                // Check if component class exists
+                if (!class_exists($componentClass)) {
+                    error_log("Component class not found: {$componentClass}");
+                    continue;
+                }
+                
+                // Merge default props with JSON config if provided
+                $props = $pageData;
+                if (!empty($config['props_json'])) {
+                    $jsonProps = json_decode($config['props_json'], true);
+                    if ($jsonProps) {
+                        $props = array_merge($props, $jsonProps);
+                    }
+                }
+                
+                // Instantiate and store component
+                $components[] = new $componentClass($props);
+            }
+        } catch (Exception $e) {
+            error_log("Error loading dynamic components: " . $e->getMessage());
+        }
+        
+        return $components;
     }
 
     /**

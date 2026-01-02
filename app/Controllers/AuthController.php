@@ -41,8 +41,14 @@ class AuthController extends Controller {
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['nom'] = $user['nom'];
                     $_SESSION['prenom'] = $user['prenom'];
-                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['role'] = $user['role'] ?? null; // Legacy field
+                    $_SESSION['role_id'] = $user['role_id'];
+                    $_SESSION['role_name'] = $user['role_name'];
                     $_SESSION['photo'] = $user['photo'];
+                    
+                    // Load user permissions and store in session
+                    $permissions = $userModel->getPermissions($user['id_user']);
+                    $_SESSION['permissions'] = $permissions;
                     
                     // Redirect to dashboard
                     $this->redirect('Dashboard', 'index');
@@ -81,6 +87,19 @@ class AuthController extends Controller {
      */
     public static function hasRole($role) {
         return isset($_SESSION['role']) && $_SESSION['role'] === $role;
+    }
+
+    /**
+     * Check if user has a specific permission
+     * 
+     * @param string $permissionSlug The permission slug to check
+     * @return bool True if user has permission, false otherwise
+     */
+    public static function hasPermission($permissionSlug) {
+        if (!isset($_SESSION['permissions']) || !is_array($_SESSION['permissions'])) {
+            return false;
+        }
+        return in_array($permissionSlug, $_SESSION['permissions']);
     }
 
     /**

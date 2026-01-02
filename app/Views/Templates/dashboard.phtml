@@ -72,7 +72,7 @@
                     <?php endif; ?>
                     <div>
                         <strong style="color: var(--text-light);">Rôle:</strong><br>
-                        <?= $this->escape($user['role']) ?>
+                        <?= $this->escape($user['role_name'] ?? $user['role'] ?? 'N/A') ?>
                     </div>
                 </div>
             </div>

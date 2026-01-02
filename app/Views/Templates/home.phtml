@@ -1,245 +1,27 @@
-<!-- Homepage Template -->
+<!-- Homepage Template - Dynamic Component Rendering -->
 
-<!-- Slideshow Section -->
-<?php if (!empty($recentNews)): ?>
-<section class="diapo-div">
-    <div class="diapo">
-        <?php foreach ($recentNews as $index => $news): ?>
-            <?php if ($index > 0): ?>
-            <div class="separator"></div>
-            <?php endif; ?>
-            
-            <div class="slide-item">
-                <?php if ($news['image_url']): ?>
-                    <img src="<?= BASE_URL . $this->escape($news['image_url']) ?>" 
-                         alt="<?= $this->escape($news['titre']) ?>"
-                         onerror="this.src='<?= BASE_URL ?>assets/img/news-placeholder.jpg'">
-                <?php else: ?>
-                    <img src="<?= BASE_URL ?>assets/img/news-placeholder.jpg" alt="<?= $this->escape($news['titre']) ?>">
-                <?php endif; ?>
-                
-                <div class="slide-overlay">
-                    <div class="slide-content">
-                        <h2><?= $this->escape($news['titre']) ?></h2>
-                        <p><?= $this->escape(substr($news['description'], 0, 150)) ?>...</p>
-                        <a href="<?= BASE_URL ?>index.php?controller=Event&action=detail&id=<?= $news['id_event'] ?>" 
-                           class="btn btn-primary"><?= $lang['view_details'] ?></a>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</section>
-<?php endif; ?>
+<?php
+/**
+ * Dynamic Layout System
+ * 
+ * Components are loaded from the database (layout_settings table)
+ * and rendered in the configured order.
+ * 
+ * To modify the layout:
+ * 1. Go to the database
+ * 2. Update the layout_settings table for page_name = 'home'
+ * 3. Change order_index to reorder components
+ * 4. Set is_visible = 0 to hide components
+ */
 
-<!-- Scientific Updates Section -->
-<section class="scientific-updates mt-4">
-    <h2 class="section-title"><?= $lang['section_scientific_news'] ?></h2>
-    <div class="updates-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-        
-        <!-- Recent Projects -->
-        <div class="update-column">
-            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <?= $lang['recent_projects'] ?>
-            </h3>
-            <?php if (!empty($recentProjects)): ?>
-                <div class="updates-cards">
-                    <?php foreach ($recentProjects as $project): ?>
-                    <div class="update-card">
-                        <h4 class="update-card-title">
-                            <a href="<?= BASE_URL ?>index.php?controller=Project&action=detail&id=<?= $project['id_project'] ?>">
-                                <?= $this->escape($project['titre']) ?>
-                            </a>
-                        </h4>
-                        <span class="badge badge-secondary"><?= $this->escape($project['domaine']) ?></span>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p><?= $lang['no_recent_projects'] ?></p>
-            <?php endif; ?>
-            <a href="<?= BASE_URL ?>index.php?controller=Project&action=index" class="btn btn-sm btn-outline-primary"><?= $lang['view_all_projects'] ?></a>
-        </div>
+// Render all components in configured order
+if (!empty($components)) {
+    foreach ($components as $component) {
+        echo $component->render();
+    }
+} else {
+    // Fallback message if no components configured
+    echo '<div class="alert alert-info">No components configured for this page.</div>';
+}
+?>
 
-        <!-- Recent Publications -->
-        <div class="update-column">
-            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <?= $lang['recent_publications'] ?>
-            </h3>
-            <?php if (!empty($recentPublications)): ?>
-                <div class="updates-cards">
-                    <?php foreach ($recentPublications as $pub): ?>
-                    <div class="update-card">
-                        <p class="update-card-title">
-                            <?= $this->escape($pub['titre']) ?>
-                        </p>
-                        <small class="update-card-meta"><?= $lang['year_label'] ?>: <?= $this->escape($pub['annee']) ?></small>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p><?= $lang['no_recent_publications'] ?></p>
-            <?php endif; ?>
-            <a href="<?= BASE_URL ?>index.php?controller=Publication&action=index" class="btn btn-sm btn-outline-primary"><?= $lang['view_all_publications'] ?></a>
-        </div>
-
-        <!-- Collaborations -->
-        <div class="update-column">
-            <h3 style="font-size: 1.3rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <?= $lang['collaborations'] ?>
-            </h3>
-            <?php if (!empty($recentPartners)): ?>
-                <div class="updates-cards">
-                    <?php foreach ($recentPartners as $partner): ?>
-                    <div class="update-card collaboration-card">
-                        <?php if ($partner['logo_url']): ?>
-                            <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" alt="<?= $this->escape($partner['nom']) ?>" class="collab-logo">
-                        <?php endif; ?>
-                        <div class="collab-info">
-                            <h4 class="update-card-title"><?= $this->escape($partner['nom']) ?></h4>
-                            <small class="update-card-meta"><?= $this->escape($partner['type']) ?></small>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p><?= $lang['no_new_collaborations'] ?></p>
-            <?php endif; ?>
-            <a href="#partners-section" class="btn btn-sm btn-outline-primary scroll-to-section"><?= $lang['view_partners'] ?></a>
-        </div>
-    </div>
-</section>
-
-<!-- Lab Overview Section -->
-<section class="lab-overview mt-4">
-    <h2 class="section-title"><?= $lang['lab_overview'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem;">
-        <p style="line-height: 1.8; font-size: 1.1rem;">
-            <?= $lang['lab_description_intro'] ?>
-        </p>
-        <ul style="line-height: 1.8; font-size: 1.05rem; margin: 1.5rem 0; padding-left: 2rem;">
-            <li><?= $lang['lab_description_list_1'] ?></li>
-            <li><?= $lang['lab_description_list_2'] ?></li>
-            <li><?= $lang['lab_description_list_3'] ?></li>
-            <li><?= $lang['lab_description_list_4'] ?></li>
-        </ul>
-        <p style="line-height: 1.8; font-size: 1.1rem;">
-            <?= $lang['lab_description_outro_1'] ?>
-        </p>
-        <p style="line-height: 1.8; font-size: 1.1rem; margin-top: 1rem;">
-            <?= $lang['lab_description_outro_2'] ?>
-        </p>
-
-        <div style="margin-top: 1.5rem;">
-            <a href="<?= BASE_URL ?>index.php?controller=Team&action=presentation#organigramme-section" class="btn btn-secondary">
-                <?= $lang['view_organigram'] ?>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- Upcoming Events Section -->
-<?php if (!empty($upcomingEvents)): ?>
-<section class="upcoming-events mt-4">
-    <h2 class="section-title"><?= $lang['upcoming_events'] ?></h2>
-    <div class="card-grid" id="upcoming-events-grid"
-         data-page="<?= (int)($eventsPage ?? 1) ?>"
-         data-total-pages="<?= (int)($eventsTotalPages ?? 1) ?>"
-         data-per-page="<?= (int)($eventsPerPage ?? 3) ?>"
-         data-all-events="<?= htmlspecialchars(json_encode($allUpcomingEvents ?? []), ENT_QUOTES, 'UTF-8') ?>">
-        <?php foreach ($upcomingEvents as $event): ?>
-        <div class="card">
-            <?php if ($event['image_url']): ?>
-                <img src="<?= BASE_URL . $this->escape($event['image_url']) ?>" 
-                     alt="<?= $this->escape($event['titre']) ?>"
-                     onerror="this.src='<?= BASE_URL ?>assets/img/event-placeholder.jpg'">
-            <?php else: ?>
-                <img src="<?= BASE_URL ?>assets/img/event-placeholder.jpg" alt="<?= $this->escape($event['titre']) ?>">
-            <?php endif; ?>
-            
-            <div class="card-body">
-                <h3 class="card-title"><?= $this->escape($event['titre']) ?></h3>
-                
-                <div class="card-meta">
-                    <span><strong><?= $lang['event_date'] ?>:</strong> 
-                        <?= date('d/m/Y H:i', strtotime($event['date_event'])) ?>
-                    </span>
-                    <?php if ($event['lieu']): ?>
-                    <span><strong><?= $lang['event_location'] ?>:</strong> 
-                        <?= $this->escape($event['lieu']) ?>
-                    </span>
-                    <?php endif; ?>
-                </div>
-                
-                <div class="mb-2">
-                    <span class="badge badge-primary"><?= $this->escape($event['type']) ?></span>
-                </div>
-                
-                <p class="card-text">
-                    <?= $this->escape(substr($event['description'], 0, 120)) ?>...
-                </p>
-                
-                <a href="<?= BASE_URL ?>index.php?controller=Event&action=detail&id=<?= $event['id_event'] ?>" 
-                   class="btn btn-primary"><?= $lang['read_more'] ?></a>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-
-    <?php if (!empty($eventsTotalPages) && (int)$eventsTotalPages > 1): ?>
-    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-        <button type="button" class="btn btn-secondary" id="events-prev"><?= $lang['previous'] ?></button>
-        <div style="align-self: center; color: var(--text-light);">
-            <?= $lang['page'] ?> <span id="events-page-label"><?= (int)($eventsPage ?? 1) ?></span> / <span id="events-total-label"><?= (int)($eventsTotalPages ?? 1) ?></span>
-        </div>
-        <button type="button" class="btn btn-secondary" id="events-next"><?= $lang['next'] ?></button>
-    </div>
-    <?php endif; ?>
-</section>
-<?php endif; ?>
-
-<!-- Partners Section -->
-<section class="partners-section mt-4 mb-4" id="partners-section">
-    <h2 class="section-title"><?= $lang['our_partners'] ?></h2>
-    <div style="background: var(--bg-light); padding: 2rem;">
-        <p style="color: var(--text-light); margin-bottom: 2rem; text-align: center;">
-            <?= $lang['partners_intro'] ?>
-        </p>
-        
-        <?php if (!empty($allPartners)): ?>
-            <div class="partners-carousel-container">
-                <button type="button" class="carousel-arrow carousel-arrow-left" id="partners-prev">
-                    ‹
-                </button>
-                
-                <div class="partners-carousel-mask">
-                    <div class="partners-carousel" id="partners-carousel">
-                        <?php foreach ($allPartners as $partner): ?>
-                            <div class="partner-carousel-item">
-                                <?php if ($partner['logo_url']): ?>
-                                    <img src="<?= BASE_URL . $this->escape($partner['logo_url']) ?>" 
-                                         alt="<?= $this->escape($partner['nom']) ?>"
-                                         class="partner-logo">
-                                <?php else: ?>
-                                    <div class="partner-badge">
-                                        <?= $this->escape($partner['nom']) ?>
-                                    </div>
-                                <?php endif; ?>
-                                <p class="partner-name"><?= $this->escape($partner['nom']) ?></p>
-                                <p class="partner-type"><?= $this->escape($partner['type']) ?></p>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                
-                <button type="button" class="carousel-arrow carousel-arrow-right" id="partners-next">
-                    ›
-                </button>
-            </div>
-        <?php else: ?>
-            <div style="text-align: center; padding: 2rem;">
-                <p style="color: var(--text-light);"><?= $lang['no_partners_available'] ?></p>
-            </div>
-        <?php endif; ?>
-    </div>
-</section>
